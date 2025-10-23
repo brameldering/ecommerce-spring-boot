@@ -106,5 +106,5 @@ tasks.named('check') {
 }
 
 springBoot {
-    mainClass = 'com.example.ecommerce_demo.EcommerceDemoApplication'
+    mainClass = 'com.example.ecommercedemo.EcommerceDemoApplication'
 }
