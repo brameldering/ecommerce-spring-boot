@@ -1,0 +1,90 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.6'
+	id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.openapi.generator' version '7.16.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+afterEvaluate {
+    sourceSets.main.java.srcDirs += layout.buildDirectory.dir("generated/sources/annotationProcessor/java/main").get().asFile
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'io.springfox:springfox-oas:3.0.0'
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.5.6')
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'io.swagger:swagger-annotations:1.6.4'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$rootDir/src/main/resources/openapi.yaml"
+    apiPackage = "com.example.api"
+    modelPackage = "com.example.model"
+    configOptions = [
+            dateLibrary: "java8"
+    ]
+}
+
+tasks.compileJava {
+    dependsOn tasks.openApiGenerate
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// To separate unit from integration tests
+sourceSets {
+    integrationTest {
+        java.srcDir file('src/integrationTest/java')
+        resources.srcDir file('src/integrationTest/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+// Instead of setting the annotation processor output manually, let Gradle handle it via the standard destinationDir and avoid using deprecated APIs
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            "-Xlint:unchecked",
+            "-Xlint:deprecation"
+    ]
+}
+
+// Integration test config
+tasks.named('check') {
+    dependsOn(tasks.named('integrationTest'))
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter(tasks.test.get())
+    useJUnitPlatform()
+}
+
