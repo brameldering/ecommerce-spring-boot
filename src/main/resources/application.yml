@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    name: ecomm
+    url: jdbc:postgresql://localhost:5432/ecomm
+    username: ${DB_USERNAME:packt} # Override via env var in CI/production
+    password: ${DB_PASSWORD:packt}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    open-in-view: false  # recommended to avoid lazy-loading issues in web layer
+    show-sql: true
+    format_sql: true
+    hibernate:
+      ddl-auto: none # DON'T use create-drop or update in production; use Flyway instead
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_schema: ecomm
+  sql:
+    init:
+      mode: never # don't use Spring's data.sql initialization when using Flyway
+  flyway:
+    enabled: true
+    locations: classpath:db/migration # place migrations under src/main/resources/db/migration
+    baseline-on-migrate: true # useful when adding Flyway to an existing DB
+    placeholder-replacement: true
+    schemas: ecomm  # migrate this schema; set to 'public' if you use default schema
+    # If you want Flyway to use its own connection instead of the main datasource, uncomment:
+    # url: jdbc:postgresql://localhost:5432/ecomm
+    # user: ${DB_USERNAME:packt}
+    # password: ${DB_PASSWORD:packt}
+
+# Logging / dev helpers (toggle as needed)
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

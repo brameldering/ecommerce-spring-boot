@@ -3,11 +3,18 @@ plugins {
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.openapi.generator' version '7.16.0'
+    id 'org.flywaydb.flyway' version '9.22.0'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
+
+// centralize versions used in this build
+ext {
+    postgresqlVersion = '42.6.0'
+    flywayVersion = '9.21.2'
+}
 
 tasks.openApiGenerate {
     doFirst {
@@ -39,10 +46,22 @@ dependencies {
     implementation platform('org.springframework.boot:spring-boot-dependencies:3.5.6')
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.15'
 
+    // JPA + PostgreSQL driver (runtime)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
+
+    // Flyway runtime libraries
+    implementation "org.flywaydb:flyway-core:${flywayVersion}"
+//    implementation "org.flywaydb:flyway-database-postgresql:${flywayVersion}"
+
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     compileOnly 'org.projectlombok:lombok:1.18.30'
     compileOnly 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+
+    testImplementation 'org.testcontainers:testcontainers:1.19.7'
+    testImplementation 'org.testcontainers:postgresql:1.19.7'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -107,4 +126,13 @@ tasks.named('check') {
 
 springBoot {
     mainClass = 'com.example.ecommercedemo.EcommerceDemoApplication'
+}
+
+// Flyway configuration (replaces the Maven plugin configuration)
+flyway {
+    url = 'jdbc:postgresql://localhost:5432/ecomm'
+    user = 'packt'
+    password = 'packt'
+    // optionally set locations etc:
+    // locations = ['filesystem:src/main/resources/db/migration']
 }

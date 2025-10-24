@@ -1,11 +1,13 @@
 package com.example.ecommercedemo.controllers;
 
-import static org.springframework.http.ResponseEntity.ok;
+//import static org.springframework.http.ResponseEntity.ok;
 
 import com.example.api.CartApi;
 import com.example.model.Cart;
 import com.example.model.Item;
-import java.util.Collections;
+
+import java.util.ArrayList;
+//import java.util.Collections;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -22,7 +24,8 @@ public class CartsController implements CartApi {
   @Override
   public ResponseEntity<List<Item>> addCartItemsByCustomerId(String customerId, @Valid Item item) {
     log.info("Request for customer ID: {}\nItem: {}", customerId, item);
-    return ok(Collections.EMPTY_LIST);
+//    return ok(Collections.EMPTY_LIST);
+    return ResponseEntity.ok(new ArrayList<>());
   }
 
   @Override
