@@ -17,11 +17,6 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-/**
- * @author : github.com/sharmasourabh
- * @project : Chapter03 - Modern API Development with Spring and Spring Boot Ed 2
- * @created : 31/10/2022, Monday
- **/
 @ControllerAdvice
 public class RestApiErrorHandler {
 

@@ -44,7 +44,7 @@ public class CartsController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Cart>> getCartByCustomerId(String customerId) {
+  public ResponseEntity<Cart> getCartByCustomerId(String customerId) {
     throw new RuntimeException("Not implemented yet");
   }
 
@@ -52,5 +52,5 @@ public class CartsController implements CartApi {
   public ResponseEntity<List<Item>> getCartItemsByCustomerId(String customerId) {return null;}
 
   @Override
-  public ResponseEntity<List<Item>> getCartItemsByItemId(String customerId, String itemId) {return null;}
+  public ResponseEntity<Item> getCartItemsByItemId(String customerId, String itemId) {return null;}
 }
