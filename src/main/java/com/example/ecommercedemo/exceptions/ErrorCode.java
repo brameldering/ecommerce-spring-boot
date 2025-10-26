@@ -4,9 +4,6 @@ package com.example.ecommercedemo.exceptions;
  * An enumeration of error codes and associated i18n message keys for order
  * related validation errors.
  *
- * @author : github.com/sharmasourabh
- * @project : Chapter03 - Modern API Development with Spring and Spring Boot Ed 2
- * @created : 31/10/2022, Monday
  **/
 public enum ErrorCode {
   // Internal Errors: 1 to 0999

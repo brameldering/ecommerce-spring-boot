@@ -35,8 +35,8 @@ public class AddressEntity {
   @Column(name = "COUNTRY")
   private String country;
 
-  @Column(name = "PINCODE")
-  private String pincode;
+  @Column(name = "ZIPCODE")
+  private String zipcode;
 
   @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY, orphanRemoval = true)
   private List<OrderEntity> orders;

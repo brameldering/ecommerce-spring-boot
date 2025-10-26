@@ -87,7 +87,7 @@ create TABLE IF NOT EXISTS ecomm.address ( id uuid NOT NULL DEFAULT gen_random_u
     city varchar(24),
     state varchar(24),
     country varchar(24),
-    pincode varchar(10),
+    zipcode varchar(10),
     PRIMARY KEY(id)
     );
 
@@ -151,6 +151,7 @@ create TABLE IF NOT EXISTS ecomm.item (id uuid NOT NULL DEFAULT gen_random_uuid(
     PRIMARY KEY(id)
     );
 
+-- Order items are part of a transactional history. Having a separate, stable ID makes it easy to reference this specific line item in logs, invoices, or subsequent database operations (like returns or tracking changes) without needing to combine the order_id and item_id.
 create TABLE IF NOT EXISTS ecomm.order_item (id uuid NOT NULL DEFAULT gen_random_uuid(),
     order_id uuid NOT NULL,
     item_id uuid NOT NULL,
@@ -179,6 +180,9 @@ create TABLE IF NOT EXISTS ecomm.cart (id uuid NOT NULL DEFAULT gen_random_uuid(
     PRIMARY KEY(id)
     );
 
+
+
+-- The composite primary key enforces this business rule directly in the database: you cannot insert the same cart_id and item_id pair twice. The identity of the row is naturally defined by its relationship. For simple mapping tables like this, using the foreign keys as the composite primary key can sometimes be more efficient for lookups tied to the parent tables.
 create TABLE IF NOT EXISTS ecomm.cart_item (cart_id uuid NOT NULL, item_id uuid NOT NULL, FOREIGN KEY (cart_id)
     REFERENCES ecomm.cart(id),
     FOREIGN KEY(item_id)

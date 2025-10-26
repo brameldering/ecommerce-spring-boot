@@ -46,8 +46,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
 
   @Override
   public Optional<OrderEntity> insert(NewOrder m) {
-    // Items are already in cart and saved in db when user places the order
-    // Here, you can also populate the other Order details like address, card etc.
+    // Items are in db (cart, cart_item and item) and saved to db as an order
     Iterable<ItemEntity> dbItems = itemRepo.findByCustomerId(m.getCustomerId());
     List<ItemEntity> items = StreamSupport.stream(dbItems.spliterator(), false).toList();
     if (items.size() < 1) {

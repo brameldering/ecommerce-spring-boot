@@ -878,13 +878,13 @@ components:
       type: object
       properties:
         id:
-          description: Order identifier
+          description: Address identifier
           type: string
         number:
           description: house of flat number
           type: string
         residency:
-          description: Socieity or building name
+          description: Society or building name
           type: string
         street:
           description: street name
@@ -898,7 +898,7 @@ components:
         country:
           description: country name
           type: string
-        pincode:
+        zipcode:
           description: postal code
           type: string
       xml:
@@ -1023,7 +1023,9 @@ components:
       xml:
         name: URI
     BigDecimal:
-      type: BigDecimal
+      type: number
+      format: double
+      description: High-precision decimal number (maps to BigDecimal)
     Authorization:
       type: object
       properties:
