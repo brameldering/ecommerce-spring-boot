@@ -797,32 +797,41 @@ components:
     Cart:
       description: Shopping Cart of the user
       type: object
+      required:
+        - customerId
       properties:
         id:
           description: Cart Identifier
           type: string
+          minLength: 1
         customerId:
           description: Id of the customer who possesses the cart
           type: string
         items:
-          description: Collection of items in cart.
-          type: array
-          items:
-            $ref: '#/components/schemas/Item'
+           description: Collection of items in cart.
+           type: array
+           items:
+             $ref: '#/components/schemas/Item'
     Item:
       description: Items in shopping cart
       type: object
+      required:
+        - quantity
+        - unitPrice
       properties:
         id:
           description: Item Identifier
           type: string
+          minLength: 1
         quantity:
           description: The item quantity
           type: integer
           format: int32
+          minimum: 0
         unitPrice:
-          description: The item's price per unit
-          $ref: '#/components/schemas/BigDecimal'
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+            - description: The item's price per unit
     Order:
       description: Represents an order
       type: object
@@ -830,6 +839,7 @@ components:
         id:
           description: Order identifier
           type: string
+          minLength: 1
         customer:
           $ref: '#/components/schemas/User'
         address:
@@ -880,6 +890,7 @@ components:
         id:
           description: Address identifier
           type: string
+          minLength: 1
         number:
           description: house of flat number
           type: string
@@ -905,10 +916,15 @@ components:
         name: Address
     Card:
       type: object
+      required:
+        - cardNumber
+        - expires
+        - cvv
       properties:
         id:
           description: Order identifier
           type: string
+          minLength: 1
         cardNumber:
           description: Card Number
           type: string
@@ -938,6 +954,7 @@ components:
         id:
           description: Order identifier
           type: string
+          minLength: 1
         authorized:
           description: Flag that specified whether payment is authorized or not
           type: boolean
@@ -952,6 +969,7 @@ components:
         id:
           description: Shipment Identifier
           type: string
+          minLength: 1
         carrier:
           description: Shipping Carrier
           type: string
@@ -971,6 +989,7 @@ components:
         orderId:
           description: Order Identifier
           type: string
+          minLength: 1
         address:
           $ref: '#/components/schemas/Address'
         itemCount:
@@ -982,19 +1001,28 @@ components:
 
     User:
       type: object
+      required:
+        - username
+        - email
+        - password
       properties:
         id:
           type: string
+          minLength: 1
         username:
           type: string
+          minLength: 3
+          maxLength: 40
         firstName:
           type: string
         lastName:
           type: string
         email:
           type: string
+          format: email
         password:
           type: string
+          minLength: 4
         phone:
           type: string
         userStatus:
@@ -1007,6 +1035,7 @@ components:
       properties:
         customerId:
           type: string
+          minLength: 1
         address:
           $ref: '#/components/schemas/Address'
         card:
@@ -1032,6 +1061,7 @@ components:
         orderId:
           description: Order Identification
           type: string
+          minLength: 1
         time:
           description: Timestamp when this authorization was created
           type: string
@@ -1080,10 +1110,15 @@ components:
     Product:
       description: Product information
       type: object
+      required:
+        - id
+        - name
+        - price
       properties:
         id:
           description: Product identifier
           type: string
+          minLength: 1
         name:
           description: Product Name
           type: string
@@ -1100,6 +1135,7 @@ components:
           description: Product count
           type: integer
           format: int32
+          minimum: 0
         tag:
           description: Tags associated with the product
           type: array
@@ -1112,6 +1148,7 @@ components:
         id:
           description: Tag identifier
           type: string
+          minLength: 1
         name:
           description: Tag Name
           type: string
