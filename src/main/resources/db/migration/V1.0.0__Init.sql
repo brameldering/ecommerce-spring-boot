@@ -87,7 +87,7 @@ create TABLE IF NOT EXISTS ecomm.address ( id uuid NOT NULL DEFAULT gen_random_u
     city varchar(24),
     state varchar(24),
     country varchar(24),
-    zipcode varchar(10),
+    pincode varchar(10),
     PRIMARY KEY(id)
     );
 
