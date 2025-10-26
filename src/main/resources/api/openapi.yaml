@@ -856,8 +856,9 @@ components:
           items:
             $ref: '#/components/schemas/Item'
         total:
-          description: Order total
-          $ref: '#/components/schemas/BigDecimal'
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+            - description: Order total
         payment:
           $ref: '#/components/schemas/Payment'
         shipment:
@@ -1091,8 +1092,9 @@ components:
         card:
           $ref: '#/components/schemas/Card'
         amount:
-          description: Payment amount
-          $ref: '#/components/schemas/BigDecimal'
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+            - description: Payment amount
       xml:
         name: PaymentReq
     CustomerInfoOnCard:
@@ -1129,8 +1131,9 @@ components:
           description: Product image's URL
           type: string
         price:
-          description: Product price
-          $ref: '#/components/schemas/BigDecimal'
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+            - description: Product price
         count:
           description: Product count
           type: integer
