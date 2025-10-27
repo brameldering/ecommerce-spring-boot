@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CartEntity;
-import com.example.model.Item;
+import com.example.ecommercedemo.model.Item;
 import jakarta.validation.Valid;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AuthorizationEntity;
-import com.example.model.PaymentReq;
+import com.example.ecommercedemo.model.PaymentReq;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 

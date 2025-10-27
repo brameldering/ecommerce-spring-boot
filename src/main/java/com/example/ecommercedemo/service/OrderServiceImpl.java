@@ -3,7 +3,7 @@ package com.example.ecommercedemo.service;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.repository.OrderRepository;
-import com.example.model.NewOrder;
+import com.example.ecommercedemo.model.NewOrder;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.util.Strings;

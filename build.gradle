@@ -10,32 +10,26 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
-// centralize versions used in this build
+// Centralized version management
 ext {
     postgresqlVersion = '42.6.0'
     flywayVersion = '9.21.2'
 }
 
-tasks.openApiGenerate {
-    doFirst {
-        def specFile = file(inputSpec)
-        if (!specFile.exists()) {
-            throw new GradleException("OpenAPI spec file not found: $specFile")
-        }
-    }
-}
-
+// Java toolchain
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
+// Repositories
 repositories {
     mavenCentral()
     maven { url 'https://repo.spring.io/milestone' }
 }
 
+// Dependencies
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
@@ -46,43 +40,53 @@ dependencies {
     implementation platform('org.springframework.boot:spring-boot-dependencies:3.5.6')
     implementation 'io.swagger.core.v3:swagger-annotations:2.2.15'
 
-    // JPA + PostgreSQL driver (runtime)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
 
-    // Flyway runtime libraries
     implementation "org.flywaydb:flyway-core:${flywayVersion}"
 //    implementation "org.flywaydb:flyway-database-postgresql:${flywayVersion}"
 
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     compileOnly 'org.projectlombok:lombok:1.18.30'
-    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
-    compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.3'
 
     testImplementation 'org.testcontainers:testcontainers:1.19.7'
     testImplementation 'org.testcontainers:postgresql:1.19.7'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// OpenAPI configuration
+def openApiSpecPath = "$rootDir/src/main/resources/api/openapi.yaml"
+
 openApiGenerate {
     generatorName = "spring"
-    inputSpec = "$rootDir/src/main/resources/api/openapi.yaml"
+    inputSpec = openApiSpecPath
     outputDir = "$buildDir/generated-sources/openapi"
-    apiPackage = "com.example.api"
-    modelPackage = "com.example.model"
+    configFile = "$rootDir/src/main/resources/api/config.json"
     configOptions = [
-            useJakartaEe: "true",
-            dateLibrary: "java8",
-            interfaceOnly: "true", // This tells the generator to emit only interfaces
-            skipDefaultInterface: "true", // Optional: avoids generating a default stub
-            useTags: "true", // Split files by tag
-            bigDecimalType: "BigDecimal", // BigDecimal mapping
-            useBigDecimals: "true"
+            apiPackage: "com.example.ecommercedemo.api",
+            modelPackage: "com.example.ecommercedemo.model"
+//      useJakartaEe: "true",
+//      dateLibrary: "java8",
+//      interfaceOnly: "true",
+//      skipDefaultInterface: "true",
+//      useTags: "true",
+//      bigDecimalType: "BigDecimal",
+//      useBigDecimals: "true"
     ]
     ignoreFileOverride = "$rootDir/src/main/resources/api/.openapi-generator-ignore"
+}
+
+tasks.openApiGenerate {
+    doFirst {
+        def specFile = file(openApiSpecPath)
+        if (!specFile.exists()) {
+            throw new GradleException("OpenAPI spec file not found: $specFile")
+        }
+    }
 }
 
 tasks.compileJava {
@@ -93,10 +97,7 @@ afterEvaluate {
     sourceSets.main.java.srcDirs += file("$buildDir/generated-sources/openapi/src/main/java")
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
-
+// Compiler options
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += [
             "-Xlint:unchecked",
@@ -104,7 +105,13 @@ tasks.withType(JavaCompile).configureEach {
     ]
 }
 
+// Integration test setup
 sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/generated-sources/openapi/src/main/java")
+        }
+    }
     integrationTest {
         java.srcDir file('src/integrationTest/java')
         resources.srcDir file('src/integrationTest/resources')
@@ -126,15 +133,19 @@ tasks.named('check') {
     dependsOn(tasks.named('integrationTest'))
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Spring Boot main class
 springBoot {
     mainClass = 'com.example.ecommercedemo.EcommerceDemoApplication'
 }
 
-// Flyway configuration (replaces the Maven plugin configuration)
+// Flyway configuration
 flyway {
     url = 'jdbc:postgresql://localhost:5432/ecomm'
     user = 'packt'
     password = 'packt'
-    // optionally set locations etc:
-    // locations = ['filesystem:src/main/resources/db/migration']
+//  locations = ['filesystem:src/main/resources/db/migration']
 }

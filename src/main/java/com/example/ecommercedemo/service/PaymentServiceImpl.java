@@ -4,7 +4,7 @@ import com.example.ecommercedemo.entity.AuthorizationEntity;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.repository.OrderRepository;
 import com.example.ecommercedemo.repository.PaymentRepository;
-import com.example.model.PaymentReq;
+import com.example.ecommercedemo.model.PaymentReq;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;

@@ -2,7 +2,7 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.repository.AddressRepository;
-import com.example.model.AddAddressReq;
+import com.example.ecommercedemo.model.AddAddressReq;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

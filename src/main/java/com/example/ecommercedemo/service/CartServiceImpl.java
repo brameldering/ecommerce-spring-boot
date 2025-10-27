@@ -7,7 +7,7 @@ import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.UserRepository;
-import com.example.model.Item;
+import com.example.ecommercedemo.model.Item;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

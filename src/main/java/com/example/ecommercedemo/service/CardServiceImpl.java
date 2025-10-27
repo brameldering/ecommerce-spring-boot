@@ -4,7 +4,7 @@ import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.repository.CardRepository;
 import com.example.ecommercedemo.repository.UserRepository;
-import com.example.model.AddCardReq;
+import com.example.ecommercedemo.model.AddCardReq;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 

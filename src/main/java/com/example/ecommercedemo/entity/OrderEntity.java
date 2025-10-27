@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.model.Order.StatusEnum;
+import com.example.ecommercedemo.model.Order.StatusEnum;
 
 @Entity
 @Table(name = "orders")

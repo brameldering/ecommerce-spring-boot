@@ -2,18 +2,27 @@
   "library": "spring-boot",
   "dateLibrary": "java8",
   "hideGenerationTimestamp": true,
-  "modelPackage": "com.packt.modern.api.model",
-  "apiPackage": "com.packt.modern.api",
-  "invokerPackage": "com.packt.modern.api",
+  "modelPackage": "com.example.ecommercedemo.model",
+  "apiPackage": "com.example.ecommercedemo.api",
+  "invokerPackage": "com.example.ecommercedemo.api",
   "serializableModel": true,
   "useTags": true,
-  "useGzipFeature" : true,
+  "useGzipFeature": true,
   "hateoas": true,
   "unhandledException": true,
   "useSpringBoot3": true,
   "useSwaggerUI": true,
+  "typeMappings": {
+    "URI": "URI",
+    "BigDecimal": "String",
+    "EntityModel": "EntityModel"
+  },
   "importMappings": {
-    "ResourceSupport":"org.springframework.hateoas.RepresentationModel",
-    "Link": "org.springframework.hateoas.Link"
+    "ResourceSupport": "org.springframework.hateoas.RepresentationModel",
+    "Link": "org.springframework.hateoas.Link",
+    "EntityModel": "org.springframework.hateoas.EntityModel"
+  },
+  "schemaMappings": {
+    "BigDecimal": "java.math.BigDecimal"
   }
 }

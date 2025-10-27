@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.repository;
 
 import com.example.ecommercedemo.entity.OrderEntity;
-import com.example.model.NewOrder;
+import com.example.ecommercedemo.model.NewOrder;
 
 import java.util.Optional;
 

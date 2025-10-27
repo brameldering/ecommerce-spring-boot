@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CardEntity;
-import com.example.model.AddCardReq;
+import com.example.ecommercedemo.model.AddCardReq;
 import jakarta.validation.Valid;
 
 import java.util.Optional;

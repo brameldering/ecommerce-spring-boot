@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.ItemEntity;
-import com.example.model.Item;
+import com.example.ecommercedemo.model.Item;
 
 import java.util.List;
 

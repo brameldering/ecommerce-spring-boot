@@ -2,7 +2,7 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.ProductEntity;
-import com.example.model.Item;
+import com.example.ecommercedemo.model.Item;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
