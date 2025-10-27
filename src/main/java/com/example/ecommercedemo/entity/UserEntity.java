@@ -58,5 +58,8 @@ public class UserEntity {
   @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, orphanRemoval = true)
   private List<OrderEntity> orders;
 
+  public List<CardEntity> getCards() {
+    return cards;
+  }
 }
 
