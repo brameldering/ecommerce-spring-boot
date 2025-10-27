@@ -797,8 +797,6 @@ components:
     Cart:
       description: Shopping Cart of the user
       type: object
-      required:
-        - customerId
       properties:
         id:
           description: Cart Identifier
@@ -923,7 +921,7 @@ components:
         - cvv
       properties:
         id:
-          description: Order identifier
+          description: Card identifier
           type: string
           minLength: 1
         cardNumber:
@@ -953,7 +951,7 @@ components:
       type: object
       properties:
         id:
-          description: Order identifier
+          description: Payment identifier
           type: string
           minLength: 1
         authorized:
@@ -988,7 +986,7 @@ components:
       type: object
       properties:
         orderId:
-          description: Order Identifier
+          description: ShippingReq Identifier
           type: string
           minLength: 1
         address:
@@ -999,7 +997,6 @@ components:
           format: int32
       xml:
         name: ShippingReq
-
     User:
       type: object
       required:
@@ -1053,9 +1050,11 @@ components:
       xml:
         name: URI
     BigDecimal:
-      type: number
-      format: double
-      description: High-precision decimal number (maps to BigDecimal)
+      type: string
+      description: High-precision decimal number. Transmitted as a string to preserve precision.
+      example: "123.45"
+      # Pattern for validation, ensures the string contains only a number, an optional minus sign at the beginning, and an optional decimal part:
+      pattern: '^-?\d+(\.\d+)?$'
     Authorization:
       type: object
       properties:
@@ -1071,7 +1070,7 @@ components:
           description: Flat that specify whether the payment is authorized
           type: boolean
         message:
-          description: Approavl or rejection message
+          description: Approval or rejection message
           type: string
         error:
           description: Processing error description, if any

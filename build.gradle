@@ -78,7 +78,9 @@ openApiGenerate {
             dateLibrary: "java8",
             interfaceOnly: "true", // This tells the generator to emit only interfaces
             skipDefaultInterface: "true", // Optional: avoids generating a default stub
-            useTags: "true" // Split files by tag
+            useTags: "true", // Split files by tag
+            bigDecimalType: "BigDecimal", // BigDecimal mapping
+            useBigDecimals: "true"
     ]
     ignoreFileOverride = "$rootDir/src/main/resources/api/.openapi-generator-ignore"
 }
