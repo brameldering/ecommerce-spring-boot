@@ -1,7 +1,9 @@
 package com.example.ecommercedemo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
@@ -29,30 +31,35 @@ public class OrderEntity {
   @Enumerated(EnumType.STRING)
   private StatusEnum status;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="CUSTOMER_ID", nullable=false)
+  @ToString.Exclude
   private UserEntity userEntity;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID", insertable=false, updatable=false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID")
+  @ToString.Exclude
+  @JsonBackReference
   private AddressEntity addressEntity;
 
+  // A Payment usually only belongs to one Order, so deleting the Order should delete the Payment record.
   @OneToOne(cascade = CascadeType.ALL )
   @JoinColumn(name = "PAYMENT_ID", referencedColumnName = "ID")
   private PaymentEntity paymentEntity;
 
   @JoinColumn(name = "SHIPMENT_ID", referencedColumnName = "ID")
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   private ShipmentEntity shipment;
 
-  @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "CARD_ID", referencedColumnName = "ID")
+  @ToString.Exclude
   private CardEntity cardEntity;
 
   @Column(name = "ORDER_DATE")
   private Timestamp orderDate;
 
-  @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "ORDER_ITEM",
       joinColumns = @JoinColumn(name = "ORDER_ID"),
@@ -60,7 +67,7 @@ public class OrderEntity {
   )
   private List<ItemEntity> items = new ArrayList<>();
 
-  @OneToOne(mappedBy = "orderEntity")
+  @OneToOne(mappedBy = "orderEntity", cascade = CascadeType.ALL, orphanRemoval = true)
   private AuthorizationEntity authorizationEntity;
 
 }

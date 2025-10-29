@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class ItemEntity {
 
   @ManyToOne
   @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID")
+  @ToString.Exclude
   private ProductEntity product;
 
   @Column(name = "UNIT_PRICE")
@@ -30,9 +32,11 @@ public class ItemEntity {
   private int quantity;
 
   @ManyToMany(mappedBy = "items", fetch = FetchType.LAZY)
+  @ToString.Exclude
   private List<CartEntity> cart;
 
   @ManyToMany(mappedBy = "items", fetch = FetchType.LAZY)
+  @ToString.Exclude
   private List<OrderEntity> orders;
 
 }

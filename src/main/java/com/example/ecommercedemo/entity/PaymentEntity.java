@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.UUID;
@@ -24,6 +25,7 @@ public class PaymentEntity {
   private String message;
 
   @OneToOne(mappedBy = "paymentEntity")
+  @ToString.Exclude
   private OrderEntity orderEntity;
 
 }

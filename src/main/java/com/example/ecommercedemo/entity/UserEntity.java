@@ -3,6 +3,7 @@ package com.example.ecommercedemo.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,21 +42,25 @@ public class UserEntity {
   @Column(name = "USER_STATUS")
   private String userStatus;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "USER_ADDRESS",
       joinColumns = @JoinColumn(name = "USER_ID"),
       inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
   )
+  @ToString.Exclude
   private List<AddressEntity> addresses = new ArrayList<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private List<CardEntity> cards;
 
   @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private CartEntity cart;
 
-  @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+  @ToString.Exclude
   private List<OrderEntity> orders;
 
   public List<CardEntity> getCards() {

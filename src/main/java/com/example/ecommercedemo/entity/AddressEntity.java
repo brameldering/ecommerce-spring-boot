@@ -1,7 +1,9 @@
 package com.example.ecommercedemo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -39,6 +41,8 @@ public class AddressEntity {
   private String zipcode;
 
   @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
+  @JsonManagedReference
   private List<OrderEntity> orders;
 
 }

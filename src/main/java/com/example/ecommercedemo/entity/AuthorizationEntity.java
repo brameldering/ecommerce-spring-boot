@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
@@ -30,8 +31,9 @@ public class AuthorizationEntity {
   @Column(name = "ERROR")
   private String error;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne
   @JoinColumn(name = "ORDER_ID", referencedColumnName = "id")
+  @ToString.Exclude
   private OrderEntity orderEntity;
 
 }

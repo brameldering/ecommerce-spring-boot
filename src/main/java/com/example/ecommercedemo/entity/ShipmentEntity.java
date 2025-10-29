@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
@@ -23,4 +24,7 @@ public class ShipmentEntity {
   @Column(name = "CARRIER")
   private String carrier;
 
+  @OneToOne(mappedBy = "shipment")
+  @ToString.Exclude
+  private OrderEntity orderEntity;
 }

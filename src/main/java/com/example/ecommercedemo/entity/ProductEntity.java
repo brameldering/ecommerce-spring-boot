@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
@@ -42,15 +43,17 @@ public class ProductEntity {
   @Column(name = "IMAGE_URL")
   private String imageUrl;
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany
   @JoinTable(
       name = "PRODUCT_TAG",
       joinColumns = @JoinColumn(name = "PRODUCT_ID"),
       inverseJoinColumns = @JoinColumn(name = "TAG_ID")
   )
+  @ToString.Exclude
   private List<TagEntity> tags = new ArrayList<>();
 
   @OneToMany(mappedBy = "product")
+  @ToString.Exclude
   private List<ItemEntity> items;
 
 }

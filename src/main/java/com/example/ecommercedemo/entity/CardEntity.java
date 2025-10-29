@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class CardEntity {
   private UserEntity user;
 
   @OneToMany(mappedBy = "cardEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private List<OrderEntity> orders;
 
 }

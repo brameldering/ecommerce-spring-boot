@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
@@ -21,13 +22,15 @@ public class CartEntity {
 
   @OneToOne
   @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
+  @ToString.Exclude
   private UserEntity user;
 
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany
   @JoinTable(
       name = "CART_ITEM",
       joinColumns = @JoinColumn(name = "CART_ID"),
       inverseJoinColumns = @JoinColumn(name = "ITEM_ID"))
+  @ToString.Exclude
   private List<ItemEntity> items = new ArrayList<>();
 
 }
