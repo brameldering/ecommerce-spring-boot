@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -69,12 +67,8 @@ public class OrderRepresentationModelAssembler extends
    *
    * @param entities
    */
-  public List<Order> toListModel(Iterable<OrderEntity> entities) {
-    if (Objects.isNull(entities)) {
-      return List.of();
-    }
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel)
-        .collect(toList());
+  public List<Order> toListModel(List<OrderEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 
 }

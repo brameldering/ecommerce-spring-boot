@@ -25,17 +25,17 @@ public class ProductServiceImpl implements ProductService {
     this.assembler = assembler;
   }
 
-  @Transactional(readOnly = true)
-  @Override
-  public List<ProductEntity> getAllProducts() {
-    return repository.findAllWithTags();
-  }
-
-  @Transactional(readOnly = true)
-  @Override
-  public Optional<ProductEntity> getProductEntity(String id) {
-    return repository.findByIdWithTags(UUID.fromString(id));
-  }
+//  @Transactional(readOnly = true)
+//  @Override
+//  public List<Product> getAllProducts() {
+//    return assembler.toListModel(repository.findAllWithTags());
+//  }
+//
+//  @Transactional(readOnly = true)
+//  @Override
+//  public Optional<Product> getProductEntity(String id) {
+//    return repository.findByIdWithTags(UUID.fromString(id)).map(assembler::toModel);
+//  }
 
   @Transactional(readOnly = true)
   @Override

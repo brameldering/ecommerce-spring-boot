@@ -1,14 +1,15 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.model.AddCardReq;
+import com.example.ecommercedemo.model.Card;
 import jakarta.validation.Valid;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CardService {
   void deleteCardById(String id);
-  Iterable<CardEntity> getAllCards();
-  Optional<CardEntity> getCardById(String id);
-  Optional<CardEntity> registerCard(@Valid AddCardReq addCardReq);
+  List<Card> getAllCards();
+  Optional<Card> getCardById(String id);
+  Optional<Card> registerCard(@Valid AddCardReq addCardReq);
 }

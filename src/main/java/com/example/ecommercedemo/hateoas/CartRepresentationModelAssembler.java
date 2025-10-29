@@ -1,6 +1,6 @@
 package com.example.ecommercedemo.hateoas;
 
-import com.example.ecommercedemo.controllers.CartsController;
+import com.example.ecommercedemo.controllers.CartController;
 import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.service.ItemService;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -27,7 +26,7 @@ public class CartRepresentationModelAssembler extends
    * resource type.
    */
   public CartRepresentationModelAssembler(ItemService itemService) {
-    super(CartsController.class, Cart.class);
+    super(CartController.class, Cart.class);
     this.itemService = itemService;
   }
 
@@ -43,8 +42,8 @@ public class CartRepresentationModelAssembler extends
     Cart resource = new Cart();
     BeanUtils.copyProperties(entity, resource);
     resource.id(cid).customerId(uid).items(itemService.toModelList(entity.getItems()));
-    resource.add(linkTo(methodOn(CartsController.class).getCartByCustomerId(uid)).withSelfRel());
-    resource.add(linkTo(methodOn(CartsController.class).getCartItemsByCustomerId(uid))
+    resource.add(linkTo(methodOn(CartController.class).getCartByCustomerId(uid)).withSelfRel());
+    resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid))
         .withRel("cart-items"));
     return resource;
   }
@@ -54,12 +53,8 @@ public class CartRepresentationModelAssembler extends
    *
    * @param entities
    */
-  public List<Cart> toListModel(Iterable<CartEntity> entities) {
-    if (Objects.isNull(entities)) {
-      return List.of();
-    }
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel)
-        .collect(toList());
+  public List<Cart> toListModel(List<CartEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 
 }

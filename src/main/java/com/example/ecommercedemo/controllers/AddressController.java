@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.AddressApi;
-import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
+import com.example.ecommercedemo.exceptions.AddressCreationException;
 import com.example.ecommercedemo.model.AddAddressReq;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.service.AddressService;
@@ -14,24 +14,22 @@ import java.util.List;
 
 import static org.springframework.http.ResponseEntity.accepted;
 import static org.springframework.http.ResponseEntity.notFound;
-import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 public class AddressController implements AddressApi {
 
   private final AddressService service;
-  private final AddressRepresentationModelAssembler assembler;
 
-  public AddressController(AddressService addressService, AddressRepresentationModelAssembler assembler) {
+  public AddressController(AddressService addressService) {
     this.service = addressService;
-    this.assembler = assembler;
   }
 
   @Override
   public ResponseEntity<Address> createAddress(@Valid AddAddressReq addAddressReq) {
-    return status(HttpStatus.CREATED).body(service.createAddress(addAddressReq)
-        .map(assembler::toModel).get());
+    return service.createAddress(addAddressReq)
+        .map(address -> status(HttpStatus.CREATED).body(address))
+        .orElseThrow(() -> new AddressCreationException("Address creation failed"));
   }
 
   @Override
@@ -42,12 +40,12 @@ public class AddressController implements AddressApi {
 
   @Override
   public ResponseEntity<Address> getAddressesById(String id) {
-    return service.getAddressesById(id).map(assembler::toModel)
+    return service.getAddressesById(id)
         .map(ResponseEntity::ok).orElse(notFound().build());
   }
 
   @Override
   public ResponseEntity<List<Address>> getAllAddresses() {
-    return ok(assembler.toListModel(service.getAllAddresses()));
+    return ResponseEntity.ok(service.getAllAddresses());
   }
 }

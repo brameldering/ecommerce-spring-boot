@@ -3,13 +3,13 @@ package com.example.ecommercedemo.hateoas;
 import com.example.ecommercedemo.controllers.AddressController;
 import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.model.Address;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -18,6 +18,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class AddressRepresentationModelAssembler extends
     RepresentationModelAssemblerSupport<AddressEntity, Address> {
+
+  private static final Logger logger = LoggerFactory.getLogger(AddressRepresentationModelAssembler.class);
 
   /**
    * Creates a new {@link RepresentationModelAssemblerSupport} using the given controller class and
@@ -50,12 +52,8 @@ public class AddressRepresentationModelAssembler extends
    *
    * @param entities
    */
-  public List<Address> toListModel(Iterable<AddressEntity> entities) {
-    if (Objects.isNull(entities)) {
-      return List.of();
-    }
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel)
-        .collect(toList());
+  public List<Address> toListModel(List<AddressEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 
 }

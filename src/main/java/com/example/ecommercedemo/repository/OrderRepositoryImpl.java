@@ -4,6 +4,7 @@ import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.entity.OrderItemEntity;
+import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.model.NewOrder;
 import com.example.ecommercedemo.model.Order;
@@ -21,7 +22,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 
@@ -47,10 +47,9 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   @Override
   public Optional<OrderEntity> insert(NewOrder m) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
-    Iterable<ItemEntity> dbItems = itemRepo.findByCustomerId(m.getCustomerId());
-    List<ItemEntity> items = StreamSupport.stream(dbItems.spliterator(), false).toList();
+    List<ItemEntity> items = itemRepo.findByCustomerId(m.getCustomerId());
     if (items.size() < 1) {
-      throw new ResourceNotFoundException(
+      throw new ItemNotFoundException(
           String.format("There is no item found in customer's (ID: %s) cart.", m.getCustomerId()));
     }
     BigDecimal total = BigDecimal.ZERO;

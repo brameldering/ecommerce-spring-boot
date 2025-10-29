@@ -4,16 +4,21 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.ecommercedemo.entity.ItemEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 
-public interface ItemRepository extends CrudRepository<ItemEntity, UUID> {
+public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
   @Query(
-      value =
-          "select i.* from ecomm.cart c, ecomm.item i, ecomm.\"user\" u, ecomm.cart_item ci where u.id = :customerId and c.user_id=u.id and c.id=ci.cart_id and i.id=ci.item_id",
+      value = """
+      select i.* from ecomm.cart c
+      join ecomm.cart_item ci on c.id = ci.cart_id
+      join ecomm.item i on i.id = ci.item_id
+      join ecomm."user" u on u.id = c.user_id
+      where u.id = :customerId
+    """,
       nativeQuery = true)
-  Iterable<ItemEntity> findByCustomerId(String customerId);
+  List<ItemEntity> findByCustomerId(String customerId);
 
   @Modifying
   @Query(

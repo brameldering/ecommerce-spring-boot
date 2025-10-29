@@ -5,8 +5,6 @@ import com.example.ecommercedemo.hateoas.PaymentRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.PaymentReq;
 import com.example.ecommercedemo.service.PaymentService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,13 +20,12 @@ public class PaymentController implements PaymentApi {
   }
 
   @Override
-  public ResponseEntity<Authorization> authorize(@Valid PaymentReq paymentReq) {
+  public ResponseEntity<Authorization> authorize(PaymentReq paymentReq) {
     return null;
   }
 
   @Override
-  public ResponseEntity<Authorization> getOrdersPaymentAuthorization(
-      @NotNull @Valid String id) {
+  public ResponseEntity<Authorization> getOrdersPaymentAuthorization(String id) {
     return null;
   }
 }

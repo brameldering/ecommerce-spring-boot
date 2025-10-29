@@ -8,8 +8,6 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,7 +26,7 @@ public class UserRepresentationModelAssembler extends
   }
 
   /**
-   * Coverts the User entity to resource
+   * Converts the User entity to resource
    *
    * @param entity
    */
@@ -52,16 +50,12 @@ public class UserRepresentationModelAssembler extends
   }
 
   /**
-   * Coverts the collection of Product entities to list of resources.
+   * Converts the collection of Product entities to list of resources.
    *
    * @param entities
    */
-  public List<User> toListModel(Iterable<UserEntity> entities) {
-    if (Objects.isNull(entities)) {
-      return List.of();
-    }
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel)
-        .collect(toList());
+  public List<User> toListModel(List<UserEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 
 }

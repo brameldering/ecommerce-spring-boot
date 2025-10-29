@@ -7,37 +7,32 @@ import com.example.ecommercedemo.api.CartApi;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;
 
-import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
 import java.util.List;
 
 import com.example.ecommercedemo.service.CartService;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class CartsController implements CartApi {
+public class CartController implements CartApi {
 
-  private static final Logger log = LoggerFactory.getLogger(CartsController.class);
+  private static final Logger log = LoggerFactory.getLogger(CartController.class);
   private final CartService service;
-  private final CartRepresentationModelAssembler assembler;
 
-  public CartsController(CartService service, CartRepresentationModelAssembler assembler) {
+  public CartController(CartService service) {
     this.service = service;
-    this.assembler = assembler;
   }
 
   @Override
-  public ResponseEntity<List<Item>> addCartItemsByCustomerId(String customerId, @Valid Item item) {
+  public ResponseEntity<List<Item>> addCartItemsByCustomerId(String customerId, Item item) {
     log.info("Request for customer ID: {}\nItem: {}", customerId, item);
     return ok(service.addCartItemsByCustomerId(customerId, item));
   }
 
   @Override
-  public ResponseEntity<List<Item>> addOrReplaceItemsByCustomerId(String customerId,
-                                                                  @Valid Item item) {
+  public ResponseEntity<List<Item>> addOrReplaceItemsByCustomerId(String customerId, Item item) {
     return ok(service.addOrReplaceItemsByCustomerId(customerId, item));
   }
 
@@ -55,7 +50,7 @@ public class CartsController implements CartApi {
 
   @Override
   public ResponseEntity<Cart> getCartByCustomerId(String customerId) {
-    return ok(assembler.toModel(service.getCartByCustomerId(customerId)));
+    return ok(service.getCartByCustomerId(customerId));
   }
 
   @Override

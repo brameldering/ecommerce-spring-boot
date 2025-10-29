@@ -1,10 +1,8 @@
 package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.ProductApi;
-import com.example.ecommercedemo.hateoas.ProductRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Product;
 import com.example.ecommercedemo.service.ProductService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,8 +25,7 @@ public class ProductController implements ProductApi {
   }
 
   @Override
-  public ResponseEntity<List<Product>> queryProducts(@Valid String tag, @Valid String name,
-                                                     @Valid Integer page, @Valid Integer size) {
+  public ResponseEntity<List<Product>> queryProducts(String tag, String name, Integer page, Integer size) {
     return ok(service.getAllProductsModels());
   }
 }

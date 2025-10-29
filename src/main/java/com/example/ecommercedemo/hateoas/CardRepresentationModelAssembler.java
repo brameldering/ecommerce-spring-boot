@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -50,9 +49,8 @@ public class CardRepresentationModelAssembler extends
    * @param entities
    * @return
    */
-  public List<Card> toListModel(Iterable<CardEntity> entities) {
-    if (Objects.isNull(entities)) return List.of();
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel).collect(toList());
+  public List<Card> toListModel(List<CardEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 
 }

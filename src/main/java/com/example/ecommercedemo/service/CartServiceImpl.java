@@ -5,19 +5,22 @@ import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
+import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.UserRepository;
 import com.example.ecommercedemo.model.Item;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.objenesis.instantiator.util.UnsafeUtils.getUnsafe;
@@ -29,16 +32,19 @@ public class CartServiceImpl implements CartService {
   private final UserRepository userRepo;
   private final ItemService itemService;
 
-  public CartServiceImpl(CartRepository repository, UserRepository userRepo,
-                         ItemService itemService) {
+  private final CartRepresentationModelAssembler assembler;
+
+  public CartServiceImpl(CartRepository repository, UserRepository userRepo, ItemService itemService, CartRepresentationModelAssembler assembler) {
     this.repository = repository;
     this.userRepo = userRepo;
     this.itemService = itemService;
+    this.assembler = assembler;
   }
 
   @Override
+  @Transactional
   public List<Item> addCartItemsByCustomerId(String customerId, @Valid Item item) {
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
     long count = entity.getItems().stream()
         .filter(i -> i.getProduct().getId().equals(UUID.fromString(item.getId()))).count();
     if (count > 0) {
@@ -50,9 +56,10 @@ public class CartServiceImpl implements CartService {
   }
 
   @Override
+  @Transactional
   public List<Item> addOrReplaceItemsByCustomerId(String customerId, @Valid Item item) {
     // 1. Get the existing cart entity
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
 
     // Initialize items list, ensuring it's mutable if it was null
     List<ItemEntity> items = entity.getItems();
@@ -104,23 +111,32 @@ public class CartServiceImpl implements CartService {
   }
 
   @Override
+  @Transactional
   public void deleteCart(String customerId) {
     // will throw the error if it doesn't exist
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
     repository.deleteById(entity.getId());
   }
 
   @Override
+  @Transactional
   public void deleteItemFromCart(String customerId, String itemId) {
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
     List<ItemEntity> updatedItems = entity.getItems().stream()
         .filter(i -> !i.getProduct().getId().equals(UUID.fromString(itemId))).collect(toList());
     entity.setItems(updatedItems);
     repository.save(entity);
   }
 
+  @Transactional(readOnly = true)
   @Override
-  public CartEntity getCartByCustomerId(String customerId) {
+  public Cart getCartByCustomerId(String customerId) {
+    CartEntity entity = getCartEntityByCustomerId(customerId);
+    return assembler.toModel(entity);
+  }
+
+  // Helper method
+  private CartEntity getCartEntityByCustomerId(String customerId) {
     CartEntity entity = repository.findByCustomerId(UUID.fromString(customerId))
         .orElse(new CartEntity());
     if (Objects.isNull(entity.getUser())) {
@@ -131,15 +147,17 @@ public class CartServiceImpl implements CartService {
     return entity;
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<Item> getCartItemsByCustomerId(String customerId) {
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
     return itemService.toModelList(entity.getItems());
   }
 
+  @Transactional(readOnly = true)
   @Override
   public Item getCartItemsByItemId(String customerId, String itemId) {
-    CartEntity entity = getCartByCustomerId(customerId);
+    CartEntity entity = getCartEntityByCustomerId(customerId);
     AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
     entity.getItems().forEach(i -> {
       if (i.getProduct().getId().equals(UUID.fromString(itemId))) {

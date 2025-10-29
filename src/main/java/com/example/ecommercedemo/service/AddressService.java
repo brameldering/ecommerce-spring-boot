@@ -1,13 +1,14 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.model.AddAddressReq;
+import com.example.ecommercedemo.model.Address;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AddressService {
-  Optional<AddressEntity> createAddress(AddAddressReq addAddressReq);
+  Optional<Address> createAddress(AddAddressReq addAddressReq);
   void deleteAddressesById(String id);
-  Optional<AddressEntity> getAddressesById(String id);
-  Iterable<AddressEntity> getAllAddresses();
+  Optional<Address> getAddressesById(String id);
+  List<Address> getAllAddresses();
 }

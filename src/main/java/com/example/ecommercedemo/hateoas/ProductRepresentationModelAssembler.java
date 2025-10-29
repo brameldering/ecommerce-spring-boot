@@ -9,8 +9,6 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -55,12 +53,8 @@ public class ProductRepresentationModelAssembler extends
    *
    * @param entities
    */
-  public List<Product> toListModel(Iterable<ProductEntity> entities) {
-    if (Objects.isNull(entities)) {
-      return List.of();
-    }
-    return StreamSupport.stream(entities.spliterator(), false).map(this::toModel)
-        .collect(toList());
+  public List<Product> toListModel(List<ProductEntity> entities) {
+    return entities.stream().map(this::toModel).collect(toList());
   }
 }
 

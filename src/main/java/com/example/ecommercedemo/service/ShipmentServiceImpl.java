@@ -1,9 +1,11 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.ShipmentEntity;
+import com.example.ecommercedemo.hateoas.ShipmentRepresentationModelAssembler;
+import com.example.ecommercedemo.model.Shipment;
 import com.example.ecommercedemo.repository.ShipmentRepository;
 import jakarta.validation.constraints.Min;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,13 +15,17 @@ public class ShipmentServiceImpl implements ShipmentService {
 
   private final ShipmentRepository repository;
 
-  public ShipmentServiceImpl(ShipmentRepository repository) {
+  private final ShipmentRepresentationModelAssembler assembler;
+
+  public ShipmentServiceImpl(ShipmentRepository repository, ShipmentRepresentationModelAssembler assembler) {
     this.repository = repository;
+    this.assembler = assembler;
   }
 
   @Override
-  public Iterable<ShipmentEntity> getShipmentByOrderId(
-      @Min(value = 1L, message = "Invalid shipment ID.") String id) {
-    return repository.findAllById(List.of(UUID.fromString(id)));
+  @Transactional(readOnly = true)
+  public List<Shipment> getShipmentsByOrderId(
+      @Min(value = 1L, message = "Invalid order ID.") String id) {
+    return assembler.toListModel(repository.findAllById(List.of(UUID.fromString(id))));
   }
 }

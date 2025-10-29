@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Entity

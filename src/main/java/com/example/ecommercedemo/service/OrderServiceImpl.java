@@ -1,6 +1,8 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.OrderEntity;
+import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
+import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.repository.OrderRepository;
 import com.example.ecommercedemo.model.NewOrder;
@@ -8,7 +10,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,14 +21,17 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
   private final OrderRepository repository;
-  private OrderRepository userRepo;
 
-  public OrderServiceImpl(OrderRepository repository) {
+  private final OrderRepresentationModelAssembler assembler;
+
+  public OrderServiceImpl(OrderRepository repository, OrderRepresentationModelAssembler assembler) {
     this.repository = repository;
+    this.assembler = assembler;
   }
 
   @Override
-  public Optional<OrderEntity> addOrder(@Valid NewOrder newOrder) {
+  @Transactional
+  public Optional<Order> addOrder(@Valid NewOrder newOrder) {
     if (Strings.isEmpty(newOrder.getCustomerId())) {
       throw new ResourceNotFoundException("Invalid customer id.");
     }
@@ -35,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
       throw new ResourceNotFoundException("Invalid card id.");
     }
     // 1. Save Order
-    return repository.insert(newOrder);
+    return repository.insert(newOrder).map(assembler::toModel);
     // Ideally, here it will trigger the rest of the process
     // 2. Initiate the payment
     // 3. Once the payment is authorized, change the status to paid
@@ -43,13 +50,18 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public Iterable<OrderEntity> getOrdersByCustomerId(@NotNull @Valid String customerId) {
-    return repository.findByCustomerId(UUID.fromString(customerId));
+  @Transactional(readOnly = true)
+  public List<Order> getOrdersByCustomerId(@NotNull @Valid String customerId) {
+    UUID customerUUID = UUID.fromString(customerId);
+    List<OrderEntity> entities = repository.findByCustomerId(customerUUID);
+    return assembler.toListModel(entities);
   }
 
   @Override
-  public Optional<OrderEntity> getByOrderId(String id) {
-    return repository.findById(UUID.fromString(id));
+  @Transactional(readOnly = true)
+  public Optional<Order> getByOrderId(String id) {
+    UUID customerUUID = UUID.fromString(id);
+    return repository.findById(customerUUID).map(assembler::toModel);
   }
 }
 

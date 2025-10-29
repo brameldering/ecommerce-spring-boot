@@ -1,6 +1,6 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.CartEntity;
+import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;
 import jakarta.validation.Valid;
 
@@ -11,7 +11,7 @@ public interface CartService {
   List<Item> addOrReplaceItemsByCustomerId(String customerId, @Valid Item item);
   void deleteCart(String customerId);
   void deleteItemFromCart(String customerId, String itemId);
-  CartEntity getCartByCustomerId(String customerId);
+  Cart getCartByCustomerId(String customerId);
   List<Item> getCartItemsByCustomerId(String customerId);
   Item getCartItemsByItemId(String customerId, String itemId);
 }
