@@ -24,7 +24,7 @@ public class OrderRepresentationModelAssembler extends
   private final UserRepresentationModelAssembler uAssembler;
   private final AddressRepresentationModelAssembler aAssembler;
   private final CardRepresentationModelAssembler cAssembler;
-  private final ShipmentRepresentationModelAssembler sAssembler;
+//  private final ShipmentRepresentationModelAssembler sAssembler;
   private final ItemService itemService;
 
   private final Logger log = LoggerFactory.getLogger(OrderRepresentationModelAssembler.class);
@@ -33,12 +33,12 @@ public class OrderRepresentationModelAssembler extends
    * Creates a new {@link RepresentationModelAssemblerSupport} using the given controller class and
    * resource type.
    */
-  public OrderRepresentationModelAssembler(UserRepresentationModelAssembler uAssembler,AddressRepresentationModelAssembler aAssembler, CardRepresentationModelAssembler cAssembler, ShipmentRepresentationModelAssembler sAssembler, ItemService itemService) {
+  public OrderRepresentationModelAssembler(UserRepresentationModelAssembler uAssembler,AddressRepresentationModelAssembler aAssembler, CardRepresentationModelAssembler cAssembler, ItemService itemService) {
     super(OrderController.class, Order.class);
     this.uAssembler = uAssembler;
     this.aAssembler = aAssembler;
     this.cAssembler = cAssembler;
-    this.sAssembler = sAssembler;
+//    this.sAssembler = sAssembler;
     this.itemService = itemService;
   }
 
