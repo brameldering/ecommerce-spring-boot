@@ -63,8 +63,5 @@ public class UserEntity {
   @ToString.Exclude
   private List<OrderEntity> orders;
 
-  public List<CardEntity> getCards() {
-    return cards;
-  }
 }
 

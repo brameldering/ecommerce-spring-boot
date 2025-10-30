@@ -23,12 +23,17 @@ public class AuthorizationRepresentationModelAssembler extends
 
   @Override
   public Authorization toModel(AuthorizationEntity entity) {
-    Authorization resource = createModelWithId(entity.getId(), entity);
+    //    Authorization resource = createModelWithId(entity.getId(), entity);
+    // 1. Manually instantiate the model instead of using createModelWithId
+    Authorization resource = new Authorization();
+
+    // 2. Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
     resource.setOrderId(entity.getId().toString());
-    resource.add(linkTo(
-        methodOn(PaymentController.class).getOrdersPaymentAuthorization(entity.getId().toString()))
-        .withSelfRel());
+
+    // 3. Add HATEAOS links
+    resource.add(linkTo(methodOn(PaymentController.class).getOrdersPaymentAuthorization(entity.getId().toString())).withSelfRel());
+
     return resource;
   }
 

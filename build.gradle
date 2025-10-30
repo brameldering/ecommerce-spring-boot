@@ -49,6 +49,9 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     compileOnly 'org.projectlombok:lombok:1.18.30'
+    // The following will remove warnings  unknown enum constant When.MAYBE
+    //  reason: class file for javax.annotation.meta.When not found
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.3'
 

@@ -31,7 +31,7 @@ public class CardEntity {
   @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
   private UserEntity user;
 
-  @OneToMany(mappedBy = "cardEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(mappedBy = "cardEntity", fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<OrderEntity> orders;
 

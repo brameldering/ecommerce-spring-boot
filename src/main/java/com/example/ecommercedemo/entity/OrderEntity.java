@@ -42,13 +42,14 @@ public class OrderEntity {
   @JsonBackReference
   private AddressEntity addressEntity;
 
-  // A Payment usually only belongs to one Order, so deleting the Order should delete the Payment record.
+  // A Payment only belongs to one Order, so deleting the Order should delete the Payment record.
   @OneToOne(cascade = CascadeType.ALL )
   @JoinColumn(name = "PAYMENT_ID", referencedColumnName = "ID")
   private PaymentEntity paymentEntity;
 
-  @JoinColumn(name = "SHIPMENT_ID", referencedColumnName = "ID")
+  // A Shipment only belongs to one Order, so deleting the Order should delete the Shipment record.
   @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "SHIPMENT_ID", referencedColumnName = "ID")
   private ShipmentEntity shipment;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -67,6 +68,8 @@ public class OrderEntity {
   )
   private List<ItemEntity> items = new ArrayList<>();
 
+  // orphanRemoval = true because if an authorization is removed from its parent order
+  // then the authorization should be deleted
   @OneToOne(mappedBy = "orderEntity", cascade = CascadeType.ALL, orphanRemoval = true)
   private AuthorizationEntity authorizationEntity;
 

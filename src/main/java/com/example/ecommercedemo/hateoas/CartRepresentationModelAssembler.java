@@ -39,12 +39,18 @@ public class CartRepresentationModelAssembler extends
   public Cart toModel(CartEntity entity) {
     String uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId().toString() : null;
     String cid = Objects.nonNull(entity.getId()) ? entity.getId().toString() : null;
+
+    // 1. Manually instantiate the model instead of using createModelWithId
     Cart resource = new Cart();
+
+    // 2. Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
     resource.id(cid).customerId(uid).items(itemService.toModelList(entity.getItems()));
+
+    // 3. Add HATEAOS links
     resource.add(linkTo(methodOn(CartController.class).getCartByCustomerId(uid)).withSelfRel());
-    resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid))
-        .withRel("cart-items"));
+    resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid)).withRel("cart-items"));
+
     return resource;
   }
 

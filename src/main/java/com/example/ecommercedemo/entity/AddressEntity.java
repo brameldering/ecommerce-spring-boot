@@ -40,7 +40,7 @@ public class AddressEntity {
   @Column(name = "ZIPCODE")
   private String zipcode;
 
-  @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY)
   @ToString.Exclude
   @JsonManagedReference
   private List<OrderEntity> orders;
