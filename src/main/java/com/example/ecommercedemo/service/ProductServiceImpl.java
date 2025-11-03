@@ -31,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public List<Product> getAllProducts() {
     List<ProductEntity> entities = repository.findAllWithTags();
-    return entities.stream().map(mapper::entityToModel).collect(Collectors.toList());
+    return mapper.entityToModelList(entities);
   }
 
   @Transactional(readOnly = true)
