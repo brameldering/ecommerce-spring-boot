@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.stream.Collectors.toList;
-
 @Repository
 @Transactional
 public class OrderRepositoryImpl implements OrderRepositoryExt{
@@ -45,12 +43,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   }
 
   @Override
-  public Optional<OrderEntity> insert(NewOrder m) {
+  public Optional<OrderEntity> insert(NewOrder newOrder) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
-    List<ItemEntity> items = itemRepo.findByCustomerId(m.getCustomerId());
+    List<ItemEntity> items = itemRepo.findByCustomerId(newOrder.getCustomerId().toString());
     if (items.size() < 1) {
       throw new ItemNotFoundException(
-          String.format("There is no item found in customer's (ID: %s) cart.", m.getCustomerId()));
+          String.format("There is no item found in customer's (ID: %s) cart.", newOrder.getCustomerId()));
     }
     BigDecimal total = BigDecimal.ZERO;
     for (ItemEntity i : items) {
@@ -62,22 +60,22 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         INSERT INTO ecomm.orders (address_id, card_id, customer_id, order_date, total, status)
          VALUES(?, ?, ?, ?, ?, ?)
         """)
-        .setParameter(1, m.getAddress().getId())
-        .setParameter(2, m.getCard().getId())
-        .setParameter(3, m.getCustomerId())
+        .setParameter(1, newOrder.getAddress().getId())
+        .setParameter(2, newOrder.getCard().getId())
+        .setParameter(3, newOrder.getCustomerId())
         .setParameter(4, orderDate)
         .setParameter(5, total)
         .setParameter(6, Order.StatusEnum.CREATED.getValue())
         .executeUpdate();
-    Optional<CartEntity> oCart = cRepo.findByCustomerId(UUID.fromString(m.getCustomerId()));
+    Optional<CartEntity> oCart = cRepo.findByCustomerId(UUID.fromString(newOrder.getCustomerId().toString()));
     CartEntity cart =
         oCart.orElseThrow(
             () ->
                 new ResourceNotFoundException(
                     String.format(
-                        "Cart not found for given customer (ID: %s)", m.getCustomerId())));
+                        "Cart not found for given customer (ID: %s)", newOrder.getCustomerId())));
     itemRepo.deleteCartItemJoinById(
-        cart.getItems().stream().map(ItemEntity::getId).collect(toList()), cart.getId());
+        cart.getItems().stream().map(ItemEntity::getId).toList(), cart.getId());
     OrderEntity entity =
         (OrderEntity)
             em.createNativeQuery(
@@ -85,7 +83,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         SELECT o.* FROM ecomm.orders o WHERE o.customer_id = ? AND o.order_date >= ?
         """,
                     OrderEntity.class)
-                .setParameter(1, m.getCustomerId())
+                .setParameter(1, newOrder.getCustomerId())
                 .setParameter(
                     2,
                     OffsetDateTime.ofInstant(orderDate.toInstant(), ZoneId.of("Z"))
@@ -93,8 +91,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                 .getSingleResult();
     oiRepo.saveAll(
         cart.getItems().stream()
-            .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId()))
-            .collect(toList()));
+            .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId())).toList());
     return Optional.of(entity);
   }
 }

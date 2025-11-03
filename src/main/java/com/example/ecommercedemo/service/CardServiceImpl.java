@@ -5,53 +5,55 @@ import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
-import com.example.ecommercedemo.hateoas.CardRepresentationModelAssembler;
+import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.repository.CardRepository;
 import com.example.ecommercedemo.repository.UserRepository;
 import com.example.ecommercedemo.model.AddCardReq;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Validated
 public class CardServiceImpl implements CardService {
+
   private final CardRepository repository;
   private final UserRepository userRepo;
-  private final CardRepresentationModelAssembler assembler;
+  private final CardMapper mapper;
 
-  public CardServiceImpl(CardRepository repository, UserRepository userRepo, CardRepresentationModelAssembler assembler) {
+  public CardServiceImpl(CardRepository repository, UserRepository userRepo, CardMapper mapper) {
     this.repository = repository;
     this.userRepo = userRepo;
-    this.assembler = assembler;
+    this.mapper = mapper;
   }
 
   @Override
   @Transactional
-  public void deleteCardById(String id) {
-    repository.deleteById(UUID.fromString(id));
+  public void deleteCardById(UUID uuid) {
+    repository.deleteById(uuid);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Card> getAllCards() {
-    return assembler.toListModel(repository.findAll());
+    return mapper.entityToModelList(repository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Card> getCardById(String id) {
-    return repository.findById(UUID.fromString(id)).map(assembler::toModel);
+  public Optional<Card> getCardById(UUID uuid) {
+    return repository.findById(uuid).map(mapper::entityToModel);
   }
 
   @Override
   @Transactional
-  public Optional<Card> registerCard(@Valid AddCardReq addCardReq) {
-    UUID userId = UUID.fromString(addCardReq.getUserId());
+  public Optional<Card> registerCard(AddCardReq addCardReq) {
+    UUID userId = addCardReq.getUserId();
 
     // Check if user exists
     UserEntity user = userRepo.findById(userId)
@@ -70,15 +72,6 @@ public class CardServiceImpl implements CardService {
         .setExpires(addCardReq.getExpires());
 
     CardEntity saved = repository.save(cardEntity);
-    return Optional.of(assembler.toModel(saved));
-  }
-
-
-  private CardEntity toEntity(AddCardReq m) {
-    CardEntity e = new CardEntity();
-    Optional<UserEntity> user = userRepo.findById(UUID.fromString(m.getUserId()));
-    user.ifPresent(e::setUser);
-    return e.setNumber(m.getCardNumber()).setCvv(m.getCvv())
-        .setExpires(m.getExpires());
+    return Optional.of(mapper.entityToModel(saved));
   }
 }

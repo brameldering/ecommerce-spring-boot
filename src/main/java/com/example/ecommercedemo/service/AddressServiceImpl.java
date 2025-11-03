@@ -1,51 +1,52 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AddressEntity;
-import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
+import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.repository.AddressRepository;
 import com.example.ecommercedemo.model.AddAddressReq;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Validated
 public class AddressServiceImpl implements AddressService {
 
   private final AddressRepository repository;
+  private final AddressMapper mapper;
 
-  private final AddressRepresentationModelAssembler assembler;
-
-  public AddressServiceImpl(AddressRepository repository, AddressRepresentationModelAssembler assembler) {
+  public AddressServiceImpl(AddressRepository repository, AddressMapper mapper) {
     this.repository = repository;
-    this.assembler = assembler;
+    this.mapper = mapper;
   }
 
   @Override
   @Transactional
   public Optional<Address> createAddress(AddAddressReq addAddressReq) {
-    return Optional.of(assembler.toModel(repository.save(toEntity(addAddressReq))));
+    return Optional.of(mapper.entityToModel(repository.save(toEntity(addAddressReq))));
   }
 
   @Override
   @Transactional
-  public void deleteAddressesById(String id) {
-    repository.deleteById(UUID.fromString(id));
+  public void deleteAddressById(UUID uuid) {
+    repository.deleteById(uuid);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Address> getAddressesById(String id) {
-    return repository.findById(UUID.fromString(id)).map(assembler::toModel);
+  public Optional<Address> getAddressById(UUID uuid) {
+    return repository.findById(uuid).map(mapper::entityToModel);
    }
 
   @Override
   @Transactional(readOnly = true)
   public List<Address> getAllAddresses() {
-    return assembler.toListModel(repository.findAll());
+    return mapper.entityToModelList(repository.findAll());
   }
 
   private AddressEntity toEntity(AddAddressReq model) {

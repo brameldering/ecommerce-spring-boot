@@ -1,66 +1,60 @@
 package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controllers.CartController;
-import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.model.Cart;
-import com.example.ecommercedemo.service.ItemService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class CartRepresentationModelAssembler extends
-    RepresentationModelAssemblerSupport<CartEntity, Cart> {
-
-  private final ItemService itemService;
+    RepresentationModelAssemblerSupport<Cart, Cart> {
 
   /**
-   * Creates a new {@link RepresentationModelAssemblerSupport} using the given controller class and
-   * resource type.
+   * Creates a new {@link RepresentationModelAssemblerSupport}
+   * using the given controller class and resource type.
    */
-  public CartRepresentationModelAssembler(ItemService itemService) {
+  public CartRepresentationModelAssembler() {
     super(CartController.class, Cart.class);
-    this.itemService = itemService;
   }
 
   /**
-   * Coverts the Card entity to resource
+   * Converts the resource to HATEOAS resource
    *
-   * @param entity
+   * @param resource
    */
   @Override
-  public Cart toModel(CartEntity entity) {
-    String uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId().toString() : null;
-    String cid = Objects.nonNull(entity.getId()) ? entity.getId().toString() : null;
+  public Cart toModel(Cart resource) {
 
-    // 1. Manually instantiate the model instead of using createModelWithId
-    Cart resource = new Cart();
+// Get the customer ID; no need for the explicit ternary
+    UUID uid = resource.getCustomerId();
 
-    // 2. Copy properties and set ID
-    BeanUtils.copyProperties(entity, resource);
-    resource.id(cid).customerId(uid).items(itemService.toModelList(entity.getItems()));
+    // --- Add HATEOAS links only if the customer ID is present ---
+    if (Objects.nonNull(uid)) {
+      // 1. Self Link
+      // Allows the client to retrieve this specific cart using the customer ID
+      resource.add(linkTo(methodOn(CartController.class).getCartByCustomerId(uid)).withSelfRel());
 
-    // 3. Add HATEAOS links
-    resource.add(linkTo(methodOn(CartController.class).getCartByCustomerId(uid)).withSelfRel());
-    resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid)).withRel("cart-items"));
-
+      // 2. Cart Items Link
+      // Allows the client to discover the items related to this cart
+      resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid)).withRel("cart-items"));
+    }
     return resource;
   }
 
   /**
-   * Coverts the collection of Product entities to list of resources.
+   * Converts the collection of Cart entities to list of resources.
    *
-   * @param entities
+   * @param resources
    */
-  public List<Cart> toListModel(List<CartEntity> entities) {
-    return entities.stream().map(this::toModel).collect(toList());
+  public List<Cart> toListModel(List<Cart> resources) {
+    return resources.stream().map(this::toModel).toList();
   }
 
 }

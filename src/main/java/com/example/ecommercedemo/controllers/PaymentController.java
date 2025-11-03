@@ -5,14 +5,22 @@ import com.example.ecommercedemo.hateoas.PaymentRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.PaymentReq;
 import com.example.ecommercedemo.service.PaymentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
+@Validated
 public class PaymentController implements PaymentApi {
 
   private final PaymentService service;
   private final PaymentRepresentationModelAssembler assembler;
+
+  private static final Logger log = LoggerFactory.getLogger(CartController.class);
 
   public PaymentController(PaymentService service, PaymentRepresentationModelAssembler assembler) {
     this.service = service;
@@ -21,11 +29,14 @@ public class PaymentController implements PaymentApi {
 
   @Override
   public ResponseEntity<Authorization> authorize(PaymentReq paymentReq) {
+    log.info("Authorize request for Payment Amount: {}", paymentReq.getAmount());
     return null;
   }
 
   @Override
-  public ResponseEntity<Authorization> getOrdersPaymentAuthorization(String id) {
+  public ResponseEntity<Authorization> getOrdersPaymentAuthorization(UUID id) {
+//    UUID uuid = UUID.fromString(id);
+    log.info("Get orders for authorization id: {}", id);
     return null;
   }
 }

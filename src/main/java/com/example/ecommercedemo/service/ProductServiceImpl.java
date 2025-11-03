@@ -2,10 +2,12 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.ProductEntity;
 import com.example.ecommercedemo.hateoas.ProductRepresentationModelAssembler;
+import com.example.ecommercedemo.mappers.ProductMapper;
 import com.example.ecommercedemo.model.Product;
 import com.example.ecommercedemo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,40 +15,28 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Validated
 public class ProductServiceImpl implements ProductService {
 
   private final ProductRepository repository;
-  private final ProductRepresentationModelAssembler assembler;
+  private final ProductMapper mapper;
 
   public ProductServiceImpl(ProductRepository repository,
-                            ProductRepresentationModelAssembler assembler) {
+                            ProductRepresentationModelAssembler assembler, ProductMapper mapper) {
     this.repository = repository;
-    this.assembler = assembler;
+    this.mapper = mapper;
   }
-
-//  @Transactional(readOnly = true)
-//  @Override
-//  public List<Product> getAllProducts() {
-//    return assembler.toListModel(repository.findAllWithTags());
-//  }
-//
-//  @Transactional(readOnly = true)
-//  @Override
-//  public Optional<Product> getProductEntity(String id) {
-//    return repository.findByIdWithTags(UUID.fromString(id)).map(assembler::toModel);
-//  }
 
   @Transactional(readOnly = true)
   @Override
-  public List<Product> getAllProductsModels() {
+  public List<Product> getAllProducts() {
     List<ProductEntity> entities = repository.findAllWithTags();
-    return entities.stream().map(assembler::toModel).collect(Collectors.toList());
+    return entities.stream().map(mapper::entityToModel).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Product> getProductModel(String id) {
-    return repository.findByIdWithTags(UUID.fromString(id)).map(assembler::toModel);
+  public Optional<Product> getProduct(UUID id) {
+    return repository.findByIdWithTags(id).map(mapper::entityToModel);
   }
 }

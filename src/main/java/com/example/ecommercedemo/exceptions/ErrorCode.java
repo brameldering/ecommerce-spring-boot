@@ -21,7 +21,8 @@ public enum ErrorCode {
   ITEM_NOT_FOUND("PACKT-0012", "Requested item not found"),
   GENERIC_ALREADY_EXISTS("PACKT-0013", "Already exists."),
   ADDRESS_CREATION_FAILED("PACKT-0014", "AAddress creation failed."),
-  ORDER_CREATION_FAILED("PACKT-0015", "Order creation failed.");
+  ORDER_CREATION_FAILED("PACKT-0015", "Order creation failed."),
+  VALIDATION_ERROR("PACKT-0016", "Validation of input failed."),;
 
   private String errCode;
   private String errMsgKey;

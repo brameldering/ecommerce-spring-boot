@@ -2,16 +2,18 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface CartService {
-  List<Item> addCartItemsByCustomerId(String customerId, @Valid Item item);
-  List<Item> addOrReplaceItemsByCustomerId(String customerId, @Valid Item item);
-  void deleteCart(String customerId);
-  void deleteItemFromCart(String customerId, String itemId);
-  Cart getCartByCustomerId(String customerId);
-  List<Item> getCartItemsByCustomerId(String customerId);
-  Item getCartItemsByItemId(String customerId, String itemId);
+  List<Item> addCartItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, Item item);
+  List<Item> addOrReplaceItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, Item item);
+  void deleteCart(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
+  void deleteItemFromCart(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID itemId);
+  Optional<Cart> getCartByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
+  List<Item> getCartItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
+  Item getCartItemsByItemId(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID itemId);
 }

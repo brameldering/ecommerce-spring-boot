@@ -1,59 +1,49 @@
 package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controllers.AddressController;
-import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.model.Address;
-import org.springframework.beans.BeanUtils;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
+// The Entity and Model types are both 'Address' because the input
+// from the service layer is already an Address model.
 public class AddressRepresentationModelAssembler extends
-    RepresentationModelAssemblerSupport<AddressEntity, Address> {
+    RepresentationModelAssemblerSupport<Address, Address> {
 
   /**
-   * Creates a new {@link RepresentationModelAssemblerSupport} using the given controller class and
-   * resource type.
+   * Creates a new {@link RepresentationModelAssemblerSupport}
+   * using the given controller class and resource type.
    */
   public AddressRepresentationModelAssembler() {
     super(AddressController.class, Address.class);
   }
 
   /**
-   * Coverts the Address entity to resource
+   * Converts the resource to HATEOAS resource
    *
-   * @param entity
+   * @param resource
    */
   @Override
-  public Address toModel(AddressEntity entity) {
+  public Address toModel(Address resource) {
 
-    //    Address resource = createModelWithId(entity.getId(), entity);
-    // 1. Manually instantiate the model instead of using createModelWithId
-    Address resource = new Address();
-
-    // 2. Copy properties and set ID
-    BeanUtils.copyProperties(entity, resource);
-    resource.setId(entity.getId().toString());
-
-    // 3. Add HATEAOS links
-    resource.add(linkTo(methodOn(AddressController.class).getAddressesById(entity.getId().toString())).withSelfRel());
+    // Add HATEOAS links
+    resource.add(linkTo(methodOn(AddressController.class).getAddressById(resource.getId())).withSelfRel());
 
     return resource;
   }
 
   /**
-   * Coverts the collection of Product entities to list of resources.
+   * Converts the collection of Address models to HATEOAS list of resources.
    *
-   * @param entities
+   * @param resources
    */
-  public List<Address> toListModel(List<AddressEntity> entities) {
-    return entities.stream().map(this::toModel).collect(toList());
+  public List<Address> toModelList(List<Address> resources) {
+    return resources.stream().map(this::toModel).toList();
   }
-
 }

@@ -5,59 +5,54 @@ import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
+import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.UserRepository;
 import com.example.ecommercedemo.model.Item;
-import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
+import org.springframework.validation.annotation.Validated;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.objenesis.instantiator.util.UnsafeUtils.getUnsafe;
 
 @Service
+@Validated
 public class CartServiceImpl implements CartService {
 
   private final CartRepository repository;
   private final UserRepository userRepo;
-  private final ItemService itemService;
+  private final ItemMapper mapper;
 
-  private final CartRepresentationModelAssembler assembler;
-
-  public CartServiceImpl(CartRepository repository, UserRepository userRepo, ItemService itemService, CartRepresentationModelAssembler assembler) {
+  public CartServiceImpl(CartRepository repository, UserRepository userRepo, ItemMapper mapper) {
     this.repository = repository;
     this.userRepo = userRepo;
-    this.itemService = itemService;
-    this.assembler = assembler;
+    this.mapper = mapper;
   }
 
   @Override
   @Transactional
-  public List<Item> addCartItemsByCustomerId(String customerId, @Valid Item item) {
+  public List<Item> addCartItemsByCustomerId(UUID customerId, Item item) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
     long count = entity.getItems().stream()
-        .filter(i -> i.getProduct().getId().equals(UUID.fromString(item.getId()))).count();
+        .filter(i -> i.getProduct().getId().equals(item.getId())).count();
     if (count > 0) {
       throw new GenericAlreadyExistsException(
           String.format("Item with Id (%s) already exists. You can update it.", item.getId()));
     }
-    entity.getItems().add(itemService.toEntity(item));
-    return itemService.toModelList(repository.save(entity).getItems());
+    entity.getItems().add(mapper.modelToEntity(item));
+    return mapper.entityToModelList(repository.save(entity).getItems());
   }
 
   @Override
   @Transactional
-  public List<Item> addOrReplaceItemsByCustomerId(String customerId, @Valid Item item) {
+  public List<Item> addOrReplaceItemsByCustomerId(UUID customerId, Item item) {
     // 1. Get the existing cart entity
     CartEntity entity = getCartEntityByCustomerId(customerId);
 
@@ -69,19 +64,16 @@ public class CartServiceImpl implements CartService {
     }
 
     // Check if the incoming item has a valid, non-null ID for matching
-    String itemId = item.getId();
+    String itemId = item.getId().toString();
     boolean itemMatched = false;
 
     if (itemId != null && !itemId.trim().isEmpty()) {
       try {
-        // Convert the DTO string ID to UUID for comparison
-        UUID itemUuid = UUID.fromString(itemId);
-
-        // 2. Iterate and update existing item
+        // Iterate and update existing item
         for (ItemEntity i : items) {
           // Safely compare the product IDs
-          if (i.getProduct() != null && i.getProduct().getId().equals(itemUuid)) {
-            // Fix 1: Convert DTO String price to Entity BigDecimal price
+          if (i.getProduct() != null && i.getProduct().getId().equals(itemId)) {
+            // Convert DTO String price to Entity BigDecimal price
             BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
 
             // Update quantity and price
@@ -103,16 +95,16 @@ public class CartServiceImpl implements CartService {
 
     // 3. Add new item if no existing item was matched
     if (!itemMatched) {
-      items.add(itemService.toEntity(item));
+      items.add(mapper.modelToEntity(item));
     }
 
     // 4. Save and return the updated list
-    return itemService.toModelList(repository.save(entity).getItems());
+    return mapper.entityToModelList(repository.save(entity).getItems());
   }
 
   @Override
   @Transactional
-  public void deleteCart(String customerId) {
+  public void deleteCart(UUID customerId) {
     // will throw the error if it doesn't exist
     CartEntity entity = getCartEntityByCustomerId(customerId);
     repository.deleteById(entity.getId());
@@ -120,27 +112,29 @@ public class CartServiceImpl implements CartService {
 
   @Override
   @Transactional
-  public void deleteItemFromCart(String customerId, String itemId) {
+  public void deleteItemFromCart(UUID customerId, UUID itemId) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
     List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(UUID.fromString(itemId))).collect(toList());
+        .filter(i -> !i.getProduct().getId().equals(itemId)).toList();
     entity.setItems(updatedItems);
     repository.save(entity);
   }
 
   @Transactional(readOnly = true)
   @Override
-  public Cart getCartByCustomerId(String customerId) {
-    CartEntity entity = getCartEntityByCustomerId(customerId);
-    return assembler.toModel(entity);
+  public Optional<Cart> getCartByCustomerId(UUID customerId) {
+    // 1. Get the entity directly from the repository, which returns Optional<CartEntity>
+    return repository.findByCustomerId(customerId)
+        // 2. Map the Optional<CartEntity> to Optional<Cart>
+        .map(this::entityToModel);
   }
 
   // Helper method
-  private CartEntity getCartEntityByCustomerId(String customerId) {
-    CartEntity entity = repository.findByCustomerId(UUID.fromString(customerId))
+  private CartEntity getCartEntityByCustomerId(UUID customerId) {
+    CartEntity entity = repository.findByCustomerId(customerId)
         .orElse(new CartEntity());
     if (Objects.isNull(entity.getUser())) {
-      entity.setUser(userRepo.findById(UUID.fromString(customerId))
+      entity.setUser(userRepo.findById(customerId)
           .orElseThrow(() -> new CustomerNotFoundException(
               String.format(" - %s", customerId))));
     }
@@ -149,24 +143,45 @@ public class CartServiceImpl implements CartService {
 
   @Transactional(readOnly = true)
   @Override
-  public List<Item> getCartItemsByCustomerId(String customerId) {
+  public List<Item> getCartItemsByCustomerId(UUID customerId) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
-    return itemService.toModelList(entity.getItems());
+    return mapper.entityToModelList(entity.getItems());
   }
 
   @Transactional(readOnly = true)
   @Override
-  public Item getCartItemsByItemId(String customerId, String itemId) {
+  public Item getCartItemsByItemId(UUID customerId, UUID itemId) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
     AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
     entity.getItems().forEach(i -> {
-      if (i.getProduct().getId().equals(UUID.fromString(itemId))) {
+      if (i.getProduct().getId().equals(itemId)) {
         itemEntity.set(i);
       }
     });
     if (Objects.isNull(itemEntity.get())) {
       getUnsafe().throwException(new ItemNotFoundException(String.format(" - %s", itemId)));
     }
-    return itemService.toModel(itemEntity.get());
+    return mapper.entityToModel(itemEntity.get());
   }
+
+  // Transform from entity to model
+  private Cart entityToModel(CartEntity entity) {
+    Cart resource = new Cart();
+
+    // Retrieve user id and cart id
+    UUID uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
+    UUID cid = Objects.nonNull(entity.getId()) ? entity.getId() : null;
+
+    // Copy properties and set ID
+    BeanUtils.copyProperties(entity, resource);
+    resource.id(cid).customerId(uid).items(mapper.entityToModelList(entity.getItems()));
+
+    return resource;
+  };
+
+  // Transform from entity list to model list
+//  private List<Cart> entityToModelList(List<CartEntity> entities) {
+//    return entities.stream().map(this::entityToModel).collect(toList());
+//  }
+
 }
