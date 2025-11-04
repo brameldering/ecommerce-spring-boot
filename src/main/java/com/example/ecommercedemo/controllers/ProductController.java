@@ -23,15 +23,15 @@ public class ProductController implements ProductApi {
   }
 
   @Override
+  public ResponseEntity<List<Product>> queryProducts(String tag, String name, Integer page, Integer size) {
+    return ok(service.getAllProducts());
+  }
+
+  @Override
   public ResponseEntity<Product> getProduct(UUID id) {
 
 //    UUID uuid = UUID.fromString(id);
     return service.getProduct(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-  }
-
-  @Override
-  public ResponseEntity<List<Product>> queryProducts(String tag, String name, Integer page, Integer size) {
-    return ok(service.getAllProducts());
   }
 }
 

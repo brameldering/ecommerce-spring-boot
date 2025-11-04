@@ -4,7 +4,6 @@ import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.mappers.UserMapper;
-import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.User;
 import com.example.ecommercedemo.repository.UserRepository;
@@ -22,13 +21,11 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository repository;
   private final UserMapper userMapper;
-  private final AddressMapper addressMapper;
   private final CardMapper cardMapper;
 
-  public UserServiceImpl(UserRepository repository, UserMapper userMapper, AddressMapper addressMapper, CardMapper cardMapper) {
+  public UserServiceImpl(UserRepository repository, UserMapper userMapper, CardMapper cardMapper) {
     this.repository = repository;
     this.userMapper = userMapper;
-    this.addressMapper = addressMapper;
     this.cardMapper = cardMapper;
   }
 
@@ -36,15 +33,6 @@ public class UserServiceImpl implements UserService {
   @Transactional(readOnly = true)
   public void deleteCustomerById(UUID id) {
     repository.deleteById(id);
-  }
-
-  // TO DO: MOVE TO ADDRESS SERVICE
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<List<Address>> getAddressesByCustomerId(UUID id) {
-    return repository.findById(id)                 // Returns Optional<UserEntity>
-        .map(UserEntity::getAddresses)         // Returns Optional<List<AddressEntity>>
-        .map(addressMapper::entityToModelList);  // Returns Optional<List<Address>>
   }
 
   @Override

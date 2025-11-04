@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -141,7 +142,7 @@ public class RestApiErrorHandler {
         ex.getValue(), ex.getRequiredType(), ex.getName(), ex.getMessage());
 
     String message = String.format("Parameter '%s' has an invalid format. Expected type: %s",
-        ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "Unknown");
+        ex.getName(), Objects.nonNull(ex.getRequiredType()) ? ex.getRequiredType().getSimpleName() : "Unknown");
 
     // Create the error object
     Error error = ErrorUtils

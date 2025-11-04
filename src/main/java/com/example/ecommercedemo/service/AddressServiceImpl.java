@@ -1,10 +1,12 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AddressEntity;
+import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.repository.AddressRepository;
 import com.example.ecommercedemo.model.AddAddressReq;
+import com.example.ecommercedemo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -17,42 +19,53 @@ import java.util.UUID;
 @Validated
 public class AddressServiceImpl implements AddressService {
 
-  private final AddressRepository repository;
+  private final AddressRepository addressRepository;
+  private final UserRepository userRepository;
   private final AddressMapper mapper;
 
-  public AddressServiceImpl(AddressRepository repository, AddressMapper mapper) {
-    this.repository = repository;
+  public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, AddressMapper mapper) {
+    this.addressRepository = addressRepository;
+    this.userRepository = userRepository;
     this.mapper = mapper;
   }
 
   @Override
   @Transactional
   public Optional<Address> createAddress(AddAddressReq addAddressReq) {
-    return Optional.of(mapper.entityToModel(repository.save(toEntity(addAddressReq))));
+    return Optional.of(mapper.entityToModel(addressRepository.save(toEntity(addAddressReq))));
   }
 
   @Override
-  @Transactional
-  public void deleteAddressById(UUID uuid) {
-    repository.deleteById(uuid);
+  @Transactional(readOnly = true)
+  public List<Address> getAllAddresses() {
+    return mapper.entityToModelList(addressRepository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Address> getAddressById(UUID uuid) {
-    return repository.findById(uuid).map(mapper::entityToModel);
+    return addressRepository.findById(uuid).map(mapper::entityToModel);
    }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Address> getAllAddresses() {
-    return mapper.entityToModelList(repository.findAll());
+  public Optional<List<Address>> getAddressesByCustomerId(UUID id) {
+    return userRepository.findById(id) // Returns Optional<UserEntity>
+        .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
+        .map(mapper::entityToModelList); // Returns Optional<List<Address>>
   }
 
+  //  TO DO MOVE TO MAPPER
   private AddressEntity toEntity(AddAddressReq model) {
     AddressEntity entity = new AddressEntity();
     return entity.setNumber(model.getNumber()).setResidency(model.getResidency())
         .setStreet(model.getStreet()).setCity(model.getCity()).setState(model.getState())
         .setCountry(model.getCountry()).setZipcode(model.getZipcode());
+  }
+
+  @Override
+  @Transactional
+  public void deleteAddressById(UUID uuid) {
+    addressRepository.deleteById(uuid);
   }
 }

@@ -1,8 +1,6 @@
 package com.example.ecommercedemo.mappers;
 
 import com.example.ecommercedemo.entity.CardEntity;
-import com.example.ecommercedemo.entity.UserEntity;
-import com.example.ecommercedemo.model.AddCardReq;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.service.CardServiceImpl;
 import org.slf4j.Logger;

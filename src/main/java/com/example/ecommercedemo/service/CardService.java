@@ -9,8 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CardService {
-  void deleteCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
+  Optional<Card> registerCard(AddCardReq addCardReq);
   List<Card> getAllCards();
   Optional<Card> getCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
-  Optional<Card> registerCard(AddCardReq addCardReq);
+  Optional<List<Card>> getCardsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
+  void deleteCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
 }

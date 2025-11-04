@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.accepted;
@@ -40,24 +41,33 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteAddressById(UUID uuid) {
-//    UUID uuid = UUID.fromString(id);
-    service.deleteAddressById(uuid);
-    return accepted().build();
+  public ResponseEntity<List<Address>> getAddresses(UUID customerId) {
+    List<Address> addresses;
+
+    // Check if the optional query parameter 'customerId' is provided (is not null)
+    if (Objects.nonNull(customerId)) {
+      // If customerId is provided, filter by customer
+      addresses = service.getAddressesByCustomerId(customerId).orElse(List.of());
+    } else {
+      // If customerId is null, return all addresses
+      addresses = service.getAllAddresses();
+    }
+
+    // Apply HATEOAS links and return
+    List<Address> addressesWithLinks = assembler.toModelList(addresses);
+    return ResponseEntity.ok(addressesWithLinks);
   }
 
   @Override
   public ResponseEntity<Address> getAddressById(UUID uuid) {
-//    UUID uuid = UUID.fromString(id);
     return service.getAddressById(uuid)
         .map(assembler::toModel) // add HATEOAS links
         .map(ResponseEntity::ok).orElse(notFound().build());
   }
 
   @Override
-  public ResponseEntity<List<Address>> getAllAddresses() {
-    List<Address> addresses = service.getAllAddresses();
-    List<Address> addressesWithLinks = assembler.toModelList(addresses);
-    return ResponseEntity.ok(addressesWithLinks);
+  public ResponseEntity<Void> deleteAddressById(UUID uuid) {
+    service.deleteAddressById(uuid);
+    return accepted().build();
   }
 }

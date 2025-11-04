@@ -11,7 +11,8 @@ import java.util.UUID;
 
 public interface AddressService {
   Optional<Address> createAddress(@Valid AddAddressReq addAddressReq);
-  void deleteAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
-  Optional<Address> getAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
   List<Address> getAllAddresses();
-}
+  Optional<Address> getAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
+  Optional<List<Address>> getAddressesByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
+  void deleteAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
+  }

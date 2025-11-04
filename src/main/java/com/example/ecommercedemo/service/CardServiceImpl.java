@@ -22,32 +22,14 @@ import java.util.UUID;
 @Validated
 public class CardServiceImpl implements CardService {
 
-  private final CardRepository repository;
-  private final UserRepository userRepo;
+  private final CardRepository cardRepository;
+  private final UserRepository userRepository;
   private final CardMapper mapper;
 
-  public CardServiceImpl(CardRepository repository, UserRepository userRepo, CardMapper mapper) {
-    this.repository = repository;
-    this.userRepo = userRepo;
+  public CardServiceImpl(CardRepository cardRepository, UserRepository userRepository, CardMapper mapper) {
+    this.cardRepository = cardRepository;
+    this.userRepository = userRepository;
     this.mapper = mapper;
-  }
-
-  @Override
-  @Transactional
-  public void deleteCardById(UUID uuid) {
-    repository.deleteById(uuid);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public List<Card> getAllCards() {
-    return mapper.entityToModelList(repository.findAll());
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Card> getCardById(UUID uuid) {
-    return repository.findById(uuid).map(mapper::entityToModel);
   }
 
   @Override
@@ -56,11 +38,11 @@ public class CardServiceImpl implements CardService {
     UUID userId = addCardReq.getUserId();
 
     // Check if user exists
-    UserEntity user = userRepo.findById(userId)
+    UserEntity user = userRepository.findById(userId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
     // Check if a card already exists for this user
-    if (repository.existsByUserId(userId)) {
+    if (cardRepository.existsByUserId(userId)) {
       throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
     }
 
@@ -71,7 +53,33 @@ public class CardServiceImpl implements CardService {
         .setCvv(addCardReq.getCvv())
         .setExpires(addCardReq.getExpires());
 
-    CardEntity saved = repository.save(cardEntity);
+    CardEntity saved = cardRepository.save(cardEntity);
     return Optional.of(mapper.entityToModel(saved));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Card> getAllCards() {
+    return mapper.entityToModelList(cardRepository.findAll());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<List<Card>> getCardsByCustomerId(UUID id) {
+    return userRepository.findById(id) // Returns Optional<UserEntity>
+        .map(UserEntity::getCards) // Returns Optional<List<CardEntity>>
+        .map(mapper::entityToModelList); // Returns Optional<List<Card>>
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Card> getCardById(UUID uuid) {
+    return cardRepository.findById(uuid).map(mapper::entityToModel);
+  }
+
+  @Override
+  @Transactional
+  public void deleteCardById(UUID uuid) {
+    cardRepository.deleteById(uuid);
   }
 }

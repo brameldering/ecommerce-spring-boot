@@ -67,12 +67,12 @@ public class CartServiceImpl implements CartService {
     String itemId = item.getId().toString();
     boolean itemMatched = false;
 
-    if (itemId != null && !itemId.trim().isEmpty()) {
+    if (Objects.nonNull(itemId) && !itemId.trim().isEmpty()) {
       try {
         // Iterate and update existing item
         for (ItemEntity i : items) {
           // Safely compare the product IDs
-          if (i.getProduct() != null && i.getProduct().getId().equals(itemId)) {
+          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().equals(itemId)) {
             // Convert DTO String price to Entity BigDecimal price
             BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
 
@@ -100,24 +100,6 @@ public class CartServiceImpl implements CartService {
 
     // 4. Save and return the updated list
     return mapper.entityToModelList(repository.save(entity).getItems());
-  }
-
-  @Override
-  @Transactional
-  public void deleteCart(UUID customerId) {
-    // will throw the error if it doesn't exist
-    CartEntity entity = getCartEntityByCustomerId(customerId);
-    repository.deleteById(entity.getId());
-  }
-
-  @Override
-  @Transactional
-  public void deleteItemFromCart(UUID customerId, UUID itemId) {
-    CartEntity entity = getCartEntityByCustomerId(customerId);
-    List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(itemId)).toList();
-    entity.setItems(updatedItems);
-    repository.save(entity);
   }
 
   @Transactional(readOnly = true)
@@ -164,6 +146,24 @@ public class CartServiceImpl implements CartService {
     return mapper.entityToModel(itemEntity.get());
   }
 
+  @Override
+  @Transactional
+  public void deleteCart(UUID customerId) {
+    // will throw the error if it doesn't exist
+    CartEntity entity = getCartEntityByCustomerId(customerId);
+    repository.deleteById(entity.getId());
+  }
+
+  @Override
+  @Transactional
+  public void deleteItemFromCart(UUID customerId, UUID itemId) {
+    CartEntity entity = getCartEntityByCustomerId(customerId);
+    List<ItemEntity> updatedItems = entity.getItems().stream()
+        .filter(i -> !i.getProduct().getId().equals(itemId)).toList();
+    entity.setItems(updatedItems);
+    repository.save(entity);
+  }
+
   // Transform from entity to model
   private Cart entityToModel(CartEntity entity) {
     Cart resource = new Cart();
@@ -178,10 +178,4 @@ public class CartServiceImpl implements CartService {
 
     return resource;
   };
-
-  // Transform from entity list to model list
-//  private List<Cart> entityToModelList(List<CartEntity> entities) {
-//    return entities.stream().map(this::entityToModel).collect(toList());
-//  }
-
 }

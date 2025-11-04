@@ -15,9 +15,15 @@ externalDocs:
   description: Any document link you want to generate along with API.
   url: http://swagger.io
 servers:
-  - url: /  # Use a relative path
+  - url: /  # Relative path which maps to localhost:8080 on dev
     description: Current server
 tags:
+  - name: product
+    description: Operations about products
+  - name: customer
+    description: Operations about user's persona customer
+  - name: address
+    description: Operations about user's address
   - name: cart
     description: Everything about cart
     externalDocs:
@@ -25,17 +31,351 @@ tags:
       url: http://swagger.io
   - name: order
     description: Operation about orders
-  - name: customer
-    description: Operations about user's persona customer
-  - name: address
-    description: Operations about user's address
   - name: payment
     description: Operations about payments
   - name: shipment
     description: Operations about shippings
-  - name: product
-    description: Operations about products
 paths:
+  /api/v1/products:
+    get:
+      tags:
+        - product
+      summary: Returns all the matched products
+      description: Returns the products that matches the given query criteria
+      operationId: queryProducts
+      parameters:
+        - name: tag
+          in: query
+          description: Product tag
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Product name
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Query page number
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: size
+          in: query
+          description: Query page size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+  /api/v1/products/{id}:
+    get:
+      tags:
+        - product
+      summary: Returns a product
+      description: Returns the product that matches the given product ID
+      operationId: getProduct
+      parameters:
+        - name: id
+          in: path
+          description: Product Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Product'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+  /api/v1/customers:
+    get:
+      tags:
+        - customer
+      summary: Returns all customers
+      description: Returns all customers, or empty collection if no use found
+      operationId: getAllCustomers
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /api/v1/customers/{id}:
+    get:
+      tags:
+        - customer
+      summary: Returns a customer
+      description: Returns a customers identifiable by given ID
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - customer
+      summary: Deletes the customer
+      description: Deletes the customer identifiable by given ID
+      operationId: deleteCustomerById
+      parameters:
+        - name: id
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        202:
+          description: Request accepted, returns this status even if user does not exist
+          content: {}
+  /api/v1/addresses:
+    get:
+      tags:
+        - address
+      summary: Returns all addresses or filters them by Customer ID if provided as query parameter
+      description: Returns all addresses in the system, or a filtered collection if a Customer ID is provided as query parameter. Returns an empty collection if no results are found.
+      operationId: getAddresses
+      parameters:
+        - name: customerId
+          in: query
+          description: Optional Customer Identifier to filter the address collection.
+          required: false # Optional Customer ID query parameter
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch. Returns a collection of addresses.
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Address'
+            application/json:
+              schema:
+                type: array # Ensure the JSON schema is an array, matching the XML type
+                items:
+                  $ref: '#/components/schemas/Address'
+    post:
+      tags:
+        - address
+      summary: Creates a new user addresses
+      description: Creates a new user addresses. Does nothing if address already exists.
+      operationId: createAddress
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddAddressReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAddressReq'
+      responses:
+        201: # 201 for resource creation
+          description: The address resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Address'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+  /api/v1/addresses/{id}:
+    get:
+      tags:
+        - address
+      summary: Returns address
+      description: Returns a customer address based on given address ID.
+      operationId: getAddressById
+      parameters:
+        - name: id
+          in: path
+          description: address Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Address'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+    delete:
+      tags:
+        - address
+      summary: Deletes user's address
+      description: Deletes user's address based on given address ID.
+      operationId: deleteAddressById
+      parameters:
+        - name: id
+          in: path
+          description: address Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        202:
+          description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
+          content: {}
+  /api/v1/cards:
+    get:
+      tags:
+        - card
+      summary: Returns all cards or filters them by Customer ID if provided as query parameter
+      description: Returns all cards in the system, or a filtered collection if a Customer ID is provided as query parameter. Returns an empty collection if no results are found.
+      operationId: getCards
+      parameters:
+        - name: customerId
+          in: query
+          description: Optional Customer Identifier to filter the cards collection.
+          required: false # Optional Customer ID query parameter
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch. Returns a collection of cards.
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+    post:
+      tags:
+        - card
+      summary: Creates a new user card
+      description: Creates a new user card. Does nothing if card already exists.
+      operationId: registerCard
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddCardReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCardReq'
+      responses:
+        201: # 201 for resource creation
+          description: The card resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Card'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+  /api/v1/cards/{id}:
+    get:
+      tags:
+        - card
+      summary: Returns a card
+      description: Returns a card based on given card ID.
+      operationId: getCardById
+      parameters:
+        - name: id
+          in: path
+          description: card Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Card'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+    delete:
+      tags:
+        - card
+      summary: Deletes card's address
+      description: Deletes card's address based on given card ID.
+      operationId: deleteCardById
+      parameters:
+        - name: id
+          in: path
+          description: card Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        202:
+          description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
+          content: {}
   /api/v1/carts/{customerId}:
     get:
       tags:
@@ -354,306 +694,6 @@ paths:
         404:
           description: Order doesn't exist for given user.
           content: {}
-  /api/v1/customers:
-    get:
-      tags:
-        - customer
-      summary: Returns all customers
-      description: Returns all customers, or empty collection if no use found
-      operationId: getAllCustomers
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-  /api/v1/customers/{id}:
-    get:
-      tags:
-        - customer
-      summary: Returns a customer
-      description: Returns a customers identifiable by given ID
-      operationId: getCustomerById
-      parameters:
-        - name: id
-          in: path
-          description: Customer Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-    delete:
-      tags:
-        - customer
-      summary: Deletes the customer
-      description: Deletes the customer identifiable by given ID
-      operationId: deleteCustomerById
-      parameters:
-        - name: id
-          in: path
-          description: Customer Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        202:
-          description: Request accepted, returns this status even if user does not exist
-          content: {}
-  /api/v1/customers/{id}/cards:
-    get:
-      tags:
-        - customer
-      summary: Returns all customer's cards
-      description: Returns all customer's cards based on given customer ID
-      operationId: getCardByCustomerId
-      parameters:
-        - name: id
-          in: path
-          description: Customer Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Card'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Card'
-  /api/v1/customers/{id}/addresses:
-    get:
-      tags:
-        - customer
-      summary: Returns all customer's addresses
-      description: Returns all customer's addresses based on given customer ID
-      operationId: getAddressesByCustomerId
-      parameters:
-        - name: id
-          in: path
-          description: Customer Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Address'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
-  /api/v1/addresses:
-    get:
-      tags:
-        - address
-      summary: Returns all user's addresses
-      description: Returns all user's addresses, else empty collection
-      operationId: getAllAddresses
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Address'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Address'
-    post:
-      tags:
-        - address
-      summary: Creates a new user addresses
-      description: Creates a new user addresses. Does nothing if address already exists.
-      operationId: createAddress
-      requestBody:
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/AddAddressReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddAddressReq'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Address'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
-  /api/v1/addresses/{id}:
-    get:
-      tags:
-        - address
-      summary: Returns user's address
-      description: Returns user's address based on given address ID.
-      operationId: getAddressById
-      parameters:
-        - name: id
-          in: path
-          description: address Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Address'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
-    delete:
-      tags:
-        - address
-      summary: Deletes user's address
-      description: Deletes user's address based on given address ID.
-      operationId: deleteAddressById
-      parameters:
-        - name: id
-          in: path
-          description: address Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        202:
-          description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
-          content: {}
-  /api/v1/cards:
-    get:
-      tags:
-        - card
-      summary: Returns all user's cards
-      description: Returns all user's cards, else empty collection
-      operationId: getAllCards
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Card'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Card'
-    post:
-      tags:
-        - card
-      summary: Creates a new user card
-      description: Creates a new user card. Does nothing if card already exists.
-      operationId: registerCard
-      requestBody:
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/AddCardReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddCardReq'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Card'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Card'
-  /api/v1/cards/{id}:
-    get:
-      tags:
-        - card
-      summary: Returns user's card
-      description: Returns user's card based on given card ID.
-      operationId: getCardById
-      parameters:
-        - name: id
-          in: path
-          description: card Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Card'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Card'
-    delete:
-      tags:
-        - card
-      summary: Deletes card's address
-      description: Deletes card's address based on given card ID.
-      operationId: deleteCardById
-      parameters:
-        - name: id
-          in: path
-          description: card Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        202:
-          description: Accepts the deletion request and perform deletion. If ID does not exist, does nothing.
-          content: {}
   /api/v1/payments:
     post:
       tags:
@@ -670,8 +710,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PaymentReq'
       responses:
-        200:
-          description: For successful fetch.
+        201: # Use 201 Created for resource creation
+          description: The payment resource was successfully created.
           content:
             application/xml:
               schema:
@@ -720,8 +760,8 @@ paths:
             schema:
               $ref: '#/components/schemas/ShippingReq'
       responses:
-        201:
-          description: For successful post.
+        201: # Use 201 Created for resource creation
+          description: The shipment resource was successfully created.
           content:
             application/xml:
               schema:
@@ -759,84 +799,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Shipment'
-  /api/v1/products:
-    get:
-      tags:
-        - product
-      summary: Returns all the matched products
-      description: Returns the products that matches the given query criteria
-      operationId: queryProducts
-      parameters:
-        - name: tag
-          in: query
-          description: Product tag
-          required: false
-          schema:
-            type: string
-        - name: name
-          in: query
-          description: Product name
-          required: false
-          schema:
-            type: string
-        - name: page
-          in: query
-          description: Query page number
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 1
-        - name: size
-          in: query
-          description: Query page size
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 10
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
-  /api/v1/products/{id}:
-    get:
-      tags:
-        - product
-      summary: Returns a product
-      description: Returns the product that matches the given product ID
-      operationId: getProduct
-      parameters:
-        - name: id
-          in: path
-          description: Product Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Product'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
 components:
   schemas:
+    URI:
+      type: object
+      xml:
+        name: URI
     BigDecimal:
       type: string
       description: High-precision decimal number. Transmitted as a string to preserve precision.
@@ -891,6 +859,38 @@ components:
         name:
           description: Tag Name
           type: string
+    User:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        id:
+          description: The id of the user
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
+        username:
+          type: string
+          minLength: 3
+          maxLength: 40
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 4
+        phone:
+          type: string
+        userStatus:
+          type: string
+      xml:
+        name: User
     AddressBase:
       type: object
       required:
@@ -951,7 +951,7 @@ components:
       type: object
       description: "Represents a complete address resource, including its ID."
       allOf:
-          - $ref: '#/components/schemas/AddressBase'
+        - $ref: '#/components/schemas/AddressBase'
       properties:
         id:
           description: Address identifier
@@ -1002,38 +1002,18 @@ components:
               example: 123e4567-e89b-12d3-a456-426614174000
       xml:
         name: AddCardReq
-    User:
+    CustomerInfoOnCard:
+      description: Customer information required for payment processing
       type: object
-      required:
-        - username
-        - email
-        - password
       properties:
-        id:
-          description: The id of the user
-          type: string
-          format: uuid
-          example: 00000000-0000-0000-0000-000000000001
-        username:
-          type: string
-          minLength: 3
-          maxLength: 40
         firstName:
+          description: Customer first name
           type: string
         lastName:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 4
-        phone:
-          type: string
-        userStatus:
+          description: Customer last name
           type: string
       xml:
-        name: User
+        name: CustomerInfoOnCard
     Item:
       description: Items in shopping cart
       type: object
@@ -1097,13 +1077,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Item'
-            minItems: 1
       xml:
         name: NewOrder
-    URI:
-      type: object
-      xml:
-        name: URI
     Order:
       description: Represents an order
       type: object
@@ -1197,18 +1172,6 @@ components:
             - description: Payment amount
       xml:
         name: PaymentReq
-    CustomerInfoOnCard:
-      description: Customer information required for payment processing
-      type: object
-      properties:
-        firstName:
-          description: Customer first name
-          type: string
-        lastName:
-          description: Customer last name
-          type: string
-      xml:
-        name: CustomerInfoOnCard
     Payment:
       type: object
       properties:

@@ -1,5 +1,6 @@
 package com.example.ecommercedemo.hateoas;
 
+import com.example.ecommercedemo.controllers.AddressController;
 import com.example.ecommercedemo.controllers.CustomerController;
 import com.example.ecommercedemo.model.User;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
@@ -35,7 +36,7 @@ public class UserRepresentationModelAssembler extends
 
     resource.add(linkTo(methodOn(CustomerController.class).getAllCustomers()).withRel("customers"));
 
-    resource.add(linkTo(methodOn(CustomerController.class).getAddressesByCustomerId(resource.getId())).withRel("self_addresses"));
+    resource.add(linkTo(methodOn(AddressController.class).getAddresses(resource.getId())).withRel("self_addresses"));
 
     return resource;
   }
