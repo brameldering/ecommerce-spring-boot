@@ -16,7 +16,7 @@ public class ItemMapper {
 
   public ItemEntity modelToEntity(Item item) {
     ItemEntity itemEntity = new ItemEntity();
-    itemEntity.setProduct(new ProductEntity().setId(item.getId()))
+    itemEntity.setProduct(new ProductEntity().setId(item.getProductId()))
         // Convert the getUnitPrice string from Item to a BigDecimal to be used for the ItemEntity
         .setPrice(new BigDecimal(item.getUnitPrice()))
         .setQuantity(item.getQuantity());
@@ -33,7 +33,7 @@ public class ItemMapper {
   public Item entityToModel(ItemEntity entity) {
     Item resource = new Item();
     // Convert price from BigDecimal to String
-    resource.id(entity.getProduct().getId()).unitPrice(entity.getPrice().toString()).quantity(entity.getQuantity());
+    resource.productId(entity.getProduct().getId()).unitPrice(entity.getPrice().toString()).quantity(entity.getQuantity());
     return resource;
   }
 

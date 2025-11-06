@@ -2,7 +2,7 @@ package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.CardApi;
 import com.example.ecommercedemo.hateoas.CardRepresentationModelAssembler;
-import com.example.ecommercedemo.model.AddCardReq;
+import com.example.ecommercedemo.model.CardReq;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.service.CardService;
 
@@ -36,8 +36,8 @@ public class CardController implements CardApi {
   }
 
   @Override
-  public ResponseEntity<Card> registerCard(AddCardReq addCardReq) {
-    Card newCard = service.registerCard(addCardReq).get();
+  public ResponseEntity<Card> registerCard(CardReq cardReq) {
+    Card newCard = service.registerCard(cardReq).get();
     // Add HATEOAS links to the newly created card
     Card cardWithLinks = assembler.toModel(newCard);
     return status(HttpStatus.CREATED).body(cardWithLinks);

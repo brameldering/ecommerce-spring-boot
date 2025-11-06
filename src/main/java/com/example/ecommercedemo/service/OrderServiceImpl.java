@@ -5,7 +5,7 @@ import com.example.ecommercedemo.mappers.OrderMapper;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.repository.OrderRepository;
-import com.example.ecommercedemo.model.NewOrder;
+import com.example.ecommercedemo.model.OrderReq;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,32 +30,22 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
-  public Optional<Order> addOrder(NewOrder newOrder) {
+  public Optional<Order> addOrder(OrderReq orderReq) {
 
     // Check whether customerid is valid
-    Optional.ofNullable(newOrder.getCustomerId())
+    Optional.ofNullable(orderReq.getCustomerId())
             .orElseThrow(() -> new ResourceNotFoundException("Invalid customer id."));
 
-    // 1. Check whether address has been assigned to the order
-    Optional.ofNullable(newOrder.getAddress())
+    // Check whether address has been assigned to the order
+    Optional.ofNullable(orderReq.getAddressId())
         .orElseThrow(() -> new ResourceNotFoundException("Invalid address."));
-    // 2. Check Address ID and its content
-    Optional.ofNullable(newOrder.getAddress().getId())
-        .map(UUID::toString)
-        .filter(s -> !s.isEmpty())
-        .orElseThrow(() -> new ResourceNotFoundException("Invalid address id."));
 
-    // 1. Check whether address has been assigned to the order
-    Optional.ofNullable(newOrder.getCard())
+    // Check whether card has been assigned to the order
+    Optional.ofNullable(orderReq.getCardId())
         .orElseThrow(() -> new ResourceNotFoundException("Invalid card."));
-    // 2. Check Address ID and its content
-    Optional.ofNullable(newOrder.getCard().getId())
-        .map(UUID::toString)
-        .filter(s -> !s.isEmpty())
-        .orElseThrow(() -> new ResourceNotFoundException("Invalid card id."));
 
     // 1. Save Order
-    return repository.insert(newOrder).map(mapper::entityToModel);
+    return repository.insert(orderReq).map(mapper::entityToModel);
     // Ideally, here it will trigger the rest of the process
     // 2. Initiate the payment
     // 3. Once the payment is authorized, change the status to paid

@@ -3,7 +3,7 @@ package com.example.ecommercedemo.controllers;
 import com.example.ecommercedemo.api.AddressApi;
 import com.example.ecommercedemo.exceptions.AddressCreationException;
 import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
-import com.example.ecommercedemo.model.AddAddressReq;
+import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.service.AddressService;
 import org.springframework.http.HttpStatus;
@@ -36,8 +36,8 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<Address> createAddress(AddAddressReq addAddressReq) {
-    return service.createAddress(addAddressReq)
+  public ResponseEntity<Address> createAddress(AddressReq addressReq) {
+    return service.createAddress(addressReq)
         .map(assembler::toModel) // add HATEOAS links
         .map(address -> status(HttpStatus.CREATED).body(address))
         .orElseThrow(() -> new AddressCreationException("Address creation failed"));

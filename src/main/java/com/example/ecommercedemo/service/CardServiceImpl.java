@@ -9,7 +9,7 @@ import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.repository.CardRepository;
 import com.example.ecommercedemo.repository.UserRepository;
-import com.example.ecommercedemo.model.AddCardReq;
+import com.example.ecommercedemo.model.CardReq;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -34,7 +34,7 @@ public class CardServiceImpl implements CardService {
 
   @Override
   @Transactional
-  public Optional<Card> registerCard(AddCardReq addCardReq) {
+  public Optional<Card> registerCard(CardReq addCardReq) {
     UUID userId = addCardReq.getUserId();
 
     // Check if user exists

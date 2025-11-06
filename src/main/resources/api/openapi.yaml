@@ -537,10 +537,10 @@ paths:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/AddAddressReq'
+              $ref: '#/components/schemas/AddressReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/AddAddressReq'
+              $ref: '#/components/schemas/AddressReq'
       responses:
         201: # 201 for resource creation
           description: The address resource was successfully created.
@@ -627,10 +627,10 @@ paths:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/AddCardReq'
+              $ref: '#/components/schemas/CardReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/AddCardReq'
+              $ref: '#/components/schemas/CardReq'
       responses:
         201: # 201 for resource creation
           description: The card resource was successfully created.
@@ -721,10 +721,10 @@ paths:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/NewOrder'
+              $ref: '#/components/schemas/OrderReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/NewOrder'
+              $ref: '#/components/schemas/OrderReq'
       responses:
         201:
           description: Order added successfully
@@ -828,10 +828,10 @@ paths:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/ShippingReq'
+              $ref: '#/components/schemas/ShipmentReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/ShippingReq'
+              $ref: '#/components/schemas/ShipmentReq'
       responses:
         201: # Use 201 Created for resource creation
           description: The shipment resource was successfully created.
@@ -1004,7 +1004,7 @@ components:
           maxLength: 20
       xml:
         name: AddressBase
-    AddAddressReq:
+    AddressReq:
       allOf:
         - $ref: '#/components/schemas/AddressBase'
         - type: object
@@ -1015,51 +1015,53 @@ components:
               type: string
               format: uuid
       xml:
-        name: AddAddressReq
+        name: AddressReq
     Address:
       type: object
-      description: "Represents a complete address resource, including its ID."
+      description: "Represents a complete address resource, including its ID and associated User ID."
       allOf:
         - $ref: '#/components/schemas/AddressBase'
+      required:
+        - id
+        - userId
       properties:
         id:
           description: Address identifier
           type: string
           format: uuid
           example: 00000000-0000-0000-0000-000000000001
+        userId:
+          description: The customer ID associated with this address.
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
       xml:
         name: Address
-    Card:
+    CardDetailsBase:
+      description: Base properties for a credit/debit card.
       type: object
       required:
         - cardNumber
         - expires
         - cvv
       properties:
-        id:
-          description: Card identifier
-          type: string
-          format: uuid
-          example: 00000000-0000-0000-0000-000000000001
         cardNumber:
-          description: Card Number
+          description: Card Number (The full number should only be sent in the request, not returned)
           type: string
         expires:
-          description: Expiration date
+          description: Expiration date (e.g., MM/YY or MM/YYYY)
           type: string
+          pattern: '^(0[1-9]|1[0-2])\/\d{2}(\d{2})?$' # Example: MM/YY or MM/YYYY
         cvv:
-          description: CVV code
+          description: CVV code (Only sent in the request, never stored or returned)
           type: string
-        userId:
-          type: string
-          format: uuid
-          example: 00000000-0000-0000-0000-000000000001
+          pattern: '^\d{3,4}$' # 3 or 4 digits
       xml:
-        name: Card
-    AddCardReq:
+        name: CardDetailsBase
+    CardReq:
       description: Request object for new card registration.
       allOf:
-        - $ref: '#/components/schemas/Card'
+        - $ref: '#/components/schemas/CardDetailsBase'
         - type: object
           required:
             - userId
@@ -1070,7 +1072,40 @@ components:
               format: uuid
               example: 123e4567-e89b-12d3-a456-426614174000
       xml:
-        name: AddCardReq
+        name: CardReq
+    Card:
+      type: object
+      description: Represents a registered Card resource, with masked details.
+      allOf:
+          - $ref: '#/components/schemas/CardDetailsBase'
+      required:
+        - id
+        - cardNumber
+        - expires
+      properties:
+        id:
+          description: Card identifier
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
+        cardNumber:
+          description: Card Number (Masked for security)
+          type: string
+          example: '************1234'
+        expires:
+          description: Expiration date (MM/YY or MM/YYYY)
+          type: string
+        cvv:
+          description: CVV code (Excluded from the response for security)
+          type: string
+          readOnly: true
+          example: '***'
+        userId: # Included for clarity, as this is a resource tied to a user
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
+      xml:
+        name: Card
     CustomerInfoOnCard:
       description: Customer information required for payment processing
       type: object
@@ -1089,12 +1124,12 @@ components:
       xml:
         name: Item
       required:
-        - id
+        - productId
         - quantity
         - unitPrice
       properties:
-        id:
-          description: Product Identifier
+        productId:
+          description: Product Identifier for this item
           type: string
           format: uuid
           example: 00000000-0000-0000-0000-000000000001
@@ -1126,7 +1161,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Item'
-    NewOrder:
+    OrderReq:
       description: Contains the new order request information
       type: object
       required:
@@ -1140,17 +1175,21 @@ components:
           type: string
           format: uuid
           example: 00000000-0000-0000-0000-000000000001
-        address:
-          $ref: '#/components/schemas/Address'
-        card:
-          $ref: '#/components/schemas/Card'
+        addressId: # Changed to reference
+          description: Identifier of the customer's shipping address
+          type: string
+          format: uuid
+        cardId:    # Changed to reference
+          description: Identifier of the customer's payment card
+          type: string
+          format: uuid
         items:
-          description: Items in shopping cart
+          description: Items for the order (typically pulled from the cart, but can be specified).
           type: array
           items:
             $ref: '#/components/schemas/Item'
       xml:
-        name: NewOrder
+        name: OrderReq
     Order:
       description: Represents an order
       type: object
@@ -1260,12 +1299,12 @@ components:
           type: string
       xml:
         name: Payment
-    ShippingReq:
-      description: Contains information required for Shipping request
+    ShipmentReq:
+      description: Contains information required for the shipment request
       type: object
       properties:
         orderId:
-          description: ShippingReq Identifier
+          description: ShipmentReq Identifier
           type: string
           format: uuid
           example: 00000000-0000-0000-0000-000000000001
@@ -1276,7 +1315,7 @@ components:
           type: integer
           format: int32
       xml:
-        name: ShippingReq
+        name: ShipmentReq
     Shipment:
       type: object
       properties:

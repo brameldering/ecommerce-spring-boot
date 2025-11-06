@@ -2,7 +2,7 @@ package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.OrderApi;
 import com.example.ecommercedemo.exceptions.OrderCreationException;
-import com.example.ecommercedemo.model.NewOrder;
+import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.service.OrderService;
 import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
@@ -34,8 +34,8 @@ public class OrderController implements OrderApi {
   }
 
   @Override
-  public ResponseEntity<Order> addOrder(NewOrder newOrder) {
-    return service.addOrder(newOrder)
+  public ResponseEntity<Order> addOrder(OrderReq orderReq) {
+    return service.addOrder(orderReq)
         .map(order -> status(HttpStatus.CREATED).body(order))
         .orElseThrow(() -> new OrderCreationException("Order creation failed"));
   }

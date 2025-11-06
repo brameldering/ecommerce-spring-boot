@@ -4,8 +4,8 @@ import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
+import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.repository.AddressRepository;
-import com.example.ecommercedemo.model.AddAddressReq;
 import com.example.ecommercedemo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +31,8 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional
-  public Optional<Address> createAddress(AddAddressReq addAddressReq) {
-    return Optional.of(mapper.entityToModel(addressRepository.save(toEntity(addAddressReq))));
+  public Optional<Address> createAddress(AddressReq addressReq) {
+    return Optional.of(mapper.entityToModel(addressRepository.save(toEntity(addressReq))));
   }
 
   @Override
@@ -56,7 +56,7 @@ public class AddressServiceImpl implements AddressService {
   }
 
   //  TO DO MOVE TO MAPPER
-  private AddressEntity toEntity(AddAddressReq model) {
+  private AddressEntity toEntity(AddressReq model) {
     AddressEntity entity = new AddressEntity();
     return entity.setNumber(model.getNumber()).setResidency(model.getResidency())
         .setStreet(model.getStreet()).setCity(model.getCity()).setState(model.getState())

@@ -41,10 +41,10 @@ public class CartServiceImpl implements CartService {
   public List<Item> addCartItemsByCustomerId(UUID customerId, Item item) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
     long count = entity.getItems().stream()
-        .filter(i -> i.getProduct().getId().equals(item.getId())).count();
+        .filter(i -> i.getProduct().getId().equals(item.getProductId())).count();
     if (count > 0) {
       throw new GenericAlreadyExistsException(
-          String.format("Item with Id (%s) already exists. You can update it.", item.getId()));
+          String.format("Item with Id (%s) already exists. You can update it.", item.getProductId()));
     }
     entity.getItems().add(mapper.modelToEntity(item));
     return mapper.entityToModelList(repository.save(entity).getItems());
@@ -64,15 +64,15 @@ public class CartServiceImpl implements CartService {
     }
 
     // Check if the incoming item has a valid, non-null ID for matching
-    String itemId = item.getId().toString();
+    String productId = item.getProductId().toString();
     boolean itemMatched = false;
 
-    if (Objects.nonNull(itemId) && !itemId.trim().isEmpty()) {
+    if (Objects.nonNull(productId) && !productId.trim().isEmpty()) {
       try {
         // Iterate and update existing item
         for (ItemEntity i : items) {
           // Safely compare the product IDs
-          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().equals(itemId)) {
+          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().equals(productId)) {
             // Convert DTO String price to Entity BigDecimal price
             BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
 
@@ -86,7 +86,7 @@ public class CartServiceImpl implements CartService {
         }
       } catch (IllegalArgumentException e) {
         // Log/handle if the ID string is not a valid UUID format
-        throw new IllegalArgumentException("Invalid item ID format: " + itemId, e);
+        throw new IllegalArgumentException("Invalid item ID format: " + productId, e);
       }
     } else {
       // Decide policy: If no ID is provided, should it always be treated as a new item?

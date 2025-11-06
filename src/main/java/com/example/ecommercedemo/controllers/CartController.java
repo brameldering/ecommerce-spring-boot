@@ -47,7 +47,7 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, Item item) {
 
-    // TO DO: Add HATEOAS links to all cards in the list
+    // TO DO: Add HATEOAS links to all cart s in the list
     //    List<Item> cartItemsWithLinks = assembler.toListModel(items);
     return ok(service.addOrReplaceItemsByCustomerId(customerId, item));
   }
