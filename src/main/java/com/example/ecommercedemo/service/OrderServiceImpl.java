@@ -7,13 +7,11 @@ import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.repository.OrderRepository;
 import com.example.ecommercedemo.model.NewOrder;
 
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,15 +31,29 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public Optional<Order> addOrder(NewOrder newOrder) {
-    if (Strings.isEmpty(newOrder.getCustomerId().toString())) {
-      throw new ResourceNotFoundException("Invalid customer id.");
-    }
-    if (Objects.isNull(newOrder.getAddress()) || Strings.isEmpty(newOrder.getAddress().getId().toString())) {
-      throw new ResourceNotFoundException("Invalid address id.");
-    }
-    if (Objects.isNull(newOrder.getCard()) || Strings.isEmpty(newOrder.getCard().getId().toString())) {
-      throw new ResourceNotFoundException("Invalid card id.");
-    }
+
+    // Check whether customerid is valid
+    Optional.ofNullable(newOrder.getCustomerId())
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid customer id."));
+
+    // 1. Check whether address has been assigned to the order
+    Optional.ofNullable(newOrder.getAddress())
+        .orElseThrow(() -> new ResourceNotFoundException("Invalid address."));
+    // 2. Check Address ID and its content
+    Optional.ofNullable(newOrder.getAddress().getId())
+        .map(UUID::toString)
+        .filter(s -> !s.isEmpty())
+        .orElseThrow(() -> new ResourceNotFoundException("Invalid address id."));
+
+    // 1. Check whether address has been assigned to the order
+    Optional.ofNullable(newOrder.getCard())
+        .orElseThrow(() -> new ResourceNotFoundException("Invalid card."));
+    // 2. Check Address ID and its content
+    Optional.ofNullable(newOrder.getCard().getId())
+        .map(UUID::toString)
+        .filter(s -> !s.isEmpty())
+        .orElseThrow(() -> new ResourceNotFoundException("Invalid card id."));
+
     // 1. Save Order
     return repository.insert(newOrder).map(mapper::entityToModel);
     // Ideally, here it will trigger the rest of the process
@@ -52,9 +64,21 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Order> getOrdersByCustomerId(UUID customerId) {
-     List<OrderEntity> entities = repository.findByCustomerId(customerId);
-    return mapper.entityToModelList(entities);
+  public List<Order> getAllOrders() {
+    return mapper.entityToModelList(repository.findAll());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<List<Order>> getOrdersByCustomerId(UUID customerId) {
+    // 1. Get the list of OrderEntity objects (returns List<OrderEntity>, potentially empty but never null)
+    List<OrderEntity> orderEntities = repository.findByCustomerId(customerId);
+
+    // 2. Map the List of Entities to a List of Models using the mapper
+    List<Order> orders = mapper.entityToModelList(orderEntities);
+
+    // 3. Wrap the resulting (non-null) List<Order> in an Optional
+    return Optional.of(orders);
   }
 
   @Override

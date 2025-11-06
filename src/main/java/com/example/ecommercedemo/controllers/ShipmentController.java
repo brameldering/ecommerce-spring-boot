@@ -7,15 +7,15 @@ import com.example.ecommercedemo.service.ShipmentService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.http.ResponseEntity.notFound;
-
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class ShipmentController implements ShipmentApi {
 
   private final ShipmentService service;
@@ -30,7 +30,6 @@ public class ShipmentController implements ShipmentApi {
   @Override
   public ResponseEntity<List<Shipment>> getShipmentByOrderId(UUID id) {
 
-//    UUID uuid = UUID.fromString(id);
     List<Shipment> shipments = service.getShipmentsByOrderId(id);
 
     // 1. Convert List to Stream

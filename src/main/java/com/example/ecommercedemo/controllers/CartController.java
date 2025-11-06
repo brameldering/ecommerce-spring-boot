@@ -13,12 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class CartController implements CartApi {
 
   private static final Logger log = LoggerFactory.getLogger(CartController.class);
@@ -32,9 +34,9 @@ public class CartController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Item>> addCartItemsByCustomerId(UUID customerId, Item item) {
+  public ResponseEntity<List<Item>> addCustomerCartItems(UUID customerId, Item item) {
     log.info("Request for customer ID: {}\nItem: {}", customerId, item);
-//    UUID uuid = UUID.fromString(customerId);
+
     List<Item> items = service.addCartItemsByCustomerId(customerId, item);
     // TO DO: Add HATEOAS links to all carts in the list
 //        List<Item> cartItemsWithLinks = assembler.toListModel(items);
@@ -43,58 +45,49 @@ public class CartController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Item>> addOrReplaceItemsByCustomerId(UUID customerId, Item item) {
+  public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, Item item) {
 
-//    UUID uuid = UUID.fromString(customerId);
     // TO DO: Add HATEOAS links to all cards in the list
     //    List<Item> cartItemsWithLinks = assembler.toListModel(items);
     return ok(service.addOrReplaceItemsByCustomerId(customerId, item));
   }
 
   @Override
-  public ResponseEntity<Void> deleteCart(UUID customerId) {
+  public ResponseEntity<Void> deleteCustomerCart(UUID customerId) {
 
-//    UUID uuid = UUID.fromString(customerId);
     service.deleteCart(customerId);
     return accepted().build();
   }
 
   @Override
-  public ResponseEntity<Void> deleteItemFromCart(UUID customerId, UUID itemId) {
+  public ResponseEntity<Void> deleteItemFromCustomerCart(UUID customerId, UUID productId) {
 
-//    UUID cuuid = UUID.fromString(customerId);
-//    UUID iuuid = UUID.fromString(itemId);
-    service.deleteItemFromCart(customerId, itemId);
+    service.deleteItemFromCart(customerId, productId);
     return accepted().build();
   }
 
   @Override
-  public ResponseEntity<Cart> getCartByCustomerId(UUID customerId) {
+  public ResponseEntity<Cart> getCustomerCart(UUID customerId) {
 
-//    UUID uuid = UUID.fromString(customerId);
     return service.getCartByCustomerId(customerId)
         .map(assembler::toModel)
         .map(ResponseEntity::ok)
         .orElse(notFound().build());
-//    return ok(service.getCartByCustomerId(customerId));
   }
 
   @Override
-  public ResponseEntity<List<Item>> getCartItemsByCustomerId(UUID customerId) {
+  public ResponseEntity<List<Item>> getCustomerCartItems(UUID customerId) {
 
-//    UUID uuid = UUID.fromString(customerId);
     // TO DO: Add HATEOAS links to all cards in the list
 //    List<Item> cartItemsWithLinks = assembler.toListModel(items);
     return ok(service.getCartItemsByCustomerId(customerId));
   }
 
   @Override
-  public ResponseEntity<Item> getCartItemsByItemId(UUID customerId, UUID itemId) {
+  public ResponseEntity<Item> getCustomerCartItemsByProductId(UUID customerId, UUID productId) {
 
-//    UUID cuuid = UUID.fromString(customerId);
-//    UUID iuuid = UUID.fromString(itemId);
     // TO DO: Add HATEOAS links to all cards in the list
 //    List<Item> cartItemsWithLinks = assembler.toListModel(items);
-    return ok(service.getCartItemsByItemId(customerId, itemId));
+    return ok(service.getCartItemsByItemId(customerId, productId));
   }
 }

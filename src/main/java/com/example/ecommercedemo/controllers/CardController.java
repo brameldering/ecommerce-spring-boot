@@ -9,10 +9,12 @@ import com.example.ecommercedemo.service.CardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.accepted;
@@ -21,6 +23,7 @@ import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class CardController implements CardApi {
 
   private final CardService service;
@@ -41,20 +44,19 @@ public class CardController implements CardApi {
   }
 
   @Override
-  public ResponseEntity<List<Card>> getCards(UUID customerId) {
-    List<Card> cards;
+  public ResponseEntity<List<Card>> getAllCards () {
+    return ResponseEntity.ok(Optional.ofNullable(service.getAllCards())
+        .map(assembler::toModelList)
+        .orElse(List.of()));
+  }
 
-    // Check if the optional query parameter 'customerId' is provided (is not null)
-    if (Objects.nonNull(customerId)) {
-      // get cards for customer
-      cards = service.getCardsByCustomerId(customerId).orElse(List.of());
-    } else {
-      // CustomerId is null -> get all cards
-      cards = service.getAllCards();
-    }
-    // Add HATEOAS links to all cards in the list
-    List<Card> cardsWithLinks = assembler.toModelList(cards);
-    return ResponseEntity.ok(cardsWithLinks);
+  @Override
+  public ResponseEntity<List<Card>> getCustomerCards (@PathVariable("id") UUID customerId) {
+    return ResponseEntity.ok(
+        service.getCardsByCustomerId(customerId) // returns Optional<List<Card>>
+            .map(assembler::toModelList)
+            .orElse(List.of()) // If Optional is empty (service returned null), provide an empty List<Card>
+    );
   }
 
   @Override

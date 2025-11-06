@@ -9,10 +9,12 @@ import com.example.ecommercedemo.service.AddressService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.accepted;
@@ -21,6 +23,7 @@ import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class AddressController implements AddressApi {
 
   private final AddressService service;
@@ -41,21 +44,23 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<List<Address>> getAddresses(UUID customerId) {
-    List<Address> addresses;
+  public ResponseEntity<List<Address>> getAllAddresses () {
+//    List<Address> addresses = service.getAllAddresses();
+//    List<Address> addressesWithLinks = assembler.toModelList(addresses);
+//    return ResponseEntity.ok(addressesWithLinks);
 
-    // Check if the optional query parameter 'customerId' is provided (is not null)
-    if (Objects.nonNull(customerId)) {
-      // If customerId is provided, filter by customer
-      addresses = service.getAddressesByCustomerId(customerId).orElse(List.of());
-    } else {
-      // If customerId is null, return all addresses
-      addresses = service.getAllAddresses();
-    }
+    return ResponseEntity.ok(Optional.ofNullable(service.getAllAddresses())
+        .map(assembler::toModelList)
+        .orElse(List.of()));
+  }
 
-    // Apply HATEOAS links and return
-    List<Address> addressesWithLinks = assembler.toModelList(addresses);
-    return ResponseEntity.ok(addressesWithLinks);
+  @Override
+  public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID customerId) {
+    return ResponseEntity.ok(
+        service.getAddressesByCustomerId(customerId) // returns Optional<List<Address>>
+            .map(assembler::toModelList)
+            .orElse(List.of()) // If Optional is empty (service returned null), provide an empty List<Address>
+    );
   }
 
   @Override

@@ -41,7 +41,7 @@ public class OrderRepresentationModelAssembler extends
    *
    * @param resources
    */
-  public List<Order> toListModel(List<Order> resources) {
+  public List<Order> toModelList(List<Order> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 

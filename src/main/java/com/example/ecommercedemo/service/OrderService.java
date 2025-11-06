@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface OrderService {
   Optional<Order> addOrder(NewOrder newOrder);
-  List<Order> getOrdersByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
+  List<Order> getAllOrders();
+  Optional<List<Order>> getOrdersByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
   Optional<Order> getByOrderId(@NotNull(message = "Order UUID cannot be null.") UUID id);
 }

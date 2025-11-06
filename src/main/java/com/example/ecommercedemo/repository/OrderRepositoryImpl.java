@@ -21,7 +21,6 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @Transactional
@@ -46,15 +45,16 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   public Optional<OrderEntity> insert(NewOrder newOrder) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
     List<ItemEntity> items = itemRepo.findByCustomerId(newOrder.getCustomerId().toString());
-    if (items.size() < 1) {
+    if (items.isEmpty()) {
       throw new ItemNotFoundException(
-          String.format("There is no item found in customer's (ID: %s) cart.", newOrder.getCustomerId()));
+          String.format("There are no items found in customer's (ID: %s) cart.", newOrder.getCustomerId()));
     }
     BigDecimal total = BigDecimal.ZERO;
     for (ItemEntity i : items) {
       total = (BigDecimal.valueOf(i.getQuantity()).multiply(i.getPrice())).add(total);
     }
     Timestamp orderDate = Timestamp.from(Instant.now());
+
     em.createNativeQuery(
             """
         INSERT INTO ecomm.orders (address_id, card_id, customer_id, order_date, total, status)
@@ -67,15 +67,18 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         .setParameter(5, total)
         .setParameter(6, Order.StatusEnum.CREATED.getValue())
         .executeUpdate();
-    Optional<CartEntity> oCart = cRepo.findByCustomerId(UUID.fromString(newOrder.getCustomerId().toString()));
+
+    Optional<CartEntity> oCart = cRepo.findByCustomerId(newOrder.getCustomerId());
     CartEntity cart =
         oCart.orElseThrow(
             () ->
                 new ResourceNotFoundException(
                     String.format(
                         "Cart not found for given customer (ID: %s)", newOrder.getCustomerId())));
+
     itemRepo.deleteCartItemJoinById(
         cart.getItems().stream().map(ItemEntity::getId).toList(), cart.getId());
+
     OrderEntity entity =
         (OrderEntity)
             em.createNativeQuery(
@@ -89,9 +92,11 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                     OffsetDateTime.ofInstant(orderDate.toInstant(), ZoneId.of("Z"))
                         .truncatedTo(ChronoUnit.MICROS))
                 .getSingleResult();
+
     oiRepo.saveAll(
         cart.getItems().stream()
             .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId())).toList());
+
     return Optional.of(entity);
   }
 }

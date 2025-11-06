@@ -44,7 +44,7 @@ public class ProductRepresentationModelAssembler extends
    *
    * @param resources
    */
-  public List<Product> toListModel(List<Product> resources) {
+  public List<Product> toModelList(List<Product> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 }

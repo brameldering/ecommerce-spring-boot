@@ -41,7 +41,7 @@ public class ShipmentRepresentationModelAssembler extends
    * @param resources
    * @return
    */
-  public List<Shipment> toListModel(List<Shipment> resources) {
+  public List<Shipment> toModelList(List<Shipment> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 }

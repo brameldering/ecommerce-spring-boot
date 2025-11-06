@@ -9,9 +9,11 @@ import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.notFound;
@@ -19,6 +21,7 @@ import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class OrderController implements OrderApi {
 
   private final OrderService service;
@@ -38,20 +41,24 @@ public class OrderController implements OrderApi {
   }
 
   @Override
-  public ResponseEntity<List<Order>> getOrdersByCustomerId(UUID customerId) {
+  public ResponseEntity<List<Order>> getAllOrders () {
+    return ResponseEntity.ok(Optional.ofNullable(service.getAllOrders())
+        .map(assembler::toModelList)
+        .orElse(List.of()));
+  }
 
-//    UUID uuid = UUID.fromString(customerId);
-    List<Order> orders = service.getOrdersByCustomerId(customerId);
-    List<Order> prdersWithLinks = orders.stream()
-        .map(assembler::toModel)
-        .toList();
-    return ResponseEntity.ok(prdersWithLinks);
+  @Override
+  public ResponseEntity<List<Order>> getCustomerOrders(UUID customerId) {
+    return ResponseEntity.ok(
+        service.getOrdersByCustomerId(customerId)
+        .map(assembler::toModelList)
+        .orElse(List.of())
+    );
   }
 
   @Override
   public ResponseEntity<Order> getByOrderId(UUID orderId) {
 
-//    UUID uuid = UUID.fromString(id);
     return service.getByOrderId(orderId)
         .map(assembler::toModel) // add HATEOAS links
         .map(ResponseEntity::ok).orElse(notFound().build());

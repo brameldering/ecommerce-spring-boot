@@ -6,6 +6,7 @@ import com.example.ecommercedemo.model.User;
 import com.example.ecommercedemo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @Validated
+@RequestMapping("/api/v1")
 public class CustomerController implements CustomerApi {
 
   private final UserService service;
@@ -49,6 +51,5 @@ public class CustomerController implements CustomerApi {
     service.deleteCustomerById(uuid);
     return accepted().build();
   }
-
 }
 

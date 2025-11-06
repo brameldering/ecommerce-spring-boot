@@ -39,11 +39,11 @@ public class CartRepresentationModelAssembler extends
     if (Objects.nonNull(uid)) {
       // 1. Self Link
       // Allows the client to retrieve this specific cart using the customer ID
-      resource.add(linkTo(methodOn(CartController.class).getCartByCustomerId(uid)).withSelfRel());
+      resource.add(linkTo(methodOn(CartController.class).getCustomerCart(uid)).withSelfRel());
 
       // 2. Cart Items Link
       // Allows the client to discover the items related to this cart
-      resource.add(linkTo(methodOn(CartController.class).getCartItemsByCustomerId(uid)).withRel("cart-items"));
+      resource.add(linkTo(methodOn(CartController.class).getCustomerCartItems(uid)).withRel("cart-items"));
     }
     return resource;
   }
@@ -53,7 +53,7 @@ public class CartRepresentationModelAssembler extends
    *
    * @param resources
    */
-  public List<Cart> toListModel(List<Cart> resources) {
+  public List<Cart> toModelList(List<Cart> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 

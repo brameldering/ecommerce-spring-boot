@@ -41,7 +41,7 @@ public class PaymentRepresentationModelAssembler extends
    *
    * @param resources
    */
-  public List<Payment> toListModel(List<Payment> resources) {
+  public List<Payment> toModelList(List<Payment> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 
