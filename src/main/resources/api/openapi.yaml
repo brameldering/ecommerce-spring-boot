@@ -792,15 +792,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Authorization'
+  /payments/{orderId}:
     get:
       tags:
         - payment
-      summary: Returns the payment authorization
+      summary: Returns a payment authorization
       description: Return the payment authorization for the specified order
       operationId: getOrdersPaymentAuthorization
       parameters:
         - name: orderId
-          in: query
+          in: path
           description: Order Identifier
           required: true
           schema:
