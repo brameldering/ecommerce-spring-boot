@@ -5,12 +5,12 @@ import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
+import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.UserRepository;
 import com.example.ecommercedemo.model.Item;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +28,13 @@ public class CartServiceImpl implements CartService {
 
   private final CartRepository repository;
   private final UserRepository userRepo;
+  private final CartMapper cartMapper;
   private final ItemMapper mapper;
 
-  public CartServiceImpl(CartRepository repository, UserRepository userRepo, ItemMapper mapper) {
+  public CartServiceImpl(CartRepository repository, UserRepository userRepo, CartMapper cartMapper, ItemMapper mapper) {
     this.repository = repository;
     this.userRepo = userRepo;
+    this.cartMapper = cartMapper;
     this.mapper = mapper;
   }
 
@@ -72,7 +74,7 @@ public class CartServiceImpl implements CartService {
         // Iterate and update existing item
         for (ItemEntity i : items) {
           // Safely compare the product IDs
-          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().equals(productId)) {
+          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().toString().equals(productId)) {
             // Convert DTO String price to Entity BigDecimal price
             BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
 
@@ -108,7 +110,7 @@ public class CartServiceImpl implements CartService {
     // 1. Get the entity directly from the repository, which returns Optional<CartEntity>
     return repository.findByCustomerId(customerId)
         // 2. Map the Optional<CartEntity> to Optional<Cart>
-        .map(this::entityToModel);
+        .map(cartMapper::entityToModel);
   }
 
   // Helper method
@@ -163,19 +165,4 @@ public class CartServiceImpl implements CartService {
     entity.setItems(updatedItems);
     repository.save(entity);
   }
-
-  // Transform from entity to model
-  private Cart entityToModel(CartEntity entity) {
-    Cart resource = new Cart();
-
-    // Retrieve user id and cart id
-    UUID uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
-    UUID cid = Objects.nonNull(entity.getId()) ? entity.getId() : null;
-
-    // Copy properties and set ID
-    BeanUtils.copyProperties(entity, resource);
-    resource.id(cid).customerId(uid).items(mapper.entityToModelList(entity.getItems()));
-
-    return resource;
-  };
 }

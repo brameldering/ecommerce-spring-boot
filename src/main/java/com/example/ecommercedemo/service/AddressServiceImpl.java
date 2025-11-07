@@ -1,6 +1,5 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
@@ -32,7 +31,7 @@ public class AddressServiceImpl implements AddressService {
   @Override
   @Transactional
   public Optional<Address> createAddress(AddressReq addressReq) {
-    return Optional.of(mapper.entityToModel(addressRepository.save(toEntity(addressReq))));
+    return Optional.of(mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq))));
   }
 
   @Override
@@ -53,14 +52,6 @@ public class AddressServiceImpl implements AddressService {
     return userRepository.findById(id) // Returns Optional<UserEntity>
         .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
         .map(mapper::entityToModelList); // Returns Optional<List<Address>>
-  }
-
-  //  TO DO MOVE TO MAPPER
-  private AddressEntity toEntity(AddressReq model) {
-    AddressEntity entity = new AddressEntity();
-    return entity.setNumber(model.getNumber()).setResidency(model.getResidency())
-        .setStreet(model.getStreet()).setCity(model.getCity()).setState(model.getState())
-        .setCountry(model.getCountry()).setZipcode(model.getZipcode());
   }
 
   @Override
