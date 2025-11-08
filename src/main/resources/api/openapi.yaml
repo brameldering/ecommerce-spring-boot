@@ -42,8 +42,8 @@ paths:
     get:
       tags:
         - product
-      summary: Returns all the matched products
-      description: Returns the products that matches the given query criteria
+      summary: Retrieves all the matched products
+      description: Retrieves the products that matches the given query criteria
       operationId: queryProducts
       parameters:
         - name: tag
@@ -92,8 +92,8 @@ paths:
     get:
       tags:
         - product
-      summary: Returns a product
-      description: Returns the product that matches the given product ID
+      summary: Retrieves a product
+      description: Retrieves the product that matches the given product ID
       operationId: getProduct
       parameters:
         - name: id
@@ -118,8 +118,8 @@ paths:
     get:
       tags:
         - customer
-      summary: Returns all customers
-      description: Returns all customers, or empty collection if no use found. Typically an admin-only endpoint.
+      summary: Retrieves all customers
+      description: Retrieves all customers, or empty collection if no use found. Typically an admin-only endpoint.
       operationId: getAllCustomers
       responses:
         200:
@@ -139,8 +139,8 @@ paths:
     get:
       tags:
         - customer
-      summary: Returns a customer
-      description: Returns a customers identifiable by given ID
+      summary: Retrieves a customer
+      description: Retrieves a customers identifiable by given ID
       operationId: getCustomerById
       parameters:
         - name: id
@@ -185,8 +185,8 @@ paths:
       tags:
         - address
         - customer
-      summary: Returns the addresses for a specific customer
-      description: Returns a collection of addresses associated with the given customer ID.
+      summary: Retrieves the addresses for a specific customer
+      description: Retrieves a collection of addresses associated with the given customer ID.
       operationId: getCustomerAddresses
       parameters:
         - name: id
@@ -216,8 +216,8 @@ paths:
       tags:
         - card
         - customer
-      summary: Returns the cards for a specific customer
-      description: Returns a collection of cards associated with the given customer ID.
+      summary: Retrieves the cards for a specific customer
+      description: Retrieves a collection of cards associated with the given customer ID.
       operationId: getCustomerCards
       parameters:
         - name: id
@@ -247,8 +247,8 @@ paths:
       tags:
         - cart
         - customer
-      summary: Returns the shopping cart
-      description: Returns the shopping cart of a specific customer
+      summary: Retrieves the shopping cart
+      description: Retrieves the shopping cart of a specific customer
       operationId: getCustomerCart
       parameters:
         - name: id
@@ -299,8 +299,8 @@ paths:
       tags:
         - cart
         - customer
-      summary: Returns the list of products in user's shopping cart
-      description: Returns the items in shopping cart of given customer
+      summary: Retrieves the list of products in user's shopping cart
+      description: Retrieves the items in shopping cart of given customer
       operationId: getCustomerCartItems
       parameters:
         - name: id
@@ -415,9 +415,9 @@ paths:
     get:
       tags:
         - cart
-      summary: Returns given item from user's shopping cart
-      description: Returns items for a given product id from shopping cart of given customer
-      operationId: getCustomerCartItemsByProductId
+      summary: Retrieves given item from user's shopping cart
+      description: Retrieves items for a given product id from shopping cart of given customer
+      operationId: getCustomerCartItemByProductId
       parameters:
         - name: id
           in: path
@@ -480,8 +480,8 @@ paths:
       tags:
         - order
         - customer
-      summary: Returns the orders for a specific customer
-      description: Returns a collection of orders associated with the given customer ID.
+      summary: Retrieves the orders for a specific customer
+      description: Retrieves a collection of orders associated with the given customer ID.
       operationId: getCustomerOrders
       parameters:
         - name: id
@@ -510,8 +510,8 @@ paths:
     get:
       tags:
         - address
-      summary: Returns all addresses in the system
-      description: Returns all addresses in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
+      summary: Retrieves all addresses in the system
+      description: Retrieves all addresses in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
       operationId: getAllAddresses
       responses:
         200:
@@ -555,8 +555,8 @@ paths:
     get:
       tags:
         - address
-      summary: Returns address
-      description: Returns a customer address based on given address ID.
+      summary: Retrieves address
+      description: Retrieves a customer address based on given address ID.
       operationId: getAddressById
       parameters:
         - name: id
@@ -600,8 +600,8 @@ paths:
     get:
       tags:
         - card
-      summary: Returns all cards
-      description: Returns all cards in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
+      summary: Retrieves all cards
+      description: Retrieves all cards in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
       operationId: getAllCards
       responses:
         200:
@@ -645,8 +645,8 @@ paths:
     get:
       tags:
         - card
-      summary: Returns a card
-      description: Returns a card based on given card ID.
+      summary: Retrieves a card
+      description: Retrieves a card based on given card ID.
       operationId: getCardById
       parameters:
         - name: id
@@ -690,8 +690,8 @@ paths:
     get:
       tags:
         - order
-      summary: Returns all orders in the system.
-      description: Returns all orders. Typically an admin-only endpoint.
+      summary: Retrieves all orders in the system.
+      description: Retrieves all orders. Typically an admin-only endpoint.
       operationId: getAllOrders
       responses:
         200:
@@ -742,8 +742,8 @@ paths:
     get:
       tags:
         - order
-      summary: Returns the order of given order ID
-      description: Returns orders of given order ID
+      summary: Retrieves the order of given order ID
+      description: Retrieves orders of given order ID
       operationId: getByOrderId
       parameters:
         - name: id
@@ -796,8 +796,8 @@ paths:
     get:
       tags:
         - payment
-      summary: Returns a payment authorization
-      description: Return the payment authorization for the specified order
+      summary: Retrieves a payment authorization
+      description: Retrieves the payment authorization for the specified order
       operationId: getOrdersPaymentAuthorization
       parameters:
         - name: orderId
@@ -847,8 +847,8 @@ paths:
     get:
       tags:
         - shipment
-      summary: Return the Shipment
-      description: Return the Shipment for the specified order
+      summary: Retrieves the Shipment
+      description: Retrieves the Shipment for the specified order
       operationId: getShipmentByOrderId
       parameters:
         - name: id
@@ -1052,10 +1052,12 @@ components:
         expires:
           description: Expiration date (e.g., MM/YY or MM/YYYY)
           type: string
+          example: 01/29
           pattern: '^(0[1-9]|1[0-2])\/\d{2}(\d{2})?$' # Example: MM/YY or MM/YYYY
         cvv:
           description: CVV code (Only sent in the request, never stored or returned)
           type: string
+          example: 123
           pattern: '^\d{3,4}$' # 3 or 4 digits
       xml:
         name: CardDetailsBase

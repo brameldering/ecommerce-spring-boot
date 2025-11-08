@@ -2,6 +2,7 @@ package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.CartApi;
 import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
+import com.example.ecommercedemo.hateoas.ItemRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;
 
@@ -26,11 +27,13 @@ public class CartController implements CartApi {
   private static final Logger log = LoggerFactory.getLogger(CartController.class);
   private final CartService service;
 
-  private final CartRepresentationModelAssembler assembler;
+  private final CartRepresentationModelAssembler cartAssembler;
+  private final ItemRepresentationModelAssembler itemAssembler;
 
-  public CartController(CartService service, CartRepresentationModelAssembler assembler) {
+  public CartController(CartService service, CartRepresentationModelAssembler cartAssembler, ItemRepresentationModelAssembler itemAssembler) {
     this.service = service;
-    this.assembler = assembler;
+    this.cartAssembler = cartAssembler;
+    this.itemAssembler = itemAssembler;
   }
 
   @Override
@@ -38,18 +41,63 @@ public class CartController implements CartApi {
     log.info("Request for customer ID: {}\nItem: {}", customerId, item);
 
     List<Item> items = service.addCartItemsByCustomerId(customerId, item);
-    // TO DO: Add HATEOAS links to all carts in the list
-//        List<Item> cartItemsWithLinks = assembler.toListModel(items);
-//        return ok(cartItemsWithLinks);
-    return ok(items);
+
+    // Use the itemAssembler to add links to every item in the cart
+    List<Item> cartItemsWithLinks = items.stream()
+        .map(i -> itemAssembler.toModel(i, customerId))
+        .toList();
+    return ok(cartItemsWithLinks);
   }
 
   @Override
   public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, Item item) {
 
-    // TO DO: Add HATEOAS links to all cart s in the list
-    //    List<Item> cartItemsWithLinks = assembler.toListModel(items);
-    return ok(service.addOrReplaceItemsByCustomerId(customerId, item));
+    List<Item> items = service.addOrReplaceItemsByCustomerId(customerId, item);
+    // Use the itemAssembler to add links to every item in the cart
+    List<Item> cartItemsWithLinks = items.stream()
+        .map(i -> itemAssembler.toModel(i, customerId))
+        .toList();
+    return ok(cartItemsWithLinks);
+
+  }
+
+  @Override
+  public ResponseEntity<Cart> getCustomerCart(UUID customerId) {
+
+    // 1. Fetch the cart
+    return service.getCartByCustomerId(customerId)
+        .map(cart -> {
+          // 2. Add HATEOAS links to items in cart
+          List<Item> itemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
+          cart.setItems(itemsWithLinks); // Replace original items with items with links
+          return cart;
+        })
+        // 3. Add HATEOAS links to the cart
+        .map(cartAssembler::toModel)
+        .map(ResponseEntity::ok)
+        .orElse(notFound().build());
+  }
+
+  @Override
+  public ResponseEntity<List<Item>> getCustomerCartItems(UUID customerId) {
+
+    List<Item> items = service.getCartItemsByCustomerId(customerId);
+    List<Item> cartItemsWithLinks = items.stream()
+        .map(i -> itemAssembler.toModel(i, customerId))
+        .toList();
+    return ok(cartItemsWithLinks);
+  }
+
+  @Override
+  public ResponseEntity<Item> getCustomerCartItemByProductId(UUID customerId, UUID productId) {
+
+    Item item = service.getCartItemByProductId(customerId, productId);
+    if (item == null) {
+      return notFound().build();
+    }
+
+    Item cartItemWithLinks = itemAssembler.toModel(item, customerId);
+    return ok(cartItemWithLinks);
   }
 
   @Override
@@ -64,30 +112,5 @@ public class CartController implements CartApi {
 
     service.deleteItemFromCart(customerId, productId);
     return accepted().build();
-  }
-
-  @Override
-  public ResponseEntity<Cart> getCustomerCart(UUID customerId) {
-
-    return service.getCartByCustomerId(customerId)
-        .map(assembler::toModel)
-        .map(ResponseEntity::ok)
-        .orElse(notFound().build());
-  }
-
-  @Override
-  public ResponseEntity<List<Item>> getCustomerCartItems(UUID customerId) {
-
-    // TO DO: Add HATEOAS links to all cards in the list
-//    List<Item> cartItemsWithLinks = assembler.toListModel(items);
-    return ok(service.getCartItemsByCustomerId(customerId));
-  }
-
-  @Override
-  public ResponseEntity<Item> getCustomerCartItemsByProductId(UUID customerId, UUID productId) {
-
-    // TO DO: Add HATEOAS links to all cards in the list
-//    List<Item> cartItemsWithLinks = assembler.toListModel(items);
-    return ok(service.getCartItemsByItemId(customerId, productId));
   }
 }

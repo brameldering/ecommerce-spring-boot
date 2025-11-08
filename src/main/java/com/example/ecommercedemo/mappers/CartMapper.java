@@ -25,6 +25,7 @@ public class CartMapper {
 
     // Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
+    // Use the injected itemMapper
     resource.id(cid).customerId(uid).items(itemMapper.entityToModelList(entity.getItems()));
 
     return resource;

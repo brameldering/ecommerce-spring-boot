@@ -134,7 +134,7 @@ public class CartServiceImpl implements CartService {
 
   @Transactional(readOnly = true)
   @Override
-  public Item getCartItemsByItemId(UUID customerId, UUID itemId) {
+  public Item getCartItemByProductId(UUID customerId, UUID itemId) {
     CartEntity entity = getCartEntityByCustomerId(customerId);
     AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
     entity.getItems().forEach(i -> {

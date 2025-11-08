@@ -18,7 +18,7 @@ public class TagEntity {
   @Column(name = "ID", updatable = false, nullable = false)
   private UUID id;
 
-  @NotNull(message = "Product name is required.")
+  @NotNull(message = "Tag name is required.")
   @Basic(optional = false)
   @Column(name = "NAME")
   private String name;
