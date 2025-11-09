@@ -18,7 +18,7 @@ public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
       where u.id = :customerId
     """,
       nativeQuery = true)
-  List<ItemEntity> findByCustomerId(String customerId);
+  List<ItemEntity> findByCustomerId(UUID customerId);
 
   @Modifying
   @Query(

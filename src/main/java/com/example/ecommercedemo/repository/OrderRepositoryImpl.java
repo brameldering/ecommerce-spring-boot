@@ -44,7 +44,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   @Override
   public Optional<OrderEntity> insert(OrderReq orderReq) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
-    List<ItemEntity> items = itemRepo.findByCustomerId(orderReq.getCustomerId().toString());
+    List<ItemEntity> items = itemRepo.findByCustomerId(orderReq.getCustomerId());
     if (items.isEmpty()) {
       throw new ItemNotFoundException(
           String.format("There are no items found in customer's (ID: %s) cart.", orderReq.getCustomerId()));

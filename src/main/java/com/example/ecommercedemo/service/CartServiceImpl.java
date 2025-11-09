@@ -55,7 +55,19 @@ public class CartServiceImpl implements CartService {
   @Override
   @Transactional
   public List<Item> addOrReplaceItemsByCustomerId(UUID customerId, Item item) {
-    // 1. Get the existing cart entity
+
+    // Validate input arguments
+    if (Objects.isNull(customerId)) {
+      throw new IllegalArgumentException("CustomerId cannot be null.");
+    }
+    if (Objects.isNull(item)) {
+      throw new IllegalArgumentException("Item cannot be null.");
+    }
+    if (Objects.isNull(item.getProductId())) {
+      throw new IllegalArgumentException("ProductId cannot be null.");
+    }
+
+    // Get the existing cart entity
     CartEntity entity = getCartEntityByCustomerId(customerId);
 
     // Initialize items list, ensuring it's mutable if it was null
@@ -65,42 +77,34 @@ public class CartServiceImpl implements CartService {
       entity.setItems(items); // Set the new list back to the entity
     }
 
-    // Check if the incoming item has a valid, non-null ID for matching
-    String productId = item.getProductId().toString();
+    // Initialize product and itemMatched
+    UUID productId = item.getProductId();
     boolean itemMatched = false;
 
-    if (Objects.nonNull(productId) && !productId.trim().isEmpty()) {
-      try {
-        // Iterate and update existing item
-        for (ItemEntity i : items) {
-          // Safely compare the product IDs
-          if (Objects.nonNull(i.getProduct()) && i.getProduct().getId().toString().equals(productId)) {
-            // Convert DTO String price to Entity BigDecimal price
-            BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
+    // All validations have been done above so no need for validation here
+    // Iterate and update existing item
+    for (ItemEntity i : items) {
+      // Safely compare the product IDs (UUID objects)
+      if (Objects.nonNull(i.getProduct()) && productId.equals(i.getProduct().getId())) {
 
-            // Update quantity and price
-            i.setQuantity(item.getQuantity());
-            i.setPrice(newPrice);
+        // Convert DTO String price to Entity BigDecimal price
+        BigDecimal newPrice = new BigDecimal(item.getUnitPrice());
 
-            itemMatched = true;
-            break; // Exit loop once found and updated
-          }
-        }
-      } catch (IllegalArgumentException e) {
-        // Log/handle if the ID string is not a valid UUID format
-        throw new IllegalArgumentException("Invalid item ID format: " + productId, e);
+        // Update quantity and price
+        i.setQuantity(item.getQuantity());
+        i.setPrice(newPrice);
+
+        itemMatched = true;
+        break; // Exit loop once found and updated
       }
-    } else {
-      // Decide policy: If no ID is provided, should it always be treated as a new item?
-      // Assuming YES for the purpose of the fix.
     }
 
-    // 3. Add new item if no existing item was matched
+    // Add new item if no existing item was matched
     if (!itemMatched) {
       items.add(mapper.modelToEntity(item));
     }
 
-    // 4. Save and return the updated list
+    // Save and return the updated list
     return mapper.entityToModelList(repository.save(entity).getItems());
   }
 
