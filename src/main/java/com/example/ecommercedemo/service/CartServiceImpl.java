@@ -41,6 +41,16 @@ public class CartServiceImpl implements CartService {
   @Override
   @Transactional
   public List<Item> addCartItemsByCustomerId(UUID customerId, Item item) {
+    // --- VALIDATION ---
+    // customerId is validated by getCartEntityByCustomerId
+    if (Objects.isNull(item)) {
+      throw new IllegalArgumentException("Item cannot be null.");
+    }
+    if (Objects.isNull(item.getProductId())) {
+      throw new IllegalArgumentException("ProductId cannot be null.");
+    }
+    // --- END VALIDATION ---
+
     CartEntity entity = getCartEntityByCustomerId(customerId);
     long count = entity.getItems().stream()
         .filter(i -> i.getProduct().getId().equals(item.getProductId())).count();
@@ -57,9 +67,6 @@ public class CartServiceImpl implements CartService {
   public List<Item> addOrReplaceItemsByCustomerId(UUID customerId, Item item) {
 
     // Validate input arguments
-    if (Objects.isNull(customerId)) {
-      throw new IllegalArgumentException("CustomerId cannot be null.");
-    }
     if (Objects.isNull(item)) {
       throw new IllegalArgumentException("Item cannot be null.");
     }
@@ -68,6 +75,7 @@ public class CartServiceImpl implements CartService {
     }
 
     // Get the existing cart entity
+    // customerId validation is handled by getCartEntityByCustomerId
     CartEntity entity = getCartEntityByCustomerId(customerId);
 
     // Initialize items list, ensuring it's mutable if it was null
@@ -111,6 +119,13 @@ public class CartServiceImpl implements CartService {
   @Transactional(readOnly = true)
   @Override
   public Optional<Cart> getCartByCustomerId(UUID customerId) {
+    // --- VALIDATION ---
+    // This method doesn't use the helper, so it needs its own check
+    if (Objects.isNull(customerId)) {
+      throw new IllegalArgumentException("CustomerId cannot be null.");
+    }
+    // --- END VALIDATION ---
+
     // 1. Get the entity directly from the repository, which returns Optional<CartEntity>
     return repository.findByCustomerId(customerId)
         // 2. Map the Optional<CartEntity> to Optional<Cart>
@@ -119,6 +134,12 @@ public class CartServiceImpl implements CartService {
 
   // Helper method
   private CartEntity getCartEntityByCustomerId(UUID customerId) {
+    // --- VALIDATION of customerID ---
+    if (Objects.isNull(customerId)) {
+      throw new IllegalArgumentException("CustomerId cannot be null.");
+    }
+    // --- END VALIDATION ---
+
     CartEntity entity = repository.findByCustomerId(customerId)
         .orElse(new CartEntity());
     if (Objects.isNull(entity.getUser())) {
@@ -132,22 +153,30 @@ public class CartServiceImpl implements CartService {
   @Transactional(readOnly = true)
   @Override
   public List<Item> getCartItemsByCustomerId(UUID customerId) {
+    // customerId is validated by getCartEntityByCustomerId
     CartEntity entity = getCartEntityByCustomerId(customerId);
     return mapper.entityToModelList(entity.getItems());
   }
 
   @Transactional(readOnly = true)
   @Override
-  public Item getCartItemByProductId(UUID customerId, UUID itemId) {
+  public Item getCartItemByProductId(UUID customerId, UUID productId) {
+    // --- VALIDATION ---
+    // customerId is validated by getCartEntityByCustomerId
+    if (Objects.isNull(productId)) {
+      throw new IllegalArgumentException("ProductId cannot be null.");
+    }
+    // --- END VALIDATION ---
+
     CartEntity entity = getCartEntityByCustomerId(customerId);
     AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
     entity.getItems().forEach(i -> {
-      if (i.getProduct().getId().equals(itemId)) {
+      if (i.getProduct().getId().equals(productId)) {
         itemEntity.set(i);
       }
     });
     if (Objects.isNull(itemEntity.get())) {
-      getUnsafe().throwException(new ItemNotFoundException(String.format(" - %s", itemId)));
+      getUnsafe().throwException(new ItemNotFoundException(String.format(" - %s", productId)));
     }
     return mapper.entityToModel(itemEntity.get());
   }
@@ -155,6 +184,7 @@ public class CartServiceImpl implements CartService {
   @Override
   @Transactional
   public void deleteCart(UUID customerId) {
+    // customerId is validated by getCartEntityByCustomerId
     // will throw the error if it doesn't exist
     CartEntity entity = getCartEntityByCustomerId(customerId);
     repository.deleteById(entity.getId());
@@ -163,6 +193,13 @@ public class CartServiceImpl implements CartService {
   @Override
   @Transactional
   public void deleteItemFromCart(UUID customerId, UUID itemId) {
+    // --- VALIDATION ---
+    // customerId is validated by getCartEntityByCustomerId
+    if (Objects.isNull(itemId)) {
+      throw new IllegalArgumentException("ItemId cannot be null.");
+    }
+    // --- END VALIDATION ---
+
     CartEntity entity = getCartEntityByCustomerId(customerId);
     List<ItemEntity> updatedItems = entity.getItems().stream()
         .filter(i -> !i.getProduct().getId().equals(itemId)).toList();

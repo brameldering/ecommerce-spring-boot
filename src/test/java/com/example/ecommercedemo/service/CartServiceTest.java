@@ -4,6 +4,8 @@ import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.ProductEntity;
 import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
+import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
@@ -105,6 +107,65 @@ class CartServiceTest {
     cartEntity.setUser(userEntity);
     // IMPORTANT: Initialize with a *mutable* list for tests
     cartEntity.setItems(new ArrayList<>(List.of(existingItemEntity)));
+  }
+
+  @Test
+  @DisplayName("ADD: Should add a new item when cart is empty")
+  void addCartItems_WhenCartIsEmpty_ShouldAddNewItem() {
+    // --- Setup ---
+    // Make the cart entity's item list explicitly empty for this test
+    cartEntity.setItems(new ArrayList<>());
+    mockGetCartEntity();
+    mockSaveAndMap();
+
+    // Create a new item DTO
+    Item newItemDto = new Item();
+    newItemDto.setProductId(newProductId);
+    newItemDto.setQuantity(3);
+    newItemDto.setUnitPrice("50.00");
+
+    // Mock the mapper result for the new item
+    ProductEntity newProduct = new ProductEntity();
+    newProduct.setId(newProductId);
+    ItemEntity newItemEntity = new ItemEntity();
+    newItemEntity.setProduct(newProduct);
+
+    when(itemMapper.modelToEntity(any(Item.class))).thenReturn(newItemEntity);
+
+    // --- Execute ---
+    cartService.addCartItemsByCustomerId(customerId, newItemDto);
+
+    // --- Verify ---
+    verify(repository).save(cartEntityCaptor.capture());
+    CartEntity savedCart = cartEntityCaptor.getValue();
+
+    // Assert: One item was added
+    assertEquals(1, savedCart.getItems().size());
+    // Assert: Mapper was called
+    verify(itemMapper, times(1)).modelToEntity(newItemDto);
+  }
+
+  @Test
+  @DisplayName("ADD: Should throw GenericAlreadyExistsException if item already exists")
+  void addCartItems_WhenItemExists_ShouldThrowException() {
+    // --- Setup ---
+    mockGetCartEntity(); // Cart already contains existingProductId
+
+    // Create an item DTO that matches the existing product
+    Item itemDto = new Item();
+    itemDto.setProductId(existingProductId);
+
+    // --- Execute & Assert ---
+    GenericAlreadyExistsException exception = assertThrows(
+        GenericAlreadyExistsException.class,
+        () -> cartService.addCartItemsByCustomerId(customerId, itemDto)
+    );
+
+    // Verify the exception message
+    assertTrue(exception.getMessage().contains("already exists"));
+
+    // Verify no save occurred
+    verify(repository, never()).save(any());
   }
 
   @Test
@@ -245,7 +306,77 @@ class CartServiceTest {
     assertEquals(newItemEntity, savedCart.getItems().get(0));
   }
 
+  @Test
+  @DisplayName("GET_ITEM_BY_ID: Should return Item when product is found in cart")
+  void getCartItemByProductId_WhenItemExists_ShouldReturnItem() {
+    // --- Setup ---
+    mockGetCartEntity(); // Cart has item with existingProductId
+
+    // Mock the final mapping DTO return
+    Item expectedItemDto = new Item();
+    expectedItemDto.setProductId(existingProductId);
+    when(itemMapper.entityToModel(any(ItemEntity.class))).thenReturn(expectedItemDto);
+
+    // --- Execute ---
+    Item result = cartService.getCartItemByProductId(customerId, existingProductId);
+
+    // --- Verify ---
+    assertNotNull(result);
+    assertEquals(existingProductId, result.getProductId());
+
+    // Verify that the mapper was called with the correct entity
+    verify(itemMapper, times(1)).entityToModel(existingItemEntity);
+  }
+
   // ========== Exception testing ==========
+
+  @Test
+  @DisplayName("GET_CART_BY_CUSTOMER_ID: Should throw IllegalArgumentException when CustomerId is null")
+  void getCartByCustomerId_WhenCustomerIdIsNull_ShouldThrowException() {
+    // --- Execute & Assert ---
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class,
+        () -> cartService.getCartByCustomerId(null)
+    );
+
+    // Verify the message
+    assertEquals("CustomerId cannot be null.", exception.getMessage());
+
+    // --- Verify ---
+    verifyNoInteractions(repository);
+  }
+
+  @Test
+  @DisplayName("GET_ITEM_BY_ID: Should throw IllegalArgumentException when ProductId is null")
+  void getCartItemByProductId_WhenProductIdIsNull_ShouldThrowException() {
+    // --- Execute & Assert ---
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class,
+        () -> cartService.getCartItemByProductId(customerId, null)
+    );
+
+    // Verify the message
+    assertEquals("ProductId cannot be null.", exception.getMessage());
+
+    // --- Verify ---
+    verifyNoInteractions(repository);
+  }
+
+  @Test
+  @DisplayName("DELETE_ITEM: Should throw IllegalArgumentException when ItemId is null")
+  void deleteItemFromCart_WhenItemIdIsNull_ShouldThrowException() {
+    // --- Execute & Assert ---
+    IllegalArgumentException exception = assertThrows(
+        IllegalArgumentException.class,
+        () -> cartService.deleteItemFromCart(customerId, null)
+    );
+
+    // Verify the message
+    assertEquals("ItemId cannot be null.", exception.getMessage());
+
+    // --- Verify ---
+    verifyNoInteractions(repository);
+  }
 
   @Test
   @DisplayName("Should throw IllegalArgumentException when CustomerId is null")
@@ -319,5 +450,22 @@ class CartServiceTest {
     // Ensure no database or mapper interactions occurred
     verifyNoInteractions(repository);
     verifyNoInteractions(itemMapper);
+  }
+
+  @Test
+  @DisplayName("GET_ITEM_BY_ID: Should throw ItemNotFoundException when product is missing from cart")
+  void getCartItemByProductId_WhenItemIsMissing_ShouldThrowException() {
+    // --- Setup ---
+    mockGetCartEntity(); // Cart is fetched successfully
+
+    UUID nonExistentId = UUID.randomUUID();
+
+    // --- Execute & Assert ---
+    // Note: Because the implementation uses getUnsafe().throwException,
+    // we just check if the call results in an exception.
+    assertThrows(
+        ItemNotFoundException.class,
+        () -> cartService.getCartItemByProductId(customerId, nonExistentId)
+    );
   }
 }
