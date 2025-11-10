@@ -6,9 +6,11 @@ import com.example.ecommercedemo.entity.ProductEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
+import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
+import com.example.ecommercedemo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +43,12 @@ class CartServiceTest {
   private CartRepository repository; // Mock dependency
 
   @Mock
+  private UserRepository userRepo; // Mock dependency
+
+  @Mock
+  private CartMapper cartMapper; // Mock dependency
+
+  @Mock
   private ItemMapper itemMapper; // Mock dependency
 
   @InjectMocks
@@ -45,6 +57,8 @@ class CartServiceTest {
   // ArgumentCaptor to capture the entity passed to repository.save()
   @Captor
   private ArgumentCaptor<CartEntity> cartEntityCaptor;
+
+  private final Logger logger = LoggerFactory.getLogger(CartServiceTest.class);
 
   // --- Test Data ---
   private UUID customerId;
@@ -61,9 +75,7 @@ class CartServiceTest {
    */
   private void mockGetCartEntity() {
     // This simulates the 'getCartEntityByCustomerId' logic
-    // We are assuming it finds a cart associated with the customerId.
-    // The Optional is handled inside the (unseen) private method.
-    when(repository.findByCustomerId(customerId)).thenReturn(java.util.Optional.of(cartEntity));
+    when(repository.findByCustomerId(customerId)).thenReturn(Optional.of(cartEntity));
   }
 
   /**
@@ -107,6 +119,10 @@ class CartServiceTest {
     cartEntity.setUser(userEntity);
     // IMPORTANT: Initialize with a *mutable* list for tests
     cartEntity.setItems(new ArrayList<>(List.of(existingItemEntity)));
+
+    // **CRITICAL FIX:** Ensure userRepo always returns a user when looked up by a non-null ID
+    // This prevents CustomerNotFoundException when testing validation for other null parameters.
+    lenient().when(userRepo.findById(any(UUID.class))).thenReturn(Optional.of(userEntity));
   }
 
   @Test
@@ -150,9 +166,7 @@ class CartServiceTest {
   void addCartItems_WhenItemExists_ShouldThrowException() {
     // --- Setup ---
     mockGetCartEntity(); // Cart already contains existingProductId
-
-    // Create an item DTO that matches the existing product
-    Item itemDto = new Item();
+    Item itemDto = new Item(); // Create an item DTO that matches the existing product
     itemDto.setProductId(existingProductId);
 
     // --- Execute & Assert ---
@@ -333,6 +347,7 @@ class CartServiceTest {
   @Test
   @DisplayName("GET_CART_BY_CUSTOMER_ID: Should throw IllegalArgumentException when CustomerId is null")
   void getCartByCustomerId_WhenCustomerIdIsNull_ShouldThrowException() {
+
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
@@ -379,7 +394,7 @@ class CartServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw IllegalArgumentException when CustomerId is null")
+  @DisplayName("ADD/REPLACE: Should throw IllegalArgumentException when CustomerId is null")
   void addOrReplaceItems_WhenCustomerIdIsNull_ShouldThrowException() {
     // --- Setup ---
     Item item = new Item();
@@ -394,7 +409,7 @@ class CartServiceTest {
         () -> cartService.addOrReplaceItemsByCustomerId(null, item)
     );
 
-    // Optional: Verify the exception message
+    // Verify the exception message (this exception is thrown from the helper: getCartEntityByCustomerId)
     assertEquals("CustomerId cannot be null.", exception.getMessage());
 
     // --- Verify ---
@@ -404,7 +419,7 @@ class CartServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw IllegalArgumentException when Item is null")
+  @DisplayName("ADD/REPLACE: Should throw IllegalArgumentException when Item is null")
   void addOrReplaceItems_WhenItemIsNull_ShouldThrowException() {
     // --- Setup ---
     UUID customerId = UUID.randomUUID();
@@ -417,7 +432,7 @@ class CartServiceTest {
         () -> cartService.addOrReplaceItemsByCustomerId(customerId, nullItem)
     );
 
-    // Optional: Verify the exception message
+    // Verify the exception message (explicitly thrown in service method)
     assertEquals("Item cannot be null.", exception.getMessage());
 
     // --- Verify ---
@@ -443,7 +458,7 @@ class CartServiceTest {
         () -> cartService.addOrReplaceItemsByCustomerId(customerId, itemWithNullProductId)
     );
 
-    // Optional: Verify the exception message
+    // Verify the exception message (explicitly thrown in service method)
     assertEquals("ProductId cannot be null.", exception.getMessage());
 
     // --- Verify ---
