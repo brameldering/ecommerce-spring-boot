@@ -6,9 +6,11 @@ import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.service.OrderService;
 import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,7 +36,7 @@ public class OrderController implements OrderApi {
   }
 
   @Override
-  public ResponseEntity<Order> addOrder(OrderReq orderReq) {
+  public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderReq orderReq) {
     return service.addOrder(orderReq)
         .map(order -> status(HttpStatus.CREATED).body(order))
         .orElseThrow(() -> new OrderCreationException("Order creation failed"));

@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.ecommercedemo.service.CartService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +39,7 @@ public class CartController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Item>> addCustomerCartItems(UUID customerId, Item item) {
+  public ResponseEntity<List<Item>> addCustomerCartItems(UUID customerId, @Valid @RequestBody Item item) {
     log.info("Request for customer ID: {}\nItem: {}", customerId, item);
 
     List<Item> items = service.addCartItemsByCustomerId(customerId, item);
@@ -50,7 +52,7 @@ public class CartController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, Item item) {
+  public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, @Valid @RequestBody Item item) {
 
     List<Item> items = service.addOrReplaceItemsByCustomerId(customerId, item);
     // Use the itemAssembler to add links to every item in the cart

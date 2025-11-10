@@ -6,10 +6,12 @@ import com.example.ecommercedemo.model.CardReq;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.service.CardService;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +38,7 @@ public class CardController implements CardApi {
   }
 
   @Override
-  public ResponseEntity<Card> registerCard(CardReq cardReq) {
+  public ResponseEntity<Card> registerCard(@Valid @RequestBody CardReq cardReq) {
     Card newCard = service.registerCard(cardReq).get();
     // Add HATEOAS links to the newly created card
     Card cardWithLinks = assembler.toModel(newCard);

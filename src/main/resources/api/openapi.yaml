@@ -893,6 +893,7 @@ components:
           description: Product identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         name:
           description: Product Name
@@ -925,6 +926,7 @@ components:
           description: Tag identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         name:
           description: Tag Name
@@ -940,6 +942,7 @@ components:
           description: The id of the user
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         username:
           type: string
@@ -1015,6 +1018,7 @@ components:
             userId:
               type: string
               format: uuid
+              pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       xml:
         name: AddressReq
     Address:
@@ -1030,11 +1034,13 @@ components:
           description: Address identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         userId:
           description: The customer ID associated with this address.
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
       xml:
         name: Address
@@ -1073,6 +1079,7 @@ components:
               description: user id owning the card to be registered
               type: string
               format: uuid
+              pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
               example: 123e4567-e89b-12d3-a456-426614174000
       xml:
         name: CardReq
@@ -1090,6 +1097,7 @@ components:
           description: Card identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         cardNumber:
           description: Card Number (Masked for security)
@@ -1106,6 +1114,7 @@ components:
         userId: # Included for clarity, as this is a resource tied to a user
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
       xml:
         name: Card
@@ -1135,6 +1144,7 @@ components:
           description: Product Identifier for this item
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         quantity:
           description: The item quantity
@@ -1153,11 +1163,13 @@ components:
           description: Cart Identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         customerId:
           description: Id of the customer who possesses the cart
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         items:
           description: Collection of items in cart.
@@ -1169,22 +1181,24 @@ components:
       type: object
       required:
         - customerId
-        - address
-        - card
-        - items
+        - addressId
+        - cardId
       properties:
         customerId:
           description: the user id of the customer placing the order
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         addressId: # Changed to reference
           description: Identifier of the customer's shipping address
           type: string
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           format: uuid
         cardId:    # Changed to reference
           description: Identifier of the customer's payment card
           type: string
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           format: uuid
         items:
           description: Items for the order (typically pulled from the cart, but can be specified).
@@ -1201,6 +1215,7 @@ components:
           description: Order identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         customer:
           $ref: '#/components/schemas/User'
@@ -1244,6 +1259,7 @@ components:
           description: Order Identification belonging to the authorization
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         time:
           description: Timestamp when this authorization was created
@@ -1273,6 +1289,7 @@ components:
           description: Order Identifier belonging to this payment request
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         customer:
           $ref: '#/components/schemas/CustomerInfoOnCard'
@@ -1293,6 +1310,7 @@ components:
           description: Payment identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         authorized:
           description: Flag that specified whether payment is authorized or not
@@ -1310,6 +1328,7 @@ components:
           description: ShipmentReq Identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         address:
           $ref: '#/components/schemas/Address'
@@ -1326,6 +1345,7 @@ components:
           description: Shipment Identifier
           type: string
           format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
         carrier:
           description: Shipping Carrier
