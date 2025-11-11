@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,10 +35,10 @@ public class AddressServiceImpl implements AddressService {
   @Transactional
   public Address createAddress(AddressReq addressReq) {
     // --- VALIDATION ---
-    if (Objects.isNull(addressReq)) {
+    if (addressReq == null) {
       throw new IllegalArgumentException("Address cannot be null.");
     }
-    if (Objects.isNull(addressReq.getUserId())) {
+    if (addressReq.getUserId() == null) {
       throw new IllegalArgumentException("UserId cannot be null.");
     }
     if (addressReq.getStreet() == null || addressReq.getStreet().isBlank()) {

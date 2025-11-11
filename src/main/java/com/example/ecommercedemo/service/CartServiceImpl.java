@@ -43,10 +43,10 @@ public class CartServiceImpl implements CartService {
   public List<Item> addCartItemsByCustomerId(UUID customerId, Item item) {
     // --- VALIDATION ---
     // customerId is validated by getCartEntityByCustomerId
-    if (Objects.isNull(item)) {
+    if (item == null) {
       throw new IllegalArgumentException("Item cannot be null.");
     }
-    if (Objects.isNull(item.getProductId())) {
+    if (item.getProductId() == null) {
       throw new IllegalArgumentException("ProductId cannot be null.");
     }
     // --- END VALIDATION ---
@@ -67,10 +67,10 @@ public class CartServiceImpl implements CartService {
   public List<Item> addOrReplaceItemsByCustomerId(UUID customerId, Item item) {
 
     // Validate input arguments
-    if (Objects.isNull(item)) {
+    if (item == null) {
       throw new IllegalArgumentException("Item cannot be null.");
     }
-    if (Objects.isNull(item.getProductId())) {
+    if (item.getProductId() == null) {
       throw new IllegalArgumentException("ProductId cannot be null.");
     }
 
@@ -80,7 +80,7 @@ public class CartServiceImpl implements CartService {
 
     // Initialize items list, ensuring it's mutable if it was null
     List<ItemEntity> items = entity.getItems();
-    if (Objects.isNull(items)) {
+    if (items == null) {
       items = new ArrayList<>();
       entity.setItems(items); // Set the new list back to the entity
     }
@@ -121,7 +121,7 @@ public class CartServiceImpl implements CartService {
   public Optional<Cart> getCartByCustomerId(UUID customerId) {
     // --- VALIDATION ---
     // This method doesn't use the helper, so it needs its own check
-    if (Objects.isNull(customerId)) {
+    if (customerId == null) {
       throw new IllegalArgumentException("CustomerId cannot be null.");
     }
     // --- END VALIDATION ---
@@ -135,14 +135,14 @@ public class CartServiceImpl implements CartService {
   // Helper method
   private CartEntity getCartEntityByCustomerId(UUID customerId) {
     // --- VALIDATION of customerID ---
-    if (Objects.isNull(customerId)) {
+    if (customerId == null) {
       throw new IllegalArgumentException("CustomerId cannot be null.");
     }
     // --- END VALIDATION ---
 
     CartEntity entity = repository.findByCustomerId(customerId)
         .orElse(new CartEntity());
-    if (Objects.isNull(entity.getUser())) {
+    if (entity.getUser() == null) {
       entity.setUser(userRepo.findById(customerId)
           .orElseThrow(() -> new CustomerNotFoundException(
               String.format(" - %s", customerId))));
@@ -163,7 +163,7 @@ public class CartServiceImpl implements CartService {
   public Item getCartItemByProductId(UUID customerId, UUID productId) {
     // --- VALIDATION ---
     // customerId is validated by getCartEntityByCustomerId
-    if (Objects.isNull(productId)) {
+    if (productId == null) {
       throw new IllegalArgumentException("ProductId cannot be null.");
     }
     // --- END VALIDATION ---
@@ -175,7 +175,7 @@ public class CartServiceImpl implements CartService {
         itemEntity.set(i);
       }
     });
-    if (Objects.isNull(itemEntity.get())) {
+    if (itemEntity.get() == null) {
       getUnsafe().throwException(new ItemNotFoundException(String.format(" - %s", productId)));
     }
     return mapper.entityToModel(itemEntity.get());
@@ -195,7 +195,7 @@ public class CartServiceImpl implements CartService {
   public void deleteItemFromCart(UUID customerId, UUID itemId) {
     // --- VALIDATION ---
     // customerId is validated by getCartEntityByCustomerId
-    if (Objects.isNull(itemId)) {
+    if (itemId == null) {
       throw new IllegalArgumentException("ItemId cannot be null.");
     }
     // --- END VALIDATION ---

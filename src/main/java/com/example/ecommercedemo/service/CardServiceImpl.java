@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,10 +36,10 @@ public class CardServiceImpl implements CardService {
   @Transactional
   public Card registerCard(CardReq addCardReq) {
     // --- VALIDATION ---
-    if (Objects.isNull(addCardReq)) {
+    if (addCardReq == null) {
       throw new IllegalArgumentException("Card request cannot be null.");
     }
-    if (Objects.isNull(addCardReq.getUserId())) {
+    if (addCardReq.getUserId() == null) {
       throw new IllegalArgumentException("UserId cannot be null.");
     }
     // --- END VALIDATION ---

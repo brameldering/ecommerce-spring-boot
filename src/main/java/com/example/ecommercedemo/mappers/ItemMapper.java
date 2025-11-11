@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -24,7 +23,7 @@ public class ItemMapper {
   }
 
  public List<ItemEntity> modelToEntityList(List<Item> items) {
-    if (Objects.isNull(items)) {
+    if (items == null) {
       return List.of();
     }
     return items.stream().map(this::modelToEntity).toList();

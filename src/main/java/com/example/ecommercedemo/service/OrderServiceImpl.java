@@ -3,7 +3,6 @@ package com.example.ecommercedemo.service;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.mappers.OrderMapper;
 import com.example.ecommercedemo.model.Order;
-import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
 import com.example.ecommercedemo.repository.OrderRepository;
 import com.example.ecommercedemo.model.OrderReq;
 
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,16 +31,16 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public Order addOrder(OrderReq orderReq) {
 
-    if (Objects.isNull(orderReq)) {
+    if (orderReq == null) {
       throw new IllegalArgumentException("Order cannot be null.");
     }
-    if (Objects.isNull(orderReq.getCustomerId())) {
+    if (orderReq.getCustomerId() == null) {
       throw new IllegalArgumentException("Customer ID cannot be null.");
     }
-    if (Objects.isNull(orderReq.getAddressId())) {
+    if (orderReq.getAddressId() == null) {
       throw new IllegalArgumentException("Address ID cannot be null.");
     }
-    if (Objects.isNull(orderReq.getCardId())) {
+    if (orderReq.getCardId() == null) {
       throw new IllegalArgumentException("Card ID cannot be null.");
     }
 
