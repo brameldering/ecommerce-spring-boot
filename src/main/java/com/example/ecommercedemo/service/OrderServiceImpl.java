@@ -29,12 +29,12 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
-  public Order addOrder(OrderReq orderReq) {
+  public Order addOrder(UUID customerId, OrderReq orderReq) {
 
     if (orderReq == null) {
       throw new IllegalArgumentException("Order cannot be null.");
     }
-    if (orderReq.getCustomerId() == null) {
+    if (customerId == null) {
       throw new IllegalArgumentException("Customer ID cannot be null.");
     }
     if (orderReq.getAddressId() == null) {
@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 1. Add HATEOAS links
-    OrderEntity createdOrderEntity = repository.insert(orderReq);
+    OrderEntity createdOrderEntity = repository.insert(customerId, orderReq);
     return mapper.entityToModel(createdOrderEntity);
     // Ideally, here it will trigger the rest of the process
     // 2. Initiate the payment

@@ -35,8 +35,8 @@ public class OrderController implements OrderApi {
   }
 
   @Override
-  public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderReq orderReq) {
-    Order createdOrder = service.addOrder(orderReq);
+  public ResponseEntity<Order> addOrder(UUID customerId, @Valid @RequestBody OrderReq orderReq) {
+    Order createdOrder = service.addOrder(customerId, orderReq);
     return status(HttpStatus.CREATED).body(createdOrder);
   }
 

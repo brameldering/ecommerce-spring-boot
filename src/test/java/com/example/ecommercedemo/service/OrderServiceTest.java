@@ -1,6 +1,7 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.OrderEntity;
+import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.OrderMapper;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.model.OrderReq;
@@ -39,6 +40,7 @@ class OrderServiceTest {
   private UUID customerId;
   private UUID addressId;
   private UUID cardId;
+  private UserEntity userEntity;
   private OrderEntity orderEntity;
   private Order orderModel;
   private OrderReq orderReq;
@@ -51,8 +53,14 @@ class OrderServiceTest {
     cardId = UUID.randomUUID();
 
     // 1. Setup Entities
+    userEntity = new UserEntity();
+    userEntity.setId(customerId);
+    userEntity.setFirstName("FirstName");
+    userEntity.setLastName("LastName");
+
     orderEntity = new OrderEntity();
     orderEntity.setId(orderId);
+    orderEntity.setUserEntity(userEntity);
     // Set other properties as needed for a real entity
 
     // 2. Setup Models/DTOs
@@ -61,7 +69,6 @@ class OrderServiceTest {
     // Set other properties as needed for a real model
 
     orderReq = new OrderReq();
-    orderReq.setCustomerId(customerId);
     orderReq.setAddressId(addressId);
     orderReq.setCardId(cardId);
     // Set other properties as needed for a real request
@@ -75,16 +82,16 @@ class OrderServiceTest {
   @DisplayName("ADD: Should successfully create and return a new Order")
   void addOrder_Success() {
     // --- Setup Mocks ---
-    when(repository.insert(orderReq)).thenReturn(orderEntity);
+    when(repository.insert(customerId, orderReq)).thenReturn(orderEntity);
     when(mapper.entityToModel(orderEntity)).thenReturn(orderModel);
 
     // --- Execute ---
-    Order result = orderService.addOrder(orderReq);
+    Order result = orderService.addOrder(customerId, orderReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
     assertEquals(orderModel.getId(), result.getId());
-    verify(repository, times(1)).insert(orderReq);
+    verify(repository, times(1)).insert(customerId, orderReq);
   }
 
   // ------------------------------------------------------------------
@@ -97,7 +104,7 @@ class OrderServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> orderService.addOrder(null)
+        () -> orderService.addOrder(customerId, null)
     );
     assertEquals("Order cannot be null.", exception.getMessage());
     verifyNoInteractions(repository, mapper);
@@ -106,13 +113,11 @@ class OrderServiceTest {
   @Test
   @DisplayName("ADD: Should throw IllegalArgumentException when CustomerId is null")
   void addOrder_WhenCustomerIdIsNull_ShouldThrowException() {
-    // --- Setup ---
-    orderReq.setCustomerId(null);
 
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> orderService.addOrder(orderReq)
+        () -> orderService.addOrder(null, orderReq)
     );
     assertEquals("Customer ID cannot be null.", exception.getMessage());
     verifyNoInteractions(repository, mapper);
@@ -127,7 +132,7 @@ class OrderServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> orderService.addOrder(orderReq)
+        () -> orderService.addOrder(customerId, orderReq)
     );
     assertEquals("Address ID cannot be null.", exception.getMessage());
     verifyNoInteractions(repository, mapper);
@@ -142,7 +147,7 @@ class OrderServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> orderService.addOrder(orderReq)
+        () -> orderService.addOrder(customerId, orderReq)
     );
     assertEquals("Card ID cannot be null.", exception.getMessage());
     verifyNoInteractions(repository, mapper);

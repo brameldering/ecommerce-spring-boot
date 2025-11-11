@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @Transactional
@@ -42,12 +43,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   }
 
   @Override
-  public OrderEntity insert(OrderReq orderReq) {
+  public OrderEntity insert(UUID customerId, OrderReq orderReq) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
-    List<ItemEntity> items = itemRepo.findByCustomerId(orderReq.getCustomerId());
+    List<ItemEntity> items = itemRepo.findByCustomerId(customerId);
     if (items.isEmpty()) {
       throw new ItemNotFoundException(
-          String.format("There are no items found in customer's (ID: %s) cart.", orderReq.getCustomerId()));
+          String.format("There are no items found in customer's (ID: %s) cart.", customerId));
     }
     BigDecimal total = BigDecimal.ZERO;
     for (ItemEntity i : items) {
@@ -62,19 +63,19 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         """)
         .setParameter(1, orderReq.getAddressId())
         .setParameter(2, orderReq.getCardId())
-        .setParameter(3, orderReq.getCustomerId())
+        .setParameter(3, customerId)
         .setParameter(4, orderDate)
         .setParameter(5, total)
         .setParameter(6, Order.StatusEnum.CREATED.getValue())
         .executeUpdate();
 
-    Optional<CartEntity> oCart = cRepo.findByCustomerId(orderReq.getCustomerId());
+    Optional<CartEntity> oCart = cRepo.findByCustomerId(customerId);
     CartEntity cart =
         oCart.orElseThrow(
             () ->
                 new ResourceNotFoundException(
                     String.format(
-                        "Cart not found for given customer (ID: %s)", orderReq.getCustomerId())));
+                        "Cart not found for given customer (ID: %s)", customerId)));
 
     itemRepo.deleteCartItemJoinById(
         cart.getItems().stream().map(ItemEntity::getId).toList(), cart.getId());
@@ -86,7 +87,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         SELECT o.* FROM ecomm.orders o WHERE o.customer_id = ? AND o.order_date >= ?
         """,
                     OrderEntity.class)
-                .setParameter(1, orderReq.getCustomerId())
+                .setParameter(1, customerId)
                 .setParameter(
                     2,
                     OffsetDateTime.ofInstant(orderDate.toInstant(), ZoneId.of("Z"))

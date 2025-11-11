@@ -279,6 +279,7 @@ paths:
     post:
       tags:
         - card
+        - customer
       summary: Creates a new user card
       description: Creates a new user card. Does nothing if card already exists.
       operationId: registerCard
@@ -573,6 +574,44 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Order'
+    post:
+      tags:
+        - order
+        - customer
+      summary: Creates a new order for a customer
+      description: Creates a new order for a customer with the given order request.
+      operationId: addOrder
+      parameters:
+        - name: id
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      requestBody:
+        description: New Order Request object
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/OrderReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderReq'
+      responses:
+        201:
+          description: Order added successfully
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Order'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        406:
+          description: If payment is not authorized.
+          content: { }
   /addresses:
     get:
       tags:
@@ -729,34 +768,6 @@ paths:
         404:
           description: Order doesn't exist for given user.
           content: { }
-    post:
-      tags:
-        - order
-      summary:  Creates a new order for the given order request
-      description: Creates a new order for the given order request.
-      operationId: addOrder
-      requestBody:
-        description: New Order Request object
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/OrderReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderReq'
-      responses:
-        201:
-          description: Order added successfully
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        406:
-          description: If payment is not authorized.
-          content: {}
   /orders/{id}:
     get:
       tags:
@@ -786,13 +797,49 @@ paths:
         404:
           description: Order doesn't exist for given user.
           content: {}
-  /payments:
+  /orders/{id}/payments:
+    get:
+      tags:
+        - payment
+        - order
+      summary: Retrieves a payment authorization
+      description: Retrieves the payment authorization for the specified order
+      operationId: getOrdersPaymentAuthorization
+      parameters:
+        - name: id
+          in: path
+          description: Order Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      responses:
+        200:
+          description: For successful fetch.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Authorization'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authorization'
     post:
       tags:
         - payment
+        - order
       summary: Authorize a payment request
       description: Authorize a payment request.
       operationId: authorize
+      parameters:
+        - name: id
+          in: path
+          description: Order Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
         content:
           application/xml:
@@ -804,32 +851,6 @@ paths:
       responses:
         201: # Use 201 Created for resource creation
           description: The payment resource was successfully created.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Authorization'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Authorization'
-  /payments/{orderId}:
-    get:
-      tags:
-        - payment
-      summary: Retrieves a payment authorization
-      description: Retrieves the payment authorization for the specified order
-      operationId: getOrdersPaymentAuthorization
-      parameters:
-        - name: orderId
-          in: path
-          description: Order Identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      responses:
-        200:
-          description: For successful fetch.
           content:
             application/xml:
               schema:
@@ -1090,6 +1111,7 @@ components:
           - $ref: '#/components/schemas/CardDetailsBase'
       required:
         - id
+        - userId
         - cardNumber
         - expires
       properties:
@@ -1180,22 +1202,15 @@ components:
       description: Contains the new order request information
       type: object
       required:
-        - customerId
         - addressId
         - cardId
       properties:
-        customerId:
-          description: the user id of the customer placing the order
-          type: string
-          format: uuid
-          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-          example: 00000000-0000-0000-0000-000000000001
-        addressId: # Changed to reference
+        addressId:
           description: Identifier of the customer's shipping address
           type: string
           pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           format: uuid
-        cardId:    # Changed to reference
+        cardId:
           description: Identifier of the customer's payment card
           type: string
           pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
@@ -1280,17 +1295,10 @@ components:
       description: Contains the payment request information
       type: object
       required:
-        - orderId
         - address
         - card
         - amount
       properties:
-        orderId:
-          description: Order Identifier belonging to this payment request
-          type: string
-          format: uuid
-          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-          example: 00000000-0000-0000-0000-000000000001
         customer:
           $ref: '#/components/schemas/CustomerInfoOnCard'
         address:
@@ -1308,6 +1316,12 @@ components:
       properties:
         id:
           description: Payment identifier
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          example: 00000000-0000-0000-0000-000000000001
+        orderId:
+          description: Order Identifier belonging to this payment request
           type: string
           format: uuid
           pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'

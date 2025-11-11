@@ -30,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   @Transactional
-  public Authorization authorize(PaymentReq paymentReq) {
+  public Authorization authorize(UUID orderId, PaymentReq paymentReq) {
     return null;
   }
 

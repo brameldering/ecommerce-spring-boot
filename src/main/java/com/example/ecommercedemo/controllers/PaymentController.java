@@ -32,7 +32,7 @@ public class PaymentController implements PaymentApi {
   }
 
   @Override
-  public ResponseEntity<Authorization> authorize(@Valid @RequestBody PaymentReq paymentReq) {
+  public ResponseEntity<Authorization> authorize(UUID orderId, @Valid @RequestBody PaymentReq paymentReq) {
     log.info("Authorize request for Payment Amount: {}", paymentReq.getAmount());
     return null;
   }

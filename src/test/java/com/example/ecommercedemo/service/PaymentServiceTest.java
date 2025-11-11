@@ -71,7 +71,7 @@ class PaymentServiceTest {
   @DisplayName("AUTHORIZE: Should return null as the method is currently unimplemented")
   void authorize_ReturnsNull() {
     // --- Execute ---
-    Authorization result = paymentService.authorize(paymentReq);
+    Authorization result = paymentService.authorize(orderId, paymentReq);
 
     // --- Assert & Verify ---
     assertNull(result);
