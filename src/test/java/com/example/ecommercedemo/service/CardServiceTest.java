@@ -72,7 +72,6 @@ class CardServiceTest {
     cardModel.setCardNumber("************3456"); // Assuming mapper masks the number
 
     cardReq = new CardReq();
-    cardReq.setUserId(customerId);
     cardReq.setCardNumber("1234567890123456");
     cardReq.setCvv("123");
     cardReq.setExpires("12/25");
@@ -96,7 +95,7 @@ class CardServiceTest {
     when(mapper.entityToModel(cardEntity)).thenReturn(cardModel);
 
     // --- Execute ---
-    Card result = cardService.registerCard(cardReq);
+    Card result = cardService.registerCard(customerId, cardReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
@@ -118,7 +117,7 @@ class CardServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cardService.registerCard(null)
+        () -> cardService.registerCard(customerId, null)
     );
     assertEquals("Card request cannot be null.", exception.getMessage());
     verifyNoInteractions(userRepository, cardRepository, mapper);
@@ -127,13 +126,11 @@ class CardServiceTest {
   @Test
   @DisplayName("REGISTER: Should throw IllegalArgumentException when UserId is null")
   void registerCard_WhenUserIdIsNull_ShouldThrowException() {
-    // --- Setup ---
-    cardReq.setUserId(null);
 
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cardService.registerCard(cardReq)
+        () -> cardService.registerCard(null, cardReq)
     );
     assertEquals("UserId cannot be null.", exception.getMessage());
     verifyNoInteractions(userRepository, cardRepository, mapper);
@@ -148,7 +145,7 @@ class CardServiceTest {
     // --- Execute & Assert ---
     assertThrows(
         CustomerNotFoundException.class,
-        () -> cardService.registerCard(cardReq)
+        () -> cardService.registerCard(customerId, cardReq)
     );
 
     verify(userRepository, times(1)).findById(customerId);
@@ -166,7 +163,7 @@ class CardServiceTest {
     // --- Execute & Assert ---
     assertThrows(
         GenericAlreadyExistsException.class,
-        () -> cardService.registerCard(cardReq)
+        () -> cardService.registerCard(customerId, cardReq)
     );
 
     verify(userRepository, times(1)).findById(customerId);

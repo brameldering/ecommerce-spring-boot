@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CardService {
-  Card registerCard(@Valid CardReq cardReq);
+  Card registerCard(@NotNull(message = "Customer UUID cannot be null.") UUID id, @Valid CardReq cardReq);
   List<Card> getAllCards();
   Optional<Card> getCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
   Optional<List<Card>> getCardsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);

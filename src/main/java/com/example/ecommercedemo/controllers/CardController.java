@@ -38,8 +38,8 @@ public class CardController implements CardApi {
   }
 
   @Override
-  public ResponseEntity<Card> registerCard(@Valid @RequestBody CardReq cardReq) {
-    Card newCard = service.registerCard(cardReq);
+  public ResponseEntity<Card> registerCard(@PathVariable("id") UUID customerId, @Valid @RequestBody CardReq cardReq) {
+    Card newCard = service.registerCard(customerId, cardReq);
     // Add HATEOAS links to the newly created card
     Card cardWithLinks = assembler.toModel(newCard);
     return status(HttpStatus.CREATED).body(cardWithLinks);

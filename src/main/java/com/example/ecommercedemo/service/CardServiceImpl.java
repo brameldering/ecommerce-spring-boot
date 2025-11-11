@@ -34,24 +34,22 @@ public class CardServiceImpl implements CardService {
 
   @Override
   @Transactional
-  public Card registerCard(CardReq addCardReq) {
+  public Card registerCard(UUID customerId, CardReq addCardReq) {
     // --- VALIDATION ---
     if (addCardReq == null) {
       throw new IllegalArgumentException("Card request cannot be null.");
     }
-    if (addCardReq.getUserId() == null) {
+    if (customerId == null) {
       throw new IllegalArgumentException("UserId cannot be null.");
     }
     // --- END VALIDATION ---
 
-    UUID userId = addCardReq.getUserId();
-
-    // Check if user exists
-    UserEntity user = userRepository.findById(userId)
+      // Check if user exists
+    UserEntity user = userRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
     // Check if a card already exists for this user
-    if (cardRepository.existsByUserId(userId)) {
+    if (cardRepository.existsByUserId(customerId)) {
       throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
     }
 

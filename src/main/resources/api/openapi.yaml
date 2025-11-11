@@ -276,6 +276,39 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Card'
+    post:
+      tags:
+        - card
+      summary: Creates a new user card
+      description: Creates a new user card. Does nothing if card already exists.
+      operationId: registerCard
+      parameters:
+        - name: id
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/CardReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardReq'
+      responses:
+        201: # 201 for resource creation
+          description: The card resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Card'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
   /customers/{id}/cart:
     get:
       tags:
@@ -627,30 +660,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Card'
-    post:
-      tags:
-        - card
-      summary: Creates a new user card
-      description: Creates a new user card. Does nothing if card already exists.
-      operationId: registerCard
-      requestBody:
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/CardReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CardReq'
-      responses:
-        201: # 201 for resource creation
-          description: The card resource was successfully created.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Card'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Card'
   /cards/{id}:
     get:
       tags:
@@ -1072,15 +1081,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/CardDetailsBase'
         - type: object
-          required:
-            - userId
-          properties:
-            userId:
-              description: user id owning the card to be registered
-              type: string
-              format: uuid
-              pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-              example: 123e4567-e89b-12d3-a456-426614174000
       xml:
         name: CardReq
     Card:
@@ -1099,6 +1099,11 @@ components:
           format: uuid
           pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
           example: 00000000-0000-0000-0000-000000000001
+        userId:
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          example: 00000000-0000-0000-0000-000000000001
         cardNumber:
           description: Card Number (Masked for security)
           type: string
@@ -1111,11 +1116,6 @@ components:
           type: string
           readOnly: true
           example: '***'
-        userId: # Included for clarity, as this is a resource tied to a user
-          type: string
-          format: uuid
-          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-          example: 00000000-0000-0000-0000-000000000001
       xml:
         name: Card
     CustomerInfoOnCard:
