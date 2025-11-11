@@ -6,7 +6,9 @@ import com.example.ecommercedemo.entity.ShipmentEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.ShipmentMapper;
 import com.example.ecommercedemo.model.Address;
+import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.Shipment;
+import com.example.ecommercedemo.model.ShipmentReq;
 import com.example.ecommercedemo.repository.ShipmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +48,7 @@ public class ShipmentServiceTest {
   private Address addressModel;
   private ShipmentEntity shipmentEntity;
   private Shipment shipmentModel;
+  private ShipmentReq shipmentReq;
 
   @BeforeEach
   void setUp() {
@@ -55,7 +58,6 @@ public class ShipmentServiceTest {
     customerId = UUID.randomUUID();
 
     // 1. Setup Entities
-
     userEntity = new UserEntity();
     userEntity.setId(customerId);
 
@@ -84,12 +86,13 @@ public class ShipmentServiceTest {
     shipmentModel = new Shipment();
     shipmentModel.setId(shipmentId);
     shipmentModel.setCarrier("Carrier");
+
+    shipmentReq = new ShipmentReq();
   }
 
   // ------------------------------------------------------------------
   // getShipment Tests
   // ------------------------------------------------------------------
-
 
   @Test
   @DisplayName("GET_BY_ORDER_ID: Should return List<Shipment> when order has shipments")
@@ -144,5 +147,20 @@ public class ShipmentServiceTest {
     assertTrue(result.isEmpty());
     verify(shipmentRepository, times(1)).findByOrderEntity_Id(orderId);
     verify(shipmentRepository, never()).findById(any());
+  }
+
+  // ------------------------------------------------------------------
+  // shipOrder Tests
+  // ------------------------------------------------------------------
+
+  @Test
+  @DisplayName("shipOrder: Should return null as the method is currently unimplemented")
+  void shipOrder_ReturnsNull() {
+    // --- Execute ---
+    Shipment result = shipmentService.shipOrder(orderId, shipmentReq);
+
+    // --- Assert & Verify ---
+    assertNull(result);
+    verifyNoInteractions(shipmentRepository, mapper);
   }
 }

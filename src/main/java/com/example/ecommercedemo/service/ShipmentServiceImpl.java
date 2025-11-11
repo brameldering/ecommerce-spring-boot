@@ -2,7 +2,10 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.mappers.ShipmentMapper;
 import com.example.ecommercedemo.model.Shipment;
+import com.example.ecommercedemo.model.ShipmentReq;
 import com.example.ecommercedemo.repository.ShipmentRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -27,5 +30,11 @@ public class ShipmentServiceImpl implements ShipmentService {
   @Transactional(readOnly = true)
   public List<Shipment> getShipmentsByOrderId(UUID orderId) {
     return mapper.entityToModelList(repository.findByOrderEntity_Id(orderId));
+  }
+
+  @Override
+  @Transactional
+  public Shipment shipOrder (UUID orderId, ShipmentReq shipmentReq) {
+    return null;
   }
 }

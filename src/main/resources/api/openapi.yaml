@@ -858,35 +858,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Authorization'
-  /shipping:
-    post:
-      tags:
-        - shipment
-      summary: Ship the specified shipping request
-      description: Ship the specified shipping request
-      operationId: shipOrder
-      requestBody:
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/ShipmentReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShipmentReq'
-      responses:
-        201: # Use 201 Created for resource creation
-          description: The shipment resource was successfully created.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Authorization'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Authorization'
-  /shipping/{id}:
+  /orders/{id}/shipments:
     get:
       tags:
         - shipment
+        - order
       summary: Retrieves the Shipment
       description: Retrieves the Shipment for the specified order
       operationId: getShipmentByOrderId
@@ -913,6 +889,40 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Shipment'
+    post:
+      tags:
+        - shipment
+        - order
+      summary: Ship the specified shipping request
+      description: Ship the specified shipping request
+      operationId: shipOrder
+      parameters:
+        - name: id
+          in: path
+          description: Order Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ShipmentReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShipmentReq'
+      responses:
+        201: # Use 201 Created for resource creation
+          description: The shipment resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
 components:
   schemas:
     BigDecimal:
@@ -1006,6 +1016,7 @@ components:
         name: User
     AddressBase:
       type: object
+      description: Base properties for an address.
       required:
         - street
         - city
@@ -1198,8 +1209,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Item'
-    OrderReq:
-      description: Contains the new order request information
+    OrderBase:
+      description: Base properties for an order
       type: object
       required:
         - addressId
@@ -1220,6 +1231,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Item'
+      xml:
+        name: OrderBase
+    OrderReq:
+      description: Request object for a new order.
+      allOf:
+        - $ref: '#/components/schemas/OrderBase'
+        - type: object
       xml:
         name: OrderReq
     Order:
@@ -1291,8 +1309,8 @@ components:
           type: string
       xml:
         name: Authorization
-    PaymentReq:
-      description: Contains the payment request information
+    PaymentBase:
+      description: Base properties for a payment
       type: object
       required:
         - address
@@ -1309,6 +1327,13 @@ components:
           allOf:
             - $ref: '#/components/schemas/BigDecimal'
             - description: Payment amount
+      xml:
+        name: PaymentBase
+    PaymentReq:
+      description: Request object for a payment.
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+        - type: object
       xml:
         name: PaymentReq
     Payment:
@@ -1334,22 +1359,23 @@ components:
           type: string
       xml:
         name: Payment
-    ShipmentReq:
-      description: Contains information required for the shipment request
+    ShipmentBase:
+      description: Base information for a shipment
       type: object
       properties:
-        orderId:
-          description: ShipmentReq Identifier
-          type: string
-          format: uuid
-          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-          example: 00000000-0000-0000-0000-000000000001
         address:
           $ref: '#/components/schemas/Address'
         itemCount:
-          description: The number of items in the order
+          description: The number of items in the shipment
           type: integer
           format: int32
+      xml:
+        name: ShipmentBase
+    ShipmentReq:
+      description: Request object for a shipment.
+      allOf:
+        - $ref: '#/components/schemas/ShipmentBase'
+        - type: object
       xml:
         name: ShipmentReq
     Shipment:
@@ -1357,6 +1383,12 @@ components:
       properties:
         id:
           description: Shipment Identifier
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          example: 00000000-0000-0000-0000-000000000001
+        orderId:
+          description: Order Identifier
           type: string
           format: uuid
           pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
