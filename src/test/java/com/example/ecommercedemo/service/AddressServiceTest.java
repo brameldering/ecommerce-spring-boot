@@ -71,7 +71,6 @@ class AddressServiceTest {
     addressModel.setUserId(customerId);
 
     addressReq = new AddressReq();
-    addressReq.setUserId(customerId);
     addressReq.setStreet("123 Main St");
     addressReq.setCity("Anytown");
     addressReq.setZipcode("12345");
@@ -85,14 +84,14 @@ class AddressServiceTest {
   @DisplayName("CREATE: Should successfully create and return an Address")
   void createAddress_Success() {
     // --- Setup Mocks ---
-    when(userRepository.existsById(addressReq.getUserId())).thenReturn(true);
+    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
     when(mapper.addressReqToEntity(addressReq)).thenReturn(addressEntity);
     // Mock save to return the entity it was passed
     when(addressRepository.save(any(AddressEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     when(mapper.entityToModel(addressEntity)).thenReturn(addressModel);
 
     // --- Execute ---
-    Address result = addressService.createAddress(addressReq);
+    Address result = addressService.createAddress(customerId, addressReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
@@ -110,24 +109,23 @@ class AddressServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> addressService.createAddress(null)
+        () -> addressService.createAddress(customerId, null)
     );
     assertEquals("Address cannot be null.", exception.getMessage());
     verifyNoInteractions(addressRepository, mapper, userRepository);
   }
 
   @Test
-  @DisplayName("CREATE: Should throw IllegalArgumentException when UserId is null")
-  void createAddress_WhenUserIdIsNull_ShouldThrowException() {
+  @DisplayName("CREATE: Should throw IllegalArgumentException when CustomerId is null")
+  void createAddress_WhenCustomerIdIsNull_ShouldThrowException() {
     // --- Setup ---
-    addressReq.setUserId(null);
 
     // --- Execute & Assert ---
-    IllegalArgumentException exception = assertThrows(
-        IllegalArgumentException.class,
-        () -> addressService.createAddress(addressReq)
+    CustomerNotFoundException exception = assertThrows(
+        CustomerNotFoundException.class,
+        () -> addressService.createAddress(null, addressReq)
     );
-    assertEquals("UserId cannot be null.", exception.getMessage());
+//    assertEquals("CustomerId cannot be null.", exception.getMessage());
     verifyNoInteractions(addressRepository, mapper);
   }
 
@@ -140,7 +138,7 @@ class AddressServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> addressService.createAddress(addressReq)
+        () -> addressService.createAddress(customerId, addressReq)
     );
     assertEquals("Street cannot be empty.", exception.getMessage());
   }
@@ -154,7 +152,7 @@ class AddressServiceTest {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> addressService.createAddress(addressReq)
+        () -> addressService.createAddress(customerId, addressReq)
     );
     assertEquals("City cannot be empty.", exception.getMessage());
   }

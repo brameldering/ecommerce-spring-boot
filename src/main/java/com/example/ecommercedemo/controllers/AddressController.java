@@ -38,9 +38,9 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<Address> createAddress(@Valid @RequestBody AddressReq addressReq) {
+  public ResponseEntity<Address> createAddress(@PathVariable("id") UUID customerId, @Valid @RequestBody AddressReq addressReq) {
     // 1. Call the service method, which returns Address or throws an exception.
-    Address createdAddress = service.createAddress(addressReq);
+    Address createdAddress = service.createAddress(customerId, addressReq);
 
     // 2. Add HATEOAS links using the assembler.
     Address addressWithLinks = assembler.toModel(createdAddress);

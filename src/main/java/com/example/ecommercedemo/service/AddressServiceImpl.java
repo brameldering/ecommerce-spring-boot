@@ -33,13 +33,10 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional
-  public Address createAddress(AddressReq addressReq) {
+  public Address createAddress(UUID customerId, AddressReq addressReq) {
     // --- VALIDATION ---
     if (addressReq == null) {
       throw new IllegalArgumentException("Address cannot be null.");
-    }
-    if (addressReq.getUserId() == null) {
-      throw new IllegalArgumentException("UserId cannot be null.");
     }
     if (addressReq.getStreet() == null || addressReq.getStreet().isBlank()) {
       throw new IllegalArgumentException("Street cannot be empty.");
@@ -50,13 +47,26 @@ public class AddressServiceImpl implements AddressService {
     if (addressReq.getZipcode() == null || addressReq.getZipcode().isBlank()) {
       throw new IllegalArgumentException("Zipcode cannot be empty.");
     }
-    // Check if user exists
-    if (!userRepository.existsById(addressReq.getUserId())) {
-      throw new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND);
-    }
     // --- END VALIDATION ---
 
-    return mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq)));
+    // 1. Find the User (this replaces the old validation)
+    UserEntity user = userRepository.findById(customerId)
+        .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+    // 2. Map the DTO (which no longer has userId) to an entity
+    AddressEntity newAddress = mapper.addressReqToEntity(addressReq);
+
+    // 3. Save the new address entity FIRST so it's managed and has an ID
+    AddressEntity savedAddress = addressRepository.save(newAddress);
+
+    // 4. Link the new address to the user
+    //    (Since UserEntity has the @ManyToMany owning side, we add to its list)
+    user.getAddresses().add(savedAddress);
+    userRepository.save(user); // This updates the USER_ADDRESS join table
+
+    // 5. Map the saved address entity back to the model and return it
+    return mapper.entityToModel(savedAddress);
+//    return mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq)));
   }
 
   @Override
@@ -67,19 +77,19 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Address> getAddressById(UUID uuid) {
-    return addressRepository.findById(uuid).map(mapper::entityToModel);
+  public Optional<Address> getAddressById(UUID AddressId) {
+    return addressRepository.findById(AddressId).map(mapper::entityToModel);
    }
 
   @Override
   @Transactional(readOnly = true)
-  public List<Address> getAddressesByCustomerId(UUID id) {
+  public List<Address> getAddressesByCustomerId(UUID customerId) {
 //    return userRepository.findById(id) // Returns Optional<UserEntity>
 //        .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
 //        .map(mapper::entityToModelList); // Returns Optional<List<Address>>
 
     // 1. Check if the user exists. If not, throw CustomerNotFoundException.
-    UserEntity user = userRepository.findById(id)
+    UserEntity user = userRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
     // 2. Get the list of addresses (which is guaranteed non-null, potentially empty).
@@ -91,7 +101,7 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional
-  public void deleteAddressById(UUID uuid) {
-    addressRepository.deleteById(uuid);
+  public void deleteAddressById(UUID AddressId) {
+    addressRepository.deleteById(AddressId);
   }
 }

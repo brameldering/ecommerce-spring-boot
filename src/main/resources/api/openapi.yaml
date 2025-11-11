@@ -211,6 +211,40 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Address'
+    post:
+      tags:
+        - address
+        - customer
+      summary: Creates a new customer addresses
+      description: Creates a new user addresses. Does nothing if address already exists.
+      operationId: createAddress
+      parameters:
+        - name: id
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/AddressReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressReq'
+      responses:
+        201: # 201 for resource creation
+          description: The address resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Address'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
   /customers/{id}/cards:
     get:
       tags:
@@ -527,30 +561,6 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Address'
-    post:
-      tags:
-        - address
-      summary: Creates a new user addresses
-      description: Creates a new user addresses. Does nothing if address already exists.
-      operationId: createAddress
-      requestBody:
-        content:
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/AddressReq'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddressReq'
-      responses:
-        201: # 201 for resource creation
-          description: The address resource was successfully created.
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Address'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Address'
   /addresses/{id}:
     get:
       tags:
@@ -1009,13 +1019,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AddressBase'
         - type: object
-          required:
-            - userId
-          properties:
-            userId:
-              type: string
-              format: uuid
-              pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       xml:
         name: AddressReq
     Address:
