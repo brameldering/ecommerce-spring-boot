@@ -33,7 +33,7 @@ public class UserRepresentationModelAssembler extends
     // 3. Add HATEOAS links
     resource.add(linkTo(methodOn(CustomerController.class).getCustomerById(resource.getId())).withSelfRel());
 
-    resource.add(linkTo(methodOn(CustomerController.class).getAllCustomers()).withRel("customers"));
+    resource.add(linkTo(methodOn(AdminController.class).getAllCustomers()).withRel("customers"));
 
     resource.add(linkTo(methodOn(AddressController.class).getCustomerAddresses(resource.getId())).withRel("addresses"));
 

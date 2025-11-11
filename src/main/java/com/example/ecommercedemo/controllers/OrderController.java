@@ -40,12 +40,6 @@ public class OrderController implements OrderApi {
     return status(HttpStatus.CREATED).body(createdOrder);
   }
 
-  @Override
-  public ResponseEntity<List<Order>> getAllOrders () {
-    return ResponseEntity.ok(Optional.ofNullable(service.getAllOrders())
-        .map(assembler::toModelList)
-        .orElse(List.of()));
-  }
 
   @Override
   public ResponseEntity<List<Order>> getCustomerOrders(UUID customerId) {

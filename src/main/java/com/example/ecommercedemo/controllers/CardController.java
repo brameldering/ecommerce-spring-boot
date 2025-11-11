@@ -46,13 +46,6 @@ public class CardController implements CardApi {
   }
 
   @Override
-  public ResponseEntity<List<Card>> getAllCards () {
-    return ResponseEntity.ok(Optional.ofNullable(service.getAllCards())
-        .map(assembler::toModelList)
-        .orElse(List.of()));
-  }
-
-  @Override
   public ResponseEntity<List<Card>> getCustomerCards (@PathVariable("id") UUID customerId) {
     return ResponseEntity.ok(
         service.getCardsByCustomerId(customerId) // returns Optional<List<Card>>

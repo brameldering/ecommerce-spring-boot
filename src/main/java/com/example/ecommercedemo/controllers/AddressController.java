@@ -50,13 +50,6 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<List<Address>> getAllAddresses () {
-    return ResponseEntity.ok(Optional.ofNullable(service.getAllAddresses())
-        .map(assembler::toModelList)
-        .orElse(List.of()));
-  }
-
-  @Override
   public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID customerId) {
     return ResponseEntity.ok(assembler.toModelList(service.getAddressesByCustomerId(customerId)));
   }

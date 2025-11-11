@@ -18,6 +18,8 @@ servers:
   - url: /api/v1  # Relative path which maps to localhost:8080 on dev
     description: Current server
 tags:
+  - name: admin
+    description: Administrative operations
   - name: product
     description: Operations related to products
   - name: customer
@@ -88,7 +90,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
-  /products/{id}:
+  /products/{productId}:
     get:
       tags:
         - product
@@ -96,7 +98,7 @@ paths:
       description: Retrieves the product that matches the given product ID
       operationId: getProduct
       parameters:
-        - name: id
+        - name: productId
           in: path
           description: Product Identifier
           required: true
@@ -117,8 +119,8 @@ paths:
   /customers:
     get:
       tags:
-        - customer
-      summary: Retrieves all customers
+        - admin
+      summary: Retrieves all customers in the system
       description: Retrieves all customers, or empty collection if no use found. Typically an admin-only endpoint.
       operationId: getAllCustomers
       responses:
@@ -135,7 +137,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-  /customers/{id}:
+  /customers/{customerId}:
     get:
       tags:
         - customer
@@ -143,7 +145,7 @@ paths:
       description: Retrieves a customers identifiable by given ID
       operationId: getCustomerById
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -168,7 +170,7 @@ paths:
       description: Deletes the customer identifiable by given ID
       operationId: deleteCustomerById
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -180,16 +182,15 @@ paths:
         202:
           description: Request accepted, returns this status even if user does not exist
           content: {}
-  /customers/{id}/addresses:
+  /customers/{customerId}/addresses:
     get:
       tags:
         - address
-        - customer
       summary: Retrieves the addresses for a specific customer
       description: Retrieves a collection of addresses associated with the given customer ID.
       operationId: getCustomerAddresses
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -214,12 +215,11 @@ paths:
     post:
       tags:
         - address
-        - customer
       summary: Creates a new customer addresses
       description: Creates a new user addresses. Does nothing if address already exists.
       operationId: createAddress
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -245,16 +245,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Address'
-  /customers/{id}/cards:
+  /customers/{customerId}/cards:
     get:
       tags:
         - card
-        - customer
       summary: Retrieves the cards for a specific customer
       description: Retrieves a collection of cards associated with the given customer ID.
       operationId: getCustomerCards
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -279,12 +278,11 @@ paths:
     post:
       tags:
         - card
-        - customer
       summary: Creates a new user card
       description: Creates a new user card. Does nothing if card already exists.
       operationId: registerCard
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -310,16 +308,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Card'
-  /customers/{id}/cart:
+  /customers/{customerId}/cart:
     get:
       tags:
         - cart
-        - customer
       summary: Retrieves the shopping cart
       description: Retrieves the shopping cart of a specific customer
       operationId: getCustomerCart
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -343,12 +340,11 @@ paths:
     delete:
       tags:
         - cart
-        - customer
       summary: Delete the shopping cart
       description: Deletes the shopping cart of given customer
       operationId: deleteCustomerCart
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -362,16 +358,15 @@ paths:
         404:
           description: Given customer ID doesn't exist
           content: { }
-  /customers/{id}/cart/items:
+  /customers/{customerId}/cart/items:
     get:
       tags:
         - cart
-        - customer
       summary: Retrieves the list of products in user's shopping cart
       description: Retrieves the items in shopping cart of given customer
       operationId: getCustomerCartItems
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -403,7 +398,7 @@ paths:
       description: Adds an item to the shopping cart if it doesn't already exist, or increment quantity by the specified number of items if it does.
       operationId: addCustomerCartItems
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -440,12 +435,11 @@ paths:
     put:
       tags:
         - cart
-        - customer
       summary: Replace/add an item in shopping cart
       description: Adds an item to the shopping cart if it doesn't already exist, or replace with given item if it does.
       operationId: addOrReplaceCustomerCartItems
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -479,7 +473,7 @@ paths:
         404:
           description: Given customer ID doesn't exist
           content: { }
-  /customers/{id}/cart/items/{productId}:
+  /customers/{customerId}/cart/items/{productId}:
     get:
       tags:
         - cart
@@ -487,7 +481,7 @@ paths:
       description: Retrieves items for a given product id from shopping cart of given customer
       operationId: getCustomerCartItemByProductId
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -519,12 +513,11 @@ paths:
     delete:
       tags:
         - cart
-        - customer
       summary: Delete the item from shopping cart
       description: Deletes the item from shopping cart of given customer
       operationId: deleteItemFromCustomerCart
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -543,16 +536,15 @@ paths:
       responses:
         202:
           description: Accepts the request, regardless of whether the specified item exists in the cart or not.
-  /customers/{id}/orders:
+  /customers/{customerId}/orders:
     get:
       tags:
         - order
-        - customer
       summary: Retrieves the orders for a specific customer
       description: Retrieves a collection of orders associated with the given customer ID.
       operationId: getCustomerOrders
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -577,12 +569,11 @@ paths:
     post:
       tags:
         - order
-        - customer
       summary: Creates a new order for a customer
       description: Creates a new order for a customer with the given order request.
       operationId: addOrder
       parameters:
-        - name: id
+        - name: customerId
           in: path
           description: Customer Identifier
           required: true
@@ -615,7 +606,7 @@ paths:
   /addresses:
     get:
       tags:
-        - address
+        - admin
       summary: Retrieves all addresses in the system
       description: Retrieves all addresses in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
       operationId: getAllAddresses
@@ -633,7 +624,7 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Address'
-  /addresses/{id}:
+  /addresses/{addressId}:
     get:
       tags:
         - address
@@ -641,7 +632,7 @@ paths:
       description: Retrieves a customer address based on given address ID.
       operationId: getAddressById
       parameters:
-        - name: id
+        - name: addressId
           in: path
           description: address Identifier
           required: true
@@ -666,7 +657,7 @@ paths:
       description: Deletes user's address based on given address ID.
       operationId: deleteAddressById
       parameters:
-        - name: id
+        - name: addressId
           in: path
           description: address Identifier
           required: true
@@ -681,8 +672,8 @@ paths:
   /cards:
     get:
       tags:
-        - card
-      summary: Retrieves all cards
+        - admin
+      summary: Retrieves all cards in the system
       description: Retrieves all cards in the system. Returns an empty collection if no results are found. Typically an admin-only endpoint.
       operationId: getAllCards
       responses:
@@ -699,7 +690,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Card'
-  /cards/{id}:
+  /cards/{cardId}:
     get:
       tags:
         - card
@@ -707,7 +698,7 @@ paths:
       description: Retrieves a card based on given card ID.
       operationId: getCardById
       parameters:
-        - name: id
+        - name: cardId
           in: path
           description: card Identifier
           required: true
@@ -732,7 +723,7 @@ paths:
       description: Deletes card's address based on given card ID.
       operationId: deleteCardById
       parameters:
-        - name: id
+        - name: cardId
           in: path
           description: card Identifier
           required: true
@@ -747,8 +738,8 @@ paths:
   /orders:
     get:
       tags:
-        - order
-      summary: Retrieves all orders in the system.
+        - admin
+      summary: Retrieves all orders in the system
       description: Retrieves all orders. Typically an admin-only endpoint.
       operationId: getAllOrders
       responses:
@@ -768,7 +759,7 @@ paths:
         404:
           description: Order doesn't exist for given user.
           content: { }
-  /orders/{id}:
+  /orders/{orderId}:
     get:
       tags:
         - order
@@ -776,7 +767,7 @@ paths:
       description: Retrieves orders of given order ID
       operationId: getByOrderId
       parameters:
-        - name: id
+        - name: orderId
           in: path
           description: Order Identifier
           required: true
@@ -797,16 +788,15 @@ paths:
         404:
           description: Order doesn't exist for given user.
           content: {}
-  /orders/{id}/payments:
+  /orders/{orderId}/payments:
     get:
       tags:
         - payment
-        - order
       summary: Retrieves a payment authorization
       description: Retrieves the payment authorization for the specified order
       operationId: getOrdersPaymentAuthorization
       parameters:
-        - name: id
+        - name: orderId
           in: path
           description: Order Identifier
           required: true
@@ -827,12 +817,11 @@ paths:
     post:
       tags:
         - payment
-        - order
       summary: Authorize a payment request
       description: Authorize a payment request.
       operationId: authorize
       parameters:
-        - name: id
+        - name: orderId
           in: path
           description: Order Identifier
           required: true
@@ -858,16 +847,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Authorization'
-  /orders/{id}/shipments:
+  /orders/{orderId}/shipment:
     get:
       tags:
         - shipment
-        - order
       summary: Retrieves the Shipment
       description: Retrieves the Shipment for the specified order
       operationId: getShipmentByOrderId
       parameters:
-        - name: id
+        - name: orderId
           in: path
           description: Order Identifier
           required: true
@@ -892,12 +880,11 @@ paths:
     post:
       tags:
         - shipment
-        - order
       summary: Ship the specified shipping request
       description: Ship the specified shipping request
       operationId: shipOrder
       parameters:
-        - name: id
+        - name: orderId
           in: path
           description: Order Identifier
           required: true

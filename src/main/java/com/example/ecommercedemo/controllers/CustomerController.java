@@ -31,14 +31,6 @@ public class CustomerController implements CustomerApi {
   }
 
   @Override
-  public ResponseEntity<List<User>> getAllCustomers() {
-    return ok(service.getAllCustomers()
-        .stream()
-        .map(userAssembler::toModel)
-        .toList());
-  }
-
-  @Override
   public ResponseEntity<User> getCustomerById(UUID uuid) {
      return service.getCustomerById(uuid) // 1. Returns Optional<User>
         .map(userAssembler::toModel) // 2. Applies HATEOAS links *inside* the Optional
