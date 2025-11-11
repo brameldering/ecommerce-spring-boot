@@ -105,14 +105,14 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<Void> deleteCustomerCart(UUID customerId) {
 
-    service.deleteCart(customerId);
+    service.deleteCartByCustomerId(customerId);
     return accepted().build();
   }
 
   @Override
   public ResponseEntity<Void> deleteItemFromCustomerCart(UUID customerId, UUID productId) {
 
-    service.deleteItemFromCart(customerId, productId);
+    service.deleteItemFromCartByCustomerIdAndProductId(customerId, productId);
     return accepted().build();
   }
 }

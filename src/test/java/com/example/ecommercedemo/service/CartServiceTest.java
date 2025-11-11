@@ -379,11 +379,11 @@ class CartServiceTest {
 
   @Test
   @DisplayName("DELETE_ITEM: Should throw IllegalArgumentException when ItemId is null")
-  void deleteItemFromCart_WhenItemIdIsNull_ShouldThrowException() {
+  void deleteItemFromCart_WhenItemIdIsNull_ShouldThrowExceptionByCustomerId() {
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cartService.deleteItemFromCart(customerId, null)
+        () -> cartService.deleteItemFromCartByCustomerIdAndProductId(customerId, null)
     );
 
     // Verify the message

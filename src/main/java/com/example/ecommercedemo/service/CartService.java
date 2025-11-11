@@ -14,7 +14,7 @@ public interface CartService {
   List<Item> addOrReplaceItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid Item item);
   Optional<Cart> getCartByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
   List<Item> getCartItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
-  Item getCartItemByProductId(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID itemId);
-  void deleteCart(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
-  void deleteItemFromCart(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID itemId);
+  Item getCartItemByProductId(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID productId);
+  void deleteCartByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
+  void deleteItemFromCartByCustomerIdAndProductId(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Product UUID cannot be null.")  UUID productId);
 }

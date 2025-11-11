@@ -183,7 +183,7 @@ public class CartServiceImpl implements CartService {
 
   @Override
   @Transactional
-  public void deleteCart(UUID customerId) {
+  public void deleteCartByCustomerId(UUID customerId) {
     // customerId is validated by getCartEntityByCustomerId
     // will throw the error if it doesn't exist
     CartEntity entity = getCartEntityByCustomerId(customerId);
@@ -192,17 +192,17 @@ public class CartServiceImpl implements CartService {
 
   @Override
   @Transactional
-  public void deleteItemFromCart(UUID customerId, UUID itemId) {
+  public void deleteItemFromCartByCustomerIdAndProductId(UUID customerId, UUID productId) {
     // --- VALIDATION ---
     // customerId is validated by getCartEntityByCustomerId
-    if (itemId == null) {
-      throw new IllegalArgumentException("ItemId cannot be null.");
+    if (productId == null) {
+      throw new IllegalArgumentException("ProductId cannot be null.");
     }
     // --- END VALIDATION ---
 
     CartEntity entity = getCartEntityByCustomerId(customerId);
     List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(itemId)).toList();
+        .filter(i -> !i.getProduct().getId().equals(productId)).toList();
     entity.setItems(updatedItems);
     repository.save(entity);
   }
