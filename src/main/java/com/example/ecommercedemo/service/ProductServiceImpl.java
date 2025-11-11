@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
 
   @Transactional(readOnly = true)
   @Override
-  public Optional<Product> getProduct(UUID id) {
+  public Optional<Product> getProductById(UUID id) {
     return repository.findByIdWithTags(id).map(mapper::entityToModel);
   }
 }

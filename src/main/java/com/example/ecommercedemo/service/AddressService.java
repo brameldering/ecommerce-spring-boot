@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface AddressService {
-  Optional<Address> createAddress(@Valid AddressReq addressReq);
+  Address createAddress(@Valid AddressReq addressReq);
   List<Address> getAllAddresses();
   Optional<Address> getAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
-  Optional<List<Address>> getAddressesByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
+  List<Address> getAddressesByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
   void deleteAddressById(@NotNull(message = "Address UUID cannot be null.") UUID uuid);
   }

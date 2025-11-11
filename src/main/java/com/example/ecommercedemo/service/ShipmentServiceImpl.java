@@ -25,7 +25,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<Shipment> getShipmentsByOrderId(UUID uuid) {
-    return mapper.entityToModelList(repository.findAllById(List.of(uuid)));
+  public List<Shipment> getShipmentsByOrderId(UUID orderId) {
+    return mapper.entityToModelList(repository.findByOrderEntity_Id(orderId));
   }
 }

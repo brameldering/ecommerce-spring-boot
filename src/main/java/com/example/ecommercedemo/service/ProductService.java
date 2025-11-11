@@ -11,5 +11,5 @@ import java.util.UUID;
 @Validated
 public interface ProductService {
   List<Product> getAllProducts();         // new: returns assembled API models
-  Optional<Product> getProduct(@NotNull(message = "Product UUID cannot be null.") UUID id);
+  Optional<Product> getProductById(@NotNull(message = "Product UUID cannot be null.") UUID id);
 }

@@ -28,13 +28,6 @@ public class UserServiceImpl implements UserService {
     this.userMapper = userMapper;
     this.cardMapper = cardMapper;
   }
-
-  @Override
-  @Transactional(readOnly = true)
-  public void deleteCustomerById(UUID id) {
-    repository.deleteById(id);
-  }
-
   @Override
   @Transactional(readOnly = true)
   public List<User> getAllCustomers() {
@@ -42,22 +35,17 @@ public class UserServiceImpl implements UserService {
     return userMapper.entityToModelList(entities);
   }
 
-  // TO DO MOVE TO CARD SERVICE
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Card> getCardByCustomerId(UUID id) {
-    return repository.findById(id)
-        .map(UserEntity::getCards)    // List<CardEntity>
-        .filter(cards -> !cards.isEmpty())
-        .map(cards -> cards.get(0)) // CardEntity
-        .map(cardMapper::entityToModel);             // Card model
-  }
-
   @Override
   @Transactional(readOnly = true)
   public Optional<User> getCustomerById(UUID id) {
     return repository.findById(id)
         .map(userMapper::entityToModel);
+  }
+
+  @Override
+  @Transactional
+  public void deleteCustomerById(UUID id) {
+    repository.deleteById(id);
   }
 }
 

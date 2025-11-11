@@ -967,11 +967,8 @@ components:
     AddressBase:
       type: object
       required:
-        - number
         - street
         - city
-        - state
-        - country
         - zipcode
       properties:
         number:

@@ -39,18 +39,18 @@ public class AddressController implements AddressApi {
 
   @Override
   public ResponseEntity<Address> createAddress(@Valid @RequestBody AddressReq addressReq) {
-    return service.createAddress(addressReq)
-        .map(assembler::toModel) // add HATEOAS links
-        .map(address -> status(HttpStatus.CREATED).body(address))
-        .orElseThrow(() -> new AddressCreationException("Address creation failed"));
+    // 1. Call the service method, which returns Address or throws an exception.
+    Address createdAddress = service.createAddress(addressReq);
+
+    // 2. Add HATEOAS links using the assembler.
+    Address addressWithLinks = assembler.toModel(createdAddress);
+
+    // 3. Return the 201 Created response.
+    return status(HttpStatus.CREATED).body(addressWithLinks);
   }
 
   @Override
   public ResponseEntity<List<Address>> getAllAddresses () {
-//    List<Address> addresses = service.getAllAddresses();
-//    List<Address> addressesWithLinks = assembler.toModelList(addresses);
-//    return ResponseEntity.ok(addressesWithLinks);
-
     return ResponseEntity.ok(Optional.ofNullable(service.getAllAddresses())
         .map(assembler::toModelList)
         .orElse(List.of()));
@@ -58,11 +58,7 @@ public class AddressController implements AddressApi {
 
   @Override
   public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID customerId) {
-    return ResponseEntity.ok(
-        service.getAddressesByCustomerId(customerId) // returns Optional<List<Address>>
-            .map(assembler::toModelList)
-            .orElse(List.of()) // If Optional is empty (service returned null), provide an empty List<Address>
-    );
+    return ResponseEntity.ok(assembler.toModelList(service.getAddressesByCustomerId(customerId)));
   }
 
   @Override

@@ -42,7 +42,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   }
 
   @Override
-  public Optional<OrderEntity> insert(OrderReq orderReq) {
+  public OrderEntity insert(OrderReq orderReq) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
     List<ItemEntity> items = itemRepo.findByCustomerId(orderReq.getCustomerId());
     if (items.isEmpty()) {
@@ -97,6 +97,6 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         cart.getItems().stream()
             .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId())).toList());
 
-    return Optional.of(entity);
+    return entity;
   }
 }

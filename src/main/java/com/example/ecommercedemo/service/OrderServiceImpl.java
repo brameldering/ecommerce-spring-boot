@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,22 +31,24 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
-  public Optional<Order> addOrder(OrderReq orderReq) {
+  public Order addOrder(OrderReq orderReq) {
 
-    // Check whether customerid is valid
-    Optional.ofNullable(orderReq.getCustomerId())
-            .orElseThrow(() -> new ResourceNotFoundException("Invalid customer id."));
+    if (Objects.isNull(orderReq)) {
+      throw new IllegalArgumentException("Order cannot be null.");
+    }
+    if (Objects.isNull(orderReq.getCustomerId())) {
+      throw new IllegalArgumentException("Customer ID cannot be null.");
+    }
+    if (Objects.isNull(orderReq.getAddressId())) {
+      throw new IllegalArgumentException("Address ID cannot be null.");
+    }
+    if (Objects.isNull(orderReq.getCardId())) {
+      throw new IllegalArgumentException("Card ID cannot be null.");
+    }
 
-    // Check whether address has been assigned to the order
-    Optional.ofNullable(orderReq.getAddressId())
-        .orElseThrow(() -> new ResourceNotFoundException("Invalid address."));
-
-    // Check whether card has been assigned to the order
-    Optional.ofNullable(orderReq.getCardId())
-        .orElseThrow(() -> new ResourceNotFoundException("Invalid card."));
-
-    // 1. Save Order
-    return repository.insert(orderReq).map(mapper::entityToModel);
+    // 1. Add HATEOAS links
+    OrderEntity createdOrderEntity = repository.insert(orderReq);
+    return mapper.entityToModel(createdOrderEntity);
     // Ideally, here it will trigger the rest of the process
     // 2. Initiate the payment
     // 3. Once the payment is authorized, change the status to paid
@@ -60,21 +63,18 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<List<Order>> getOrdersByCustomerId(UUID customerId) {
-    // 1. Get the list of OrderEntity objects (returns List<OrderEntity>, potentially empty but never null)
-    List<OrderEntity> orderEntities = repository.findByCustomerId(customerId);
-
-    // 2. Map the List of Entities to a List of Models using the mapper
-    List<Order> orders = mapper.entityToModelList(orderEntities);
-
-    // 3. Wrap the resulting (non-null) List<Order> in an Optional
-    return Optional.of(orders);
+  public Optional<Order> getOrderById(UUID orderId) {
+    return repository.findById(orderId).map(mapper::entityToModel);
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Order> getByOrderId(UUID customerId) {
-    return repository.findById(customerId).map(mapper::entityToModel);
+  public List<Order> getOrdersByCustomerId(UUID customerId) {
+    // 1. Get the list of OrderEntity objects (returns List<OrderEntity>, potentially empty but never null)
+    List<OrderEntity> orderEntities = repository.findByCustomerId(customerId);
+
+    // 2. Map the List of Entities to a List of Models using the mapper
+    return mapper.entityToModelList(orderEntities);
   }
 }
 

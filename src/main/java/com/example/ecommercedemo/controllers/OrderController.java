@@ -1,7 +1,6 @@
 package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.OrderApi;
-import com.example.ecommercedemo.exceptions.OrderCreationException;
 import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.service.OrderService;
@@ -37,9 +36,8 @@ public class OrderController implements OrderApi {
 
   @Override
   public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderReq orderReq) {
-    return service.addOrder(orderReq)
-        .map(order -> status(HttpStatus.CREATED).body(order))
-        .orElseThrow(() -> new OrderCreationException("Order creation failed"));
+    Order createdOrder = service.addOrder(orderReq);
+    return status(HttpStatus.CREATED).body(createdOrder);
   }
 
   @Override
@@ -51,17 +49,15 @@ public class OrderController implements OrderApi {
 
   @Override
   public ResponseEntity<List<Order>> getCustomerOrders(UUID customerId) {
-    return ResponseEntity.ok(
-        service.getOrdersByCustomerId(customerId)
-        .map(assembler::toModelList)
-        .orElse(List.of())
-    );
+    List<Order> orders = service.getOrdersByCustomerId(customerId);
+    List<Order> ordersWithLinks = assembler.toModelList(orders);
+    return ResponseEntity.ok(ordersWithLinks);
   }
 
   @Override
   public ResponseEntity<Order> getByOrderId(UUID orderId) {
 
-    return service.getByOrderId(orderId)
+    return service.getOrderById(orderId)
         .map(assembler::toModel) // add HATEOAS links
         .map(ResponseEntity::ok).orElse(notFound().build());
   }

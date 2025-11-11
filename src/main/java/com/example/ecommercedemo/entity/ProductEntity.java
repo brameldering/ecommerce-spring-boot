@@ -34,6 +34,7 @@ public class ProductEntity {
   @Column(name = "DESCRIPTION")
   private String description;
 
+  @NotNull(message = "Product price is required.")
   @Column(name = "PRICE")
   private BigDecimal price;
 
@@ -43,7 +44,7 @@ public class ProductEntity {
   @Column(name = "IMAGE_URL")
   private String imageUrl;
 
-  @OneToMany
+  @ManyToMany
   @JoinTable(
       name = "PRODUCT_TAG",
       joinColumns = @JoinColumn(name = "PRODUCT_ID"),
@@ -55,5 +56,4 @@ public class ProductEntity {
   @OneToMany(mappedBy = "product")
   @ToString.Exclude
   private List<ItemEntity> items;
-
 }

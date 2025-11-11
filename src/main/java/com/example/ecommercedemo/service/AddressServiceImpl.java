@@ -1,6 +1,9 @@
 package com.example.ecommercedemo.service;
 
+import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
+import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,8 +34,30 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional
-  public Optional<Address> createAddress(AddressReq addressReq) {
-    return Optional.of(mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq))));
+  public Address createAddress(AddressReq addressReq) {
+    // --- VALIDATION ---
+    if (Objects.isNull(addressReq)) {
+      throw new IllegalArgumentException("Address cannot be null.");
+    }
+    if (Objects.isNull(addressReq.getUserId())) {
+      throw new IllegalArgumentException("UserId cannot be null.");
+    }
+    if (addressReq.getStreet() == null || addressReq.getStreet().isBlank()) {
+      throw new IllegalArgumentException("Street cannot be empty.");
+    }
+    if (addressReq.getCity() == null || addressReq.getCity().isBlank()) {
+      throw new IllegalArgumentException("City cannot be empty.");
+    }
+    if (addressReq.getZipcode() == null || addressReq.getZipcode().isBlank()) {
+      throw new IllegalArgumentException("Zipcode cannot be empty.");
+    }
+    // Check if user exists
+    if (!userRepository.existsById(addressReq.getUserId())) {
+      throw new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND);
+    }
+    // --- END VALIDATION ---
+
+    return mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq)));
   }
 
   @Override
@@ -48,10 +74,20 @@ public class AddressServiceImpl implements AddressService {
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<List<Address>> getAddressesByCustomerId(UUID id) {
-    return userRepository.findById(id) // Returns Optional<UserEntity>
-        .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
-        .map(mapper::entityToModelList); // Returns Optional<List<Address>>
+  public List<Address> getAddressesByCustomerId(UUID id) {
+//    return userRepository.findById(id) // Returns Optional<UserEntity>
+//        .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
+//        .map(mapper::entityToModelList); // Returns Optional<List<Address>>
+
+    // 1. Check if the user exists. If not, throw CustomerNotFoundException.
+    UserEntity user = userRepository.findById(id)
+        .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
+
+    // 2. Get the list of addresses (which is guaranteed non-null, potentially empty).
+    List<AddressEntity> addressEntities = user.getAddresses();
+
+    // 3. Map the non-null list and return it directly.
+    return mapper.entityToModelList(addressEntities);
   }
 
   @Override

@@ -40,6 +40,10 @@ public class AddressEntity {
   @Column(name = "ZIPCODE")
   private String zipcode;
 
+  @ManyToMany(mappedBy = "addresses", fetch = FetchType.LAZY)
+  @ToString.Exclude
+  private List<UserEntity> users;
+
   @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY)
   @ToString.Exclude
   @JsonManagedReference

@@ -109,6 +109,16 @@ tasks.withType(JavaCompile).configureEach {
     ]
 }
 
+test {
+    testLogging {
+        // This tells Gradle to log events for passed, skipped, and failed tests
+        events "passed", "skipped", "failed"
+
+        // This will show any System.out.println() output from your tests
+        showStandardStreams = true
+    }
+}
+
 // Integration test setup
 sourceSets {
     main {

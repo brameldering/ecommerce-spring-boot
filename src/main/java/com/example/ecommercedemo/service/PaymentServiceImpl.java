@@ -30,13 +30,13 @@ public class PaymentServiceImpl implements PaymentService {
 
   @Override
   @Transactional
-  public Optional<Authorization> authorize(PaymentReq paymentReq) {
-    return Optional.empty();
+  public Authorization authorize(PaymentReq paymentReq) {
+    return null;
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Optional<Authorization> getOrdersPaymentAuthorization(UUID orderId) {
+  public Optional<Authorization> getAuthorizationByOrderId(UUID orderId) {
     return orderRepo.findById(orderId).map(OrderEntity::getAuthorizationEntity)
         .map(mapper::entityToModel);
   }

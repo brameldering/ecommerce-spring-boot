@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public interface UserService {
   List<User> getAllCustomers();
-  Optional<Card> getCardByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
   Optional<User> getCustomerById(@NotNull(message = "Customer UUID cannot be null.") UUID id);
   void deleteCustomerById(@NotNull(message = "Customer UUID cannot be null.") UUID id);
 }
