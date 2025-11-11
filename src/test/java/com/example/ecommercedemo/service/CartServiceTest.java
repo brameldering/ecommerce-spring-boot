@@ -387,7 +387,7 @@ class CartServiceTest {
     );
 
     // Verify the message
-    assertEquals("ItemId cannot be null.", exception.getMessage());
+    assertEquals("ProductId cannot be null.", exception.getMessage());
 
     // --- Verify ---
     verifyNoInteractions(repository);
