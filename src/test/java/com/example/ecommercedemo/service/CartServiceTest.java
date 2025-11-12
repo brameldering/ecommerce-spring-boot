@@ -10,6 +10,7 @@ import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
+import com.example.ecommercedemo.repository.ItemRepository;
 import com.example.ecommercedemo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 /**
@@ -40,10 +40,13 @@ import static org.mockito.Mockito.*;
 class CartServiceTest {
 
   @Mock
-  private CartRepository repository; // Mock dependency
+  private CartRepository cartRepository; // Mock dependency
 
   @Mock
-  private UserRepository userRepo; // Mock dependency
+  private ItemRepository itemRepository; // Mock dependency
+
+  @Mock
+  private UserRepository userRepository; // Mock dependency
 
   @Mock
   private CartMapper cartMapper; // Mock dependency
@@ -58,7 +61,7 @@ class CartServiceTest {
   @Captor
   private ArgumentCaptor<CartEntity> cartEntityCaptor;
 
-  private final Logger logger = LoggerFactory.getLogger(CartServiceTest.class);
+//  private final Logger logger = LoggerFactory.getLogger(CartServiceTest.class);
 
   // --- Test Data ---
   private UUID customerId;
@@ -75,20 +78,7 @@ class CartServiceTest {
    */
   private void mockGetCartEntity() {
     // This simulates the 'getCartEntityByCustomerId' logic
-    when(repository.findByCustomerId(customerId)).thenReturn(Optional.of(cartEntity));
-  }
-
-  /**
-   * Helper to mock the repository.save() call.
-   * It uses AdditionalAnswers.returnsFirstArg() to return the
-   * same CartEntity that was passed into the save method.
-   */
-  private void mockSaveAndMap() {
-    // Mock save to return the entity it was passed
-    when(repository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
-
-    // Mock the mapper to just return a dummy list (we verify the input list)
-    when(itemMapper.entityToModelList(anyList())).thenReturn(new ArrayList<Item>());
+    when(cartRepository.findByCustomerId(customerId)).thenReturn(Optional.of(cartEntity));
   }
 
   @BeforeEach
@@ -120,19 +110,19 @@ class CartServiceTest {
     // IMPORTANT: Initialize with a *mutable* list for tests
     cartEntity.setItems(new ArrayList<>(List.of(existingItemEntity)));
 
-    // **CRITICAL FIX:** Ensure userRepo always returns a user when looked up by a non-null ID
+    // Ensure userRepo always returns a user when looked up by a non-null ID
     // This prevents CustomerNotFoundException when testing validation for other null parameters.
-    lenient().when(userRepo.findById(any(UUID.class))).thenReturn(Optional.of(userEntity));
+    lenient().when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(userEntity));
+    lenient().when(itemRepository.save(any(ItemEntity.class))).then(AdditionalAnswers.returnsFirstArg());
   }
 
   @Test
   @DisplayName("ADD: Should add a new item when cart is empty")
-  void addCartItems_WhenCartIsEmpty_ShouldAddNewItem() {
+  void addItemToCart_WhenCartIsEmpty_ShouldAddNewItem() {
     // --- Setup ---
-    // Make the cart entity's item list explicitly empty for this test
-    cartEntity.setItems(new ArrayList<>());
+    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     mockGetCartEntity();
-    mockSaveAndMap();
+    cartEntity.setItems(new ArrayList<>());
 
     // Create a new item DTO
     Item newItemDto = new Item();
@@ -149,10 +139,10 @@ class CartServiceTest {
     when(itemMapper.modelToEntity(any(Item.class))).thenReturn(newItemEntity);
 
     // --- Execute ---
-    cartService.addCartItemsByCustomerId(customerId, newItemDto);
+    cartService.addItemToCart(customerId, newItemDto);
 
     // --- Verify ---
-    verify(repository).save(cartEntityCaptor.capture());
+    verify(cartRepository).save(cartEntityCaptor.capture());
     CartEntity savedCart = cartEntityCaptor.getValue();
 
     // Assert: One item was added
@@ -163,8 +153,9 @@ class CartServiceTest {
 
   @Test
   @DisplayName("ADD: Should throw GenericAlreadyExistsException if item already exists")
-  void addCartItems_WhenItemExists_ShouldThrowException() {
+  void addItemToCart_WhenItemExists_ShouldThrowException() {
     // --- Setup ---
+//    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     mockGetCartEntity(); // Cart already contains existingProductId
     Item itemDto = new Item(); // Create an item DTO that matches the existing product
     itemDto.setProductId(existingProductId);
@@ -172,24 +163,24 @@ class CartServiceTest {
     // --- Execute & Assert ---
     GenericAlreadyExistsException exception = assertThrows(
         GenericAlreadyExistsException.class,
-        () -> cartService.addCartItemsByCustomerId(customerId, itemDto)
+        () -> cartService.addItemToCart(customerId, itemDto)
     );
 
     // Verify the exception message
     assertTrue(exception.getMessage().contains("already exists"));
 
     // Verify no save occurred
-    verify(repository, never()).save(any());
+    verify(cartRepository, never()).save(any());
   }
 
   @Test
   @DisplayName("Should update quantity and price when item already exists in cart")
   void addOrReplaceItems_WhenItemExists_ShouldUpdateItem() {
     // --- Setup ---
+    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
+//    when(itemMapper.entityToModelList(anyList())).thenReturn(new ArrayList<Item>());
     // Mock the call to get the cart
     mockGetCartEntity();
-    // Mock the save and map calls
-    mockSaveAndMap();
 
     // Create an 'Item' DTO that matches the existing product
     Item updatedItemDto = new Item();
@@ -198,11 +189,11 @@ class CartServiceTest {
     updatedItemDto.setUnitPrice("99.50"); // New price
 
     // --- Execute ---
-    cartService.addOrReplaceItemsByCustomerId(customerId, updatedItemDto);
+    cartService.replaceItemInCart(customerId, updatedItemDto);
 
     // --- Verify ---
     // Verify that repository.save() was called
-    verify(repository).save(cartEntityCaptor.capture());
+    verify(cartRepository).save(cartEntityCaptor.capture());
 
     // Verify that the mapper was *not* called to create a new entity
     verify(itemMapper, never()).modelToEntity(any(Item.class));
@@ -214,7 +205,7 @@ class CartServiceTest {
     assertEquals(1, savedCart.getItems().size());
 
     // Assert: The item in the list should have updated values
-    ItemEntity updatedEntity = savedCart.getItems().get(0);
+    ItemEntity updatedEntity = savedCart.getItems().getFirst();
     assertEquals(5, updatedEntity.getQuantity());
     assertEquals(new BigDecimal("99.50"), updatedEntity.getPrice());
     assertEquals(existingProductId, updatedEntity.getProduct().getId());
@@ -224,6 +215,7 @@ class CartServiceTest {
   @DisplayName("Should add new item when item does not exist in cart")
   void addOrReplaceItems_WhenItemIsNew_ShouldAddItemToList() {
     // --- Setup ---
+    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     // Mock the call to get the cart (which has 1 item already)
     mockGetCartEntity();
 
@@ -236,24 +228,21 @@ class CartServiceTest {
     newItemEntity.setQuantity(2);
     newItemEntity.setPrice(new BigDecimal("20.00"));
 
-    // Mock the mapper to return this new entity
-    when(itemMapper.modelToEntity(any(Item.class))).thenReturn(newItemEntity);
-
-    // Mock the save and map calls
-    mockSaveAndMap();
-
     // Create a 'Item' DTO for the *new* product
     Item newItemDto = new Item();
     newItemDto.setProductId(newProductId); // Different ID
     newItemDto.setQuantity(2);
     newItemDto.setUnitPrice("20.00");
 
+    // Mock the mapper to return this new entity
+    when(itemMapper.modelToEntity(any(Item.class))).thenReturn(newItemEntity);
+
     // --- Execute ---
-    cartService.addOrReplaceItemsByCustomerId(customerId, newItemDto);
+    cartService.replaceItemInCart(customerId, newItemDto);
 
     // --- Verify ---
     // Verify that repository.save() was called
-    verify(repository).save(cartEntityCaptor.capture());
+    verify(cartRepository).save(cartEntityCaptor.capture());
 
     // Verify that the mapper *was* called to create the new entity
     verify(itemMapper, times(1)).modelToEntity(newItemDto);
@@ -274,13 +263,14 @@ class CartServiceTest {
   @DisplayName("Should add item to a cart with a null item list")
   void addOrReplaceItems_WhenCartItemsListIsNull_ShouldCreateListAndAddItem() {
     // --- Setup ---
+    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     // Create an empty cart and set its items list to null
     CartEntity emptyCart = new CartEntity();
     emptyCart.setUser(userEntity);
     emptyCart.setItems(null); // <-- This is the key part of this test
 
     // Mock the repository to return this empty cart
-    when(repository.findByCustomerId(customerId)).thenReturn(java.util.Optional.of(emptyCart));
+    when(cartRepository.findByCustomerId(customerId)).thenReturn(java.util.Optional.of(emptyCart));
 
     // This is the new item entity that the mapper will "create"
     ProductEntity newProduct = new ProductEntity();
@@ -291,7 +281,6 @@ class CartServiceTest {
 
     // Mock the mapper and save
     when(itemMapper.modelToEntity(any(Item.class))).thenReturn(newItemEntity);
-    mockSaveAndMap();
 
     // Create a 'Item' DTO for the new product
     Item newItemDto = new Item();
@@ -300,11 +289,11 @@ class CartServiceTest {
     newItemDto.setUnitPrice("10.00");
 
     // --- Execute ---
-    cartService.addOrReplaceItemsByCustomerId(customerId, newItemDto);
+    cartService.replaceItemInCart(customerId, newItemDto);
 
     // --- Verify ---
     // Verify save was called
-    verify(repository).save(cartEntityCaptor.capture());
+    verify(cartRepository).save(cartEntityCaptor.capture());
 
     // Verify mapper was called
     verify(itemMapper, times(1)).modelToEntity(newItemDto);
@@ -317,7 +306,7 @@ class CartServiceTest {
 
     // Assert: The list size should be 1
     assertEquals(1, savedCart.getItems().size());
-    assertEquals(newItemEntity, savedCart.getItems().get(0));
+    assertEquals(newItemEntity, savedCart.getItems().getFirst());
   }
 
   @Test
@@ -358,7 +347,7 @@ class CartServiceTest {
     assertEquals("CustomerId cannot be null.", exception.getMessage());
 
     // --- Verify ---
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
   }
 
   @Test
@@ -374,7 +363,7 @@ class CartServiceTest {
     assertEquals("ProductId cannot be null.", exception.getMessage());
 
     // --- Verify ---
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
   }
 
   @Test
@@ -390,7 +379,7 @@ class CartServiceTest {
     assertEquals("ProductId cannot be null.", exception.getMessage());
 
     // --- Verify ---
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
   }
 
   @Test
@@ -406,7 +395,7 @@ class CartServiceTest {
     // Assert that the expected exception is thrown when 'customerId' is null
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cartService.addOrReplaceItemsByCustomerId(null, item)
+        () -> cartService.replaceItemInCart(null, item)
     );
 
     // Verify the exception message (this exception is thrown from the helper: getCartEntityByCustomerId)
@@ -414,7 +403,7 @@ class CartServiceTest {
 
     // --- Verify ---
     // Ensure no database or mapper interactions occurred
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
     verifyNoInteractions(itemMapper);
   }
 
@@ -429,7 +418,7 @@ class CartServiceTest {
     // Assert that the expected exception is thrown when 'item' is null
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cartService.addOrReplaceItemsByCustomerId(customerId, nullItem)
+        () -> cartService.replaceItemInCart(customerId, nullItem)
     );
 
     // Verify the exception message (explicitly thrown in service method)
@@ -437,7 +426,7 @@ class CartServiceTest {
 
     // --- Verify ---
     // Ensure no database or mapper interactions occurred
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
     verifyNoInteractions(itemMapper);
   }
 
@@ -455,7 +444,7 @@ class CartServiceTest {
     // Assert that the expected exception is thrown
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
-        () -> cartService.addOrReplaceItemsByCustomerId(customerId, itemWithNullProductId)
+        () -> cartService.replaceItemInCart(customerId, itemWithNullProductId)
     );
 
     // Verify the exception message (explicitly thrown in service method)
@@ -463,7 +452,7 @@ class CartServiceTest {
 
     // --- Verify ---
     // Ensure no database or mapper interactions occurred
-    verifyNoInteractions(repository);
+    verifyNoInteractions(cartRepository);
     verifyNoInteractions(itemMapper);
   }
 
@@ -483,4 +472,22 @@ class CartServiceTest {
         () -> cartService.getCartItemByProductId(customerId, nonExistentId)
     );
   }
+
+  @Test
+  @DisplayName("DELETE_CART: Should call deleteById on the cart repository")
+  void deleteCartByCustomerId_ShouldCallRepositoryDelete() {
+    // --- Setup ---
+    // Ensure getCartEntityByCustomerId helper works (fetches entity)
+    mockGetCartEntity();
+
+    // --- Execute ---
+    cartService.deleteCartByCustomerId(customerId);
+
+    // --- Verify ---
+    // 1. Verify the repository's delete method was called with the entity's ID
+    verify(cartRepository, times(1)).deleteById(cartEntity.getId());
+    // 2. Verify findByCustomerId was called (via mockGetCartEntity)
+    verify(cartRepository, times(1)).findByCustomerId(customerId);
+  }
+
 }

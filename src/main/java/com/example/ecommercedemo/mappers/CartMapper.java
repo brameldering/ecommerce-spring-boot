@@ -2,7 +2,6 @@ package com.example.ecommercedemo.mappers;
 
 import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.model.Cart;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -20,13 +19,16 @@ public class CartMapper {
     Cart resource = new Cart();
 
     // Retrieve user id and cart id
-    UUID uid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
-    UUID cid = Objects.nonNull(entity.getId()) ? entity.getId() : null;
+    UUID userId = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
+    UUID cartId = Objects.nonNull(entity.getId()) ? entity.getId() : null;
 
     // Copy properties and set ID
-    BeanUtils.copyProperties(entity, resource);
-    // Use the injected itemMapper
-    resource.id(cid).customerId(uid).items(itemMapper.entityToModelList(entity.getItems()));
+    //  BeanUtils.copyProperties(entity, resource);
+    // Explicitly set all DTO properties for clarity and safety,
+    // replacing BeanUtils.copyProperties
+    resource.id(cartId)
+        .customerId(userId)
+        .items(itemMapper.entityToModelList(entity.getItems()));
 
     return resource;
   }

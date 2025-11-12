@@ -39,27 +39,25 @@ public class CartController implements CartApi {
   }
 
   @Override
-  public ResponseEntity<List<Item>> addCustomerCartItems(UUID customerId, @Valid @RequestBody Item item) {
-    log.info("Request for customer ID: {}\nItem: {}", customerId, item);
+  public ResponseEntity<Cart> addItemToCart(UUID customerId, @Valid @RequestBody Item item) {
+    log.info("Add Item to Cart Request for customer ID: {}", customerId);
 
-    List<Item> items = service.addCartItemsByCustomerId(customerId, item);
+    Cart cart = service.addItemToCart(customerId, item);
 
-    // Use the itemAssembler to add links to every item in the cart
-    List<Item> cartItemsWithLinks = items.stream()
-        .map(i -> itemAssembler.toModel(i, customerId))
-        .toList();
-    return ok(cartItemsWithLinks);
+    // Use the itemAssembler to add HATEOASlinks to every item in the cart
+    List<Item> cartItemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
+    cart.setItems(cartItemsWithLinks);
+    return ok(cartAssembler.toModel(cart));
   }
 
   @Override
-  public ResponseEntity<List<Item>> addOrReplaceCustomerCartItems(UUID customerId, @Valid @RequestBody Item item) {
+  public ResponseEntity<Cart> replaceItemInCart(UUID customerId, @Valid @RequestBody Item item) {
 
-    List<Item> items = service.addOrReplaceItemsByCustomerId(customerId, item);
+    Cart cart = service.replaceItemInCart(customerId, item);
     // Use the itemAssembler to add links to every item in the cart
-    List<Item> cartItemsWithLinks = items.stream()
-        .map(i -> itemAssembler.toModel(i, customerId))
-        .toList();
-    return ok(cartItemsWithLinks);
+    List<Item> cartItemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
+    cart.setItems(cartItemsWithLinks);
+    return ok(cartAssembler.toModel(cart));
 
   }
 

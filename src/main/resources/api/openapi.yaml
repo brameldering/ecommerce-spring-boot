@@ -396,7 +396,7 @@ paths:
         - cart
       summary: Adds an item in shopping cart
       description: Adds an item to the shopping cart if it doesn't already exist, or increment quantity by the specified number of items if it does.
-      operationId: addCustomerCartItems
+      operationId: addItemToCart
       parameters:
         - name: customerId
           in: path
@@ -421,23 +421,19 @@ paths:
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/Cart'
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/Cart'
         404:
           description: Given customer ID doesn't exist
           content: { }
     put:
       tags:
         - cart
-      summary: Replace/add an item in shopping cart
-      description: Adds an item to the shopping cart if it doesn't already exist, or replace with given item if it does.
-      operationId: addOrReplaceCustomerCartItems
+      summary: Replaces an item in shopping cart
+      description: Replaces an item in the cart with the given item (based on productId).
+      operationId: replaceItemInCart
       parameters:
         - name: customerId
           in: path
@@ -458,18 +454,14 @@ paths:
               $ref: '#/components/schemas/Item'
       responses:
         201:
-          description: Item added successfully
+          description: Item replaced successfully
           content:
             application/xml:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/Cart'
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/Cart'
         404:
           description: Given customer ID doesn't exist
           content: { }

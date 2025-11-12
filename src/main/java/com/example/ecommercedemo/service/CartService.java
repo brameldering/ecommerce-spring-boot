@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CartService {
-  List<Item> addCartItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid Item item);
-  List<Item> addOrReplaceItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid Item item);
+  Cart addItemToCart(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid Item item);
+  Cart replaceItemInCart(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid Item item);
   Optional<Cart> getCartByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
   List<Item> getCartItemsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID customerId);
   Item getCartItemByProductId(@NotNull(message = "Customer UUID cannot be null.")  UUID customerId, @NotNull(message = "Item UUID cannot be null.")  UUID productId);
