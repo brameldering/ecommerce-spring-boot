@@ -57,7 +57,6 @@ class UserServiceTest {
     userReq.setFirstName("Firstname");
     userReq.setLastName("Lastname");
     userReq.setEmail("email@test.com");
-    userReq.setPassword("securepass");
 
     // 2. Setup Entities
     userEntity = new UserEntity();
@@ -66,7 +65,6 @@ class UserServiceTest {
     userEntity.setFirstName(userReq.getFirstName());
     userEntity.setLastName(userReq.getLastName());
     userEntity.setEmail(userReq.getEmail());
-    userEntity.setPassword(userReq.getPassword());
 
     // 2. Setup Models/DTOs
     userModel = new User();
@@ -75,7 +73,6 @@ class UserServiceTest {
     userModel.setFirstName(userReq.getFirstName());
     userModel.setLastName(userReq.getLastName());
     userModel.setEmail(userReq.getEmail());
-    userModel.setPassword(userReq.getPassword());
   }
 
   // ------------------------------------------------------------------

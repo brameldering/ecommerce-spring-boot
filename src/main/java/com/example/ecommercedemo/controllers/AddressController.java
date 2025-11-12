@@ -50,8 +50,8 @@ public class AddressController implements AddressApi {
   }
 
   @Override
-  public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID customerId) {
-    return ResponseEntity.ok(assembler.toModelList(service.getAddressesByCustomerId(customerId)));
+  public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID id) {
+    return ResponseEntity.ok(assembler.toModelList(service.getAddressesByCustomerId(id)));
   }
 
   @Override

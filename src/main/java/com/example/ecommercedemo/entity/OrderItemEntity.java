@@ -1,14 +1,16 @@
 package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "order_item")
-@Data // Generates getters, setters, toString, equals, and hashCode
+@Getter
+@Setter
+@EqualsAndHashCode
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
 public class OrderItemEntity {
 

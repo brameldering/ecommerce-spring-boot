@@ -45,7 +45,6 @@ public class UserServiceImpl implements UserService {
 
     UserEntity userEntity = new UserEntity()
         .setUsername(userReq.getUsername())
-        .setPassword(userReq.getPassword())
         .setFirstName(userReq.getFirstName())
         .setLastName(userReq.getLastName())
         .setEmail(userReq.getEmail())
@@ -82,7 +81,6 @@ public class UserServiceImpl implements UserService {
 
     existingUserEntity
         .setUsername(userReq.getUsername())
-        .setPassword(userReq.getPassword())
         .setFirstName(userReq.getFirstName())
         .setLastName(userReq.getLastName())
         .setEmail(userReq.getEmail())

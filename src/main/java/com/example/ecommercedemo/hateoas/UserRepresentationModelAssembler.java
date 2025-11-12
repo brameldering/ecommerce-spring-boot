@@ -2,6 +2,8 @@ package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controllers.*;
 import com.example.ecommercedemo.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class UserRepresentationModelAssembler extends
     RepresentationModelAssemblerSupport<User, User> {
+
+  private final static Logger logger = LoggerFactory.getLogger(UserRepresentationModelAssembler.class);
 
   /**
    * Creates a new {@link RepresentationModelAssemblerSupport}
@@ -29,6 +33,8 @@ public class UserRepresentationModelAssembler extends
    */
   @Override
   public User toModel(User resource) {
+
+    logger.info("UserRepresentationModelAssembler toModel, for user {}", resource.getUsername());
 
     // 3. Add HATEOAS links
     resource.add(linkTo(methodOn(CustomerController.class).getCustomerById(resource.getId())).withSelfRel());

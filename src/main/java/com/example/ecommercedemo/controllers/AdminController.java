@@ -34,11 +34,11 @@ public class AdminController implements AdminApi {
   private final OrderService orderService;
   private final OrderRepresentationModelAssembler orderAssembler;
 
-  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, CardService cardService1, CardRepresentationModelAssembler cardAssembler1, UserService userService, UserRepresentationModelAssembler userAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
+  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, UserService userService, UserRepresentationModelAssembler userAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
     this.addressService = addressService;
     this.addressAssembler = addressAssembler;
-    this.cardService = cardService1;
-    this.cardAssembler = cardAssembler1;
+    this.cardService = cardService;
+    this.cardAssembler = cardAssembler;
     this.userService = userService;
     this.userAssembler = userAssembler;
     this.orderService = orderService;

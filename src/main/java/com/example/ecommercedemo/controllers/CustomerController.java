@@ -40,24 +40,24 @@ public class CustomerController implements CustomerApi {
   }
 
   @Override
-  public ResponseEntity<User> updateUser(@PathVariable("customerId") UUID customerId, @Valid @RequestBody UserReq userReq) {
+  public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @Valid @RequestBody UserReq userReq) {
 
-    User updatedUser = service.updateUser(customerId, userReq);
+    User updatedUser = service.updateUser(id, userReq);
     User userWithLinks = userAssembler.toModel(updatedUser);
     return status(HttpStatus.OK).body(userWithLinks);
   }
 
   @Override
-  public ResponseEntity<User> getCustomerById(UUID uuid) {
-     return service.getCustomerById(uuid) // 1. Returns Optional<User>
+  public ResponseEntity<User> getCustomerById(UUID id) {
+     return service.getCustomerById(id) // 1. Returns Optional<User>
         .map(userAssembler::toModel) // 2. Applies HATEOAS links *inside* the Optional
         .map(ResponseEntity::ok)     // 3. Wraps the linked resource in a 200 OK
         .orElse(notFound().build()); // 4. Handles the empty case with a 404
   }
 
   @Override
-  public ResponseEntity<Void> deleteCustomerById(UUID uuid) {
-    service.deleteCustomerById(uuid);
+  public ResponseEntity<Void> deleteCustomerById(UUID id) {
+    service.deleteCustomerById(id);
     return accepted().build();
   }
 }

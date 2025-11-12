@@ -1,4 +1,24 @@
+-- 1. Delete from join tables (many-to-many)
+DELETE FROM ecomm.product_tag;
+DELETE FROM ecomm.user_address;
+DELETE FROM ecomm.cart_item;
+DELETE FROM ecomm.order_item;
+
+-- 2. Delete from tables that reference other tables
+-- (e.g., 'authorization' and 'orders' reference many things)
+DELETE FROM ecomm.authorization;
+DELETE FROM ecomm.orders;
+DELETE FROM ecomm.cart;
+DELETE FROM ecomm.card;
+DELETE FROM ecomm.item;
+
+-- 3. Delete from parent/lookup tables (now that references are gone)
 DELETE FROM ecomm.product;
+DELETE FROM ecomm.tag;
+DELETE FROM ecomm."user";
+DELETE FROM ecomm.address;
+DELETE FROM ecomm.payment;
+DELETE FROM ecomm.shipment;
 
 insert into ecomm.product values ('6d62d909-f957-430e-8689-b5129c0bb75e', 'Antifragile', 'Antifragile - Things that gains from disorder. By Nassim Nicholas Taleb', 17.15, 33, '/images/Antifragile.jpg');
 insert into ecomm.product values ('a0a4f044-b040-410d-8ead-4de0446aec7e', 'Sapiens', 'Sapiens - A brief history of mankind. By Yuval Noah Harari', 7.99, 115, '/images/Sapiens.jpeg');
@@ -11,8 +31,6 @@ insert into ecomm.product values ('3395a42e-2d88-40de-b95f-e00e1502085b', 'Seeki
 insert into ecomm.product values ('3395a43e-2d88-40de-b95f-e00e1502085b', 'Thinking In Bets', 'Thinking In Bets - Making Smarter Decision. When you don''t have all the facts. By Annie Duke', 18, 438, '/images/ThinkingIn.jpg');
 insert into ecomm.product values ('837ab141-399e-4c1f-9abc-bace40296bac', 'Zero to One', 'Zero to One - Notes on Startups, Or How to build future. Peter Theil', 15, 175, '/images/ZeroToOne.jpg');
 
-DELETE FROM ecomm.tag;
-
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f601', 'book');
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f602', 'psychology');
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f603', 'influence');
@@ -24,8 +42,6 @@ insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f608',
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f609', 'howto');
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f610', 'journey');
 insert into ecomm.tag (id, name) values ('00000000-b5c6-4896-987c-f30f3678f611', 'decision');
-
-DELETE FROM ecomm.product_tag;
 
 insert into ecomm.product_tag values ('6d62d909-f957-430e-8689-b5129c0bb75e', '00000000-b5c6-4896-987c-f30f3678f602');
 insert into ecomm.product_tag values ('6d62d909-f957-430e-8689-b5129c0bb75e', '00000000-b5c6-4896-987c-f30f3678f601');
@@ -53,48 +69,30 @@ insert into ecomm.product_tag values ('837ab141-399e-4c1f-9abc-bace40296bac', '0
 insert into ecomm.product_tag values ('837ab141-399e-4c1f-9abc-bace40296bac', '00000000-b5c6-4896-987c-f30f3678f605');
 insert into ecomm.product_tag values ('837ab141-399e-4c1f-9abc-bace40296bac', '00000000-b5c6-4896-987c-f30f3678f601');
 
-DELETE FROM ecomm."user";
-
-insert into ecomm."user" (id, username, password, first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38222', 'test', 'pwd', 'Test', 'User', 'test@user.com', '234234234', 'ACTIVE');
-insert into ecomm."user" (id, username, password, first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38223', 'test', 'pwd', 'Test2', 'User2', 'test2@user.com', '234234234', 'ACTIVE');
-
-DELETE FROM ecomm.address;
+insert into ecomm."user" (id, username, first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38222', 'test', 'Test', 'User', 'test@user.com', '234234234', 'ACTIVE');
+insert into ecomm."user" (id, username,  first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38223', 'test', 'Test2', 'User2', 'test2@user.com', '234234234', 'ACTIVE');
 
 INSERT INTO ecomm.address VALUES ('a731fda1-aaad-42ea-bdbc-a27eeebe2cc0', '9I-999', 'Fraser Suites Le Claridge', 'Champs-Elysees', 'Paris', 'Île-de-France', 'France', '75008');
 
-DELETE FROM ecomm.user_address;
-
 insert into ecomm.user_address values ('a1b9b31d-e73c-4112-af7c-b68530f38222', 'a731fda1-aaad-42ea-bdbc-a27eeebe2cc0');
 
-DELETE FROM ecomm.card;
-
 INSERT INTO ecomm.card VALUES ('618ffaff-cbcd-48d4-8848-a15601e6725b', '999-999-999-999', 'a1b9b31d-e73c-4112-af7c-b68530f38222', 'User', '12/28', '0000');
-
-DELETE FROM ecomm.cart;
 
 insert into ecomm.cart values ('cacab31d-e73c-4112-af7c-b68530f38222', 'a1b9b31d-e73c-4112-af7c-b68530f38222');
 insert into ecomm.cart values ('cacab31d-e73c-4112-af7c-b68530f38223', 'a1b9b31d-e73c-4112-af7c-b68530f38223');
 
-DELETE FROM ecomm.item;
-
 insert into ecomm.item values('a7384042-e4aa-4c93-85ae-31a346dad702', '6d62d909-f957-430e-8689-b5129c0bb75e', 1, 17.15);
 insert into ecomm.item values('a7384042-e4aa-4c93-85ae-31a346dad703', 'd3588630-ad8e-49df-bbd7-3167f7efb246', 1, 10.99);
-
-DELETE FROM ecomm.cart_item;
 
 insert into ecomm.cart_item values ('cacab31d-e73c-4112-af7c-b68530f38222', 'a7384042-e4aa-4c93-85ae-31a346dad702');
 
 insert into ecomm.cart_item values ('cacab31d-e73c-4112-af7c-b68530f38222', 'a7384042-e4aa-4c93-85ae-31a346dad703');
-
-DELETE FROM ecomm.orders;
 
 insert into ecomm.orders(id, customer_id, address_id, card_id, order_date, total, payment_id, shipment_id, status) values ('0a59ba9f-629e-4445-8129-b9bce1985d6a','a1b9b31d-e73c-4112-af7c-b68530f38222', 'a731fda1-aaad-42ea-bdbc-a27eeebe2cc0', '618ffaff-cbcd-48d4-8848-a15601e6725b', current_timestamp, 38.14, NULL, NULL, 'CREATED');
 
 INSERT INTO ecomm.item VALUES
                            ('a7384042-e4aa-4c93-85ae-31a346dad704', '6d62d909-f957-430e-8689-b5129c0bb75e', 1, 17.15),
                            ('a7384042-e4aa-4c93-85ae-31a346dad705', '3395a42e-2d88-40de-b95f-e00e1502085b', 1, 20.99);
-
-DELETE FROM ecomm.order_item;
 
 INSERT INTO ecomm.order_item VALUES
                                  ('66682caa-a6d8-46ed-a173-ff822f754e1c', '0a59ba9f-629e-4445-8129-b9bce1985d6a', 'a7384042-e4aa-4c93-85ae-31a346dad704'),

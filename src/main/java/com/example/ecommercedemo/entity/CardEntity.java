@@ -1,8 +1,7 @@
 package com.example.ecommercedemo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -10,21 +9,28 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "card")
-@Data // Generates getters, setters, toString, equals, and hashCode
+@Getter
+@Setter
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(exclude = {"user", "orders"})
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
 public class CardEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ID", updatable = false, nullable = false)
+  @ToString.Include
   private UUID id;
 
   @Column(name = "NUMBER")
+  @ToString.Include
   private String number;
 
   @Column(name = "EXPIRES")
+  @ToString.Include
   private String expires;
 
   @Column(name = "CVV")
+  @ToString.Include
   private String cvv;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -32,7 +38,6 @@ public class CardEntity {
   private UserEntity user;
 
   @OneToMany(mappedBy = "cardEntity", fetch = FetchType.LAZY)
-  @ToString.Exclude
   private List<OrderEntity> orders;
 
 }
