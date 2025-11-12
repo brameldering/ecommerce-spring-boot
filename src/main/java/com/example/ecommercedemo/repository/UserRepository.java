@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
    * It's optimized to check existence without loading the entire entity.
    */
   boolean existsById(@NotNull UUID id);
+
+  boolean existsByUsername(@NotNull String username);
 }

@@ -2,6 +2,7 @@ package com.example.ecommercedemo.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
@@ -25,9 +26,13 @@ public class AddressEntity {
   @Column(name = "RESIDENCY")
   private String residency;
 
+  @NotNull(message = "Street is required.")
+  @Basic(optional = false)
   @Column(name = "STREET")
   private String street;
 
+  @NotNull(message = "City is required.")
+  @Basic(optional = false)
   @Column(name = "CITY")
   private String city;
 
@@ -37,6 +42,8 @@ public class AddressEntity {
   @Column(name = "COUNTRY")
   private String country;
 
+  @NotNull(message = "Zipcode is required.")
+  @Basic(optional = false)
   @Column(name = "ZIPCODE")
   private String zipcode;
 

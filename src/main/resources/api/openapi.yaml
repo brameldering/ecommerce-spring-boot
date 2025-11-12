@@ -137,6 +137,30 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - customer
+      summary: Creates a new customer
+      description: Creates a new user. Throws error if address already exists.
+      operationId: createUser
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UserReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReq'
+      responses:
+        201: # 201 for resource creation
+          description: The user resource was successfully created.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
   /customers/{customerId}:
     get:
       tags:
@@ -163,6 +187,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+    put:
+      tags:
+        - customer
+      summary: Updates a customer
+      description: Updates a customer.
+      operationId: updateUser
+      parameters:
+        - name: customerId
+          in: path
+          description: Customer Identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+            pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      requestBody:
+        description: User object (excluding ID which is provided on the path)
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/UserReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReq'
+      responses:
+        200:
+          description: User updated successfully
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: Given customer ID doesn't exist
+          content: { }
     delete:
       tags:
         - customer
@@ -453,7 +514,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Item'
       responses:
-        201:
+        200:
           description: Item replaced successfully
           content:
             application/xml:
@@ -960,19 +1021,12 @@ components:
         name:
           description: Tag Name
           type: string
-    User:
+    UserBase:
       type: object
+      description: Base properties of a user object
       required:
         - username
-        - email
-        - password
       properties:
-        id:
-          description: The id of the user
-          type: string
-          format: uuid
-          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-          example: 00000000-0000-0000-0000-000000000001
         username:
           type: string
           minLength: 3
@@ -992,10 +1046,33 @@ components:
         userStatus:
           type: string
       xml:
+        name: UserBase
+    UserReq:
+      description: Request object for a new user.
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+        - type: object
+      xml:
+        name: UserReq
+    User:
+      type: object
+      description: "Represents a complete user resource, including its ID"
+      allOf:
+        - $ref: '#/components/schemas/UserBase'
+      required:
+        - id
+      properties:
+        id:
+          description: The id of the user
+          type: string
+          format: uuid
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          example: 00000000-0000-0000-0000-000000000001
+      xml:
         name: User
     AddressBase:
       type: object
-      description: Base properties for an address.
+      description: Base properties for an address
       required:
         - street
         - city
@@ -1036,6 +1113,7 @@ components:
       xml:
         name: AddressBase
     AddressReq:
+      description: Request object for a new credit/debit card.
       allOf:
         - $ref: '#/components/schemas/AddressBase'
         - type: object

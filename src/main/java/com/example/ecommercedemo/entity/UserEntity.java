@@ -21,7 +21,7 @@ public class UserEntity {
 
   @NotNull(message = "User name is required.")
   @Basic(optional = false)
-  @Column(name = "USERNAME")
+  @Column(name = "USERNAME", unique = true, nullable = false, length = 16)
   private String username;
 
   @Column(name = "PASSWORD")
@@ -55,7 +55,7 @@ public class UserEntity {
   @ToString.Exclude
   private List<CardEntity> cards;
 
-  @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToOne(mappedBy = "user", orphanRemoval = true)
   @ToString.Exclude
   private CartEntity cart;
 
