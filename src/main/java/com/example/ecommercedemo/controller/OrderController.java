@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.controllers;
+package com.example.ecommercedemo.controller;
 
 import com.example.ecommercedemo.api.OrderApi;
 import com.example.ecommercedemo.model.OrderReq;

@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.controllers;
+package com.example.ecommercedemo.controller;
 
 import com.example.ecommercedemo.api.PaymentApi;
 import com.example.ecommercedemo.hateoas.PaymentRepresentationModelAssembler;

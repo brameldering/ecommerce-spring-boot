@@ -1,6 +1,6 @@
 package com.example.ecommercedemo.hateoas;
 
-import com.example.ecommercedemo.controllers.PaymentController;
+import com.example.ecommercedemo.controller.PaymentController;
 import com.example.ecommercedemo.model.Authorization;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;

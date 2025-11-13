@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.hateoas;
 
-import com.example.ecommercedemo.controllers.AddressController;
-import com.example.ecommercedemo.controllers.CustomerController;
+import com.example.ecommercedemo.controller.AddressController;
+import com.example.ecommercedemo.controller.CustomerController;
 import com.example.ecommercedemo.model.Address;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;

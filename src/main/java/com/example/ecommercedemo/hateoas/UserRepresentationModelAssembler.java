@@ -1,6 +1,6 @@
 package com.example.ecommercedemo.hateoas;
 
-import com.example.ecommercedemo.controllers.*;
+import com.example.ecommercedemo.controller.*;
 import com.example.ecommercedemo.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

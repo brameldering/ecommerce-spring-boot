@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.controllers;
+package com.example.ecommercedemo.controller;
 
 import com.example.ecommercedemo.api.ShipmentApi;
 import com.example.ecommercedemo.hateoas.ShipmentRepresentationModelAssembler;
