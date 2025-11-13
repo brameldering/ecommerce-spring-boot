@@ -16,6 +16,10 @@ public class CartMapper {
   }
 
   public Cart entityToModel(CartEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Cart resource = new Cart();
 
     // Retrieve user id and cart id
@@ -32,5 +36,4 @@ public class CartMapper {
 
     return resource;
   }
-
 }

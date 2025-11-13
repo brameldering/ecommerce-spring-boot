@@ -30,6 +30,10 @@ public class ItemMapper {
   }
 
   public Item entityToModel(ItemEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Item resource = new Item();
     // Convert price from BigDecimal to String
     resource.productId(entity.getProduct().getId()).unitPrice(entity.getPrice().toString()).quantity(entity.getQuantity());

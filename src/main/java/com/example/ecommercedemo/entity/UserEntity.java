@@ -48,11 +48,10 @@ public class UserEntity {
   @ToString.Include
   private String userStatus;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(
-      name = "USER_ADDRESS",
-      joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
+  @OneToMany(
+      mappedBy = "user", // "user" is the field name in AddressEntity
+      cascade = CascadeType.ALL, // Save/update/delete addresses with the user
+      orphanRemoval = true // Delete addresses that are no longer linked to this user
   )
   private List<AddressEntity> addresses = new ArrayList<>();
 

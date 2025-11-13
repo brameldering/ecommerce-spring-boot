@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(exclude = {"users", "orders"})
+@EqualsAndHashCode(exclude = {"user", "orders"})
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
 public class AddressEntity {
   @Id
@@ -57,8 +57,12 @@ public class AddressEntity {
   @ToString.Include
   private String zipcode;
 
-  @ManyToMany(mappedBy = "addresses", fetch = FetchType.LAZY)
-  private List<UserEntity> users;
+  // @ManyToMany(mappedBy = "addresses", fetch = FetchType.LAZY)
+  // private List<UserEntity> users;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "USER_ID", nullable = false) // creates a USER_ID foreign key
+  private UserEntity user;
 
   @OneToMany(mappedBy = "addressEntity", fetch = FetchType.LAZY)
   @JsonManagedReference

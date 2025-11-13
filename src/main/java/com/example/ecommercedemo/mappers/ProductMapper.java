@@ -12,6 +12,10 @@ import java.util.List;
 public class ProductMapper {
   // Transform from entity to model
   public Product entityToModel(ProductEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Product resource = new Product();
 
     // Copy properties and set ID

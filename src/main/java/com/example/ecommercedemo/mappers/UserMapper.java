@@ -11,6 +11,10 @@ import java.util.List;
 public class UserMapper {
   // Transform from entity to model
   public User entityToModel(UserEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     User resource = new User();
 
     // Copy properties and set ID

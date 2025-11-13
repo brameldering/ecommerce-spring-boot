@@ -1,6 +1,7 @@
 package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controllers.AddressController;
+import com.example.ecommercedemo.controllers.CustomerController;
 import com.example.ecommercedemo.model.Address;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,17 @@ public class AddressRepresentationModelAssembler extends
   public Address toModel(Address resource) {
 
     // Add HATEOAS links
-    resource.add(linkTo(methodOn(AddressController.class).getAddressById(resource.getId())).withSelfRel());
+    resource.add(
+        linkTo(methodOn(AddressController.class)
+            .getAddressById(resource.getId()))
+            .withSelfRel()
+    );
+
+    resource.add(
+        linkTo(methodOn(CustomerController.class)
+            .getCustomerById(resource.getUserId()))
+        .withRel("customer")
+    );
 
     return resource;
   }

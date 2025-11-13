@@ -9,6 +9,8 @@ import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.repository.AddressRepository;
 import com.example.ecommercedemo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +27,8 @@ public class AddressServiceImpl implements AddressService {
   private final UserRepository userRepository;
   private final AddressMapper mapper;
 
+  private final static Logger LOGGER = LoggerFactory.getLogger(AddressServiceImpl.class);
+
   public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, AddressMapper mapper) {
     this.addressRepository = addressRepository;
     this.userRepository = userRepository;
@@ -34,6 +38,8 @@ public class AddressServiceImpl implements AddressService {
   @Override
   @Transactional
   public Address createAddress(UUID customerId, AddressReq addressReq) {
+    LOGGER.info("Creating address with customer id {}", customerId);
+
     // --- VALIDATION ---
     if (addressReq == null) {
       throw new IllegalArgumentException("Address cannot be null.");
@@ -56,13 +62,11 @@ public class AddressServiceImpl implements AddressService {
     // 2. Map the DTO (which no longer has userId) to an entity
     AddressEntity newAddress = mapper.addressReqToEntity(addressReq);
 
-    // 3. Save the new address entity FIRST so it's managed and has an ID
-    AddressEntity savedAddress = addressRepository.save(newAddress);
+    // 3. Set the user for the new address
+    newAddress.setUser(user);
 
-    // 4. Link the new address to the user
-    //    (Since UserEntity has the @ManyToMany owning side, we add to its list)
-    user.getAddresses().add(savedAddress);
-    userRepository.save(user); // This updates the USER_ADDRESS join table
+    // 4. Save the new address entity
+    AddressEntity savedAddress = addressRepository.save(newAddress);
 
     // 5. Map the saved address entity back to the model and return it
     return mapper.entityToModel(savedAddress);

@@ -1101,12 +1101,10 @@ components:
         state:
           type: string
           description: state name
-          minLength: 1
           maxLength: 40
         country:
           type: string
           description: country name
-          minLength: 2
           maxLength: 40
         zipcode:
           type: string

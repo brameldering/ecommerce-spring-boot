@@ -12,11 +12,16 @@ import java.util.List;
 public class AddressMapper {
   // Transform from entity to model
   public Address entityToModel(AddressEntity entity) {
+    if (entity == null) {
+      return null;
+    }
     Address resource = new Address();
 
     // Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
     resource.setId(entity.getId());
+    resource.setUserId(entity.getUser().getId());
+
     return resource;
   }
 
@@ -26,6 +31,10 @@ public class AddressMapper {
   }
 
   public AddressEntity addressReqToEntity(AddressReq model) {
+    if (model == null) {
+      return null;
+    }
+
     AddressEntity entity = new AddressEntity();
     return entity.setNumber(model.getNumber()).setResidency(model.getResidency())
         .setStreet(model.getStreet()).setCity(model.getCity()).setState(model.getState())

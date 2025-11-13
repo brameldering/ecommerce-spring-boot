@@ -1,6 +1,5 @@
 -- 1. Delete from join tables (many-to-many)
 DELETE FROM ecomm.product_tag;
-DELETE FROM ecomm.user_address;
 DELETE FROM ecomm.cart_item;
 DELETE FROM ecomm.order_item;
 
@@ -15,8 +14,8 @@ DELETE FROM ecomm.item;
 -- 3. Delete from parent/lookup tables (now that references are gone)
 DELETE FROM ecomm.product;
 DELETE FROM ecomm.tag;
-DELETE FROM ecomm."user";
 DELETE FROM ecomm.address;
+DELETE FROM ecomm."user";
 DELETE FROM ecomm.payment;
 DELETE FROM ecomm.shipment;
 
@@ -72,9 +71,7 @@ insert into ecomm.product_tag values ('837ab141-399e-4c1f-9abc-bace40296bac', '0
 insert into ecomm."user" (id, username, first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38222', 'test', 'Test', 'User', 'test@user.com', '234234234', 'ACTIVE');
 insert into ecomm."user" (id, username,  first_name, last_name, email, phone, user_status) values('a1b9b31d-e73c-4112-af7c-b68530f38223', 'test', 'Test2', 'User2', 'test2@user.com', '234234234', 'ACTIVE');
 
-INSERT INTO ecomm.address VALUES ('a731fda1-aaad-42ea-bdbc-a27eeebe2cc0', '9I-999', 'Fraser Suites Le Claridge', 'Champs-Elysees', 'Paris', 'Île-de-France', 'France', '75008');
-
-insert into ecomm.user_address values ('a1b9b31d-e73c-4112-af7c-b68530f38222', 'a731fda1-aaad-42ea-bdbc-a27eeebe2cc0');
+INSERT INTO ecomm.address VALUES ('a731fda1-aaad-42ea-bdbc-a27eeebe2cc0', '9I-999', 'Fraser Suites Le Claridge', 'Champs-Elysees', 'Paris', 'Île-de-France', 'France', '75008', 'a1b9b31d-e73c-4112-af7c-b68530f38222');
 
 INSERT INTO ecomm.card VALUES ('618ffaff-cbcd-48d4-8848-a15601e6725b', '999-999-999-999', 'a1b9b31d-e73c-4112-af7c-b68530f38222', 'User', '12/28', '0000');
 

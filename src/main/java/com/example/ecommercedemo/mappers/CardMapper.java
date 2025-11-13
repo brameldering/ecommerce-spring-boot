@@ -19,6 +19,10 @@ public class CardMapper {
 
   // Transform from entity to model
   public Card entityToModel(CardEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Card resource = new Card();
 
     UUID userUuid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
@@ -31,7 +35,7 @@ public class CardMapper {
         .cvv(entity.getCvv()).expires(entity.getExpires()).userId(userUuid);
     logger.info("Cardmodel after explicit property settings " + resource);
     return resource;
-  };
+  }
 
   // Transform from entity list to model list
   public List<Card> entityToModelList(List<CardEntity> entities) {

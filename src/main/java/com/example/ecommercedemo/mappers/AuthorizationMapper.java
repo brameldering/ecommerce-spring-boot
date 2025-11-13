@@ -11,6 +11,10 @@ import java.util.List;
 public class AuthorizationMapper {
   // Transform from entity to model
   public Authorization entityToModel(AuthorizationEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Authorization resource = new Authorization();
 
     // Copy properties and set ID

@@ -6,7 +6,6 @@ import com.example.ecommercedemo.entity.ShipmentEntity;
 import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.ShipmentMapper;
 import com.example.ecommercedemo.model.Address;
-import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.Shipment;
 import com.example.ecommercedemo.model.ShipmentReq;
 import com.example.ecommercedemo.repository.ShipmentRepository;
@@ -64,7 +63,7 @@ public class ShipmentServiceTest {
     addressEntity = new AddressEntity();
     addressEntity.setId(addressId);
     addressEntity.setStreet("123 Main St");
-    addressEntity.setUsers(List.of(userEntity));
+    addressEntity.setUser(userEntity);
 
     orderEntity = new OrderEntity();
     orderEntity.setId(orderId);

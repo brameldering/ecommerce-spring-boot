@@ -12,6 +12,10 @@ public class ShipmentMapper {
 
   // Transform from entity to model
   public Shipment entityToModel(ShipmentEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Shipment resource = new Shipment();
 
     // Copy properties and set ID

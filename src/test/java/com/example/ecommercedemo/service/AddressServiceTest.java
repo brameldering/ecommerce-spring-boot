@@ -62,7 +62,7 @@ class AddressServiceTest {
     addressEntity = new AddressEntity();
     addressEntity.setId(addressId);
     addressEntity.setStreet("123 Main St");
-    addressEntity.setUsers(List.of(userEntity));
+    addressEntity.setUser(userEntity);
 
     // 2. Setup Models/DTOs
     addressModel = new Address();
@@ -121,7 +121,7 @@ class AddressServiceTest {
     // --- Setup ---
 
     // --- Execute & Assert ---
-    CustomerNotFoundException exception = assertThrows(
+    assertThrows(
         CustomerNotFoundException.class,
         () -> addressService.createAddress(null, addressReq)
     );

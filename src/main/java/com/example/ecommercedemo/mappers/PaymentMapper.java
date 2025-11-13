@@ -11,6 +11,10 @@ import java.util.List;
 public class PaymentMapper {
   // Transform from entity to model
   public Payment entityToModel(PaymentEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
     Payment resource = new Payment();
 
     // Copy properties and set ID
