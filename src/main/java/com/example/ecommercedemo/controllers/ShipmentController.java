@@ -2,18 +2,14 @@ package com.example.ecommercedemo.controllers;
 
 import com.example.ecommercedemo.api.ShipmentApi;
 import com.example.ecommercedemo.hateoas.ShipmentRepresentationModelAssembler;
-import com.example.ecommercedemo.model.Authorization;
-import com.example.ecommercedemo.model.PaymentReq;
 import com.example.ecommercedemo.model.Shipment;
 import com.example.ecommercedemo.model.ShipmentReq;
 import com.example.ecommercedemo.service.ShipmentService;
 
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,7 +48,7 @@ public class ShipmentController implements ShipmentApi {
   }
 
   @Override
-  public ResponseEntity<Shipment> shipOrder (UUID orderId, @Valid @RequestBody ShipmentReq shipmentReq) {
+  public ResponseEntity<Shipment> shipOrder (UUID orderId, ShipmentReq shipmentReq) {
     log.info("Shipment request for Order Id: {}", orderId);
     return null;
   }

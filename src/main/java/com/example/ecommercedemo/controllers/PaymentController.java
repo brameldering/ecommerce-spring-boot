@@ -5,12 +5,10 @@ import com.example.ecommercedemo.hateoas.PaymentRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.PaymentReq;
 import com.example.ecommercedemo.service.PaymentService;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +30,7 @@ public class PaymentController implements PaymentApi {
   }
 
   @Override
-  public ResponseEntity<Authorization> authorize(UUID orderId, @Valid @RequestBody PaymentReq paymentReq) {
+  public ResponseEntity<Authorization> authorize(UUID orderId, PaymentReq paymentReq) {
     log.info("Authorize request for Payment Amount: {}", paymentReq.getAmount());
     return null;
   }

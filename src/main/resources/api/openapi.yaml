@@ -50,28 +50,28 @@ paths:
       parameters:
         - name: tag
           in: query
-          description: Product tag
           required: false
+          description: Product tag
           schema:
             type: string
         - name: name
           in: query
-          description: Product name
           required: false
+          description: Product name
           schema:
             type: string
         - name: page
           in: query
-          description: Query page number
           required: false
+          description: Query page number
           schema:
             type: integer
             format: int32
             default: 1
         - name: size
           in: query
-          description: Query page size
           required: false
+          description: Query page size
           schema:
             type: integer
             format: int32
@@ -100,8 +100,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Product Identifier
           required: true
+          description: Product Identifier
           schema:
             type: string
             format: uuid
@@ -144,6 +144,7 @@ paths:
       description: Creates a new user. Throws error if address already exists.
       operationId: createUser
       requestBody:
+        required: true
         content:
           application/xml:
             schema:
@@ -171,8 +172,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -196,13 +197,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         description: User object (excluding ID which is provided on the path)
         content:
           application/xml:
@@ -233,8 +235,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -253,8 +255,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -282,13 +284,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         content:
           application/xml:
             schema:
@@ -316,8 +319,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -345,13 +348,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         content:
           application/xml:
             schema:
@@ -379,8 +383,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -407,8 +411,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -429,8 +433,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -461,13 +465,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         description: Item object
         content:
           application/xml:
@@ -498,13 +503,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         description: Item object
         content:
           application/xml:
@@ -536,16 +542,16 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         - name: productId
           in: path
-          description: Product Identifier
           required: true
+          description: Product Identifier
           schema:
             type: string
             format: uuid
@@ -572,16 +578,16 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
         - name: productId
           in: path
-          description: Product Identifier
           required: true
+          description: Product Identifier
           schema:
             type: string
             format: uuid
@@ -599,8 +605,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
@@ -628,13 +634,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Customer Identifier
           required: true
+          description: Customer Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         description: New Order Request object
         content:
           application/xml:
@@ -687,8 +694,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: address Identifier
           required: true
+          description: address Identifier
           schema:
             type: string
             format: uuid
@@ -712,8 +719,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: address Identifier
           required: true
+          description: address Identifier
           schema:
             type: string
             format: uuid
@@ -753,8 +760,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: card Identifier
           required: true
+          description: card Identifier
           schema:
             type: string
             format: uuid
@@ -778,8 +785,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: card Identifier
           required: true
+          description: card Identifier
           schema:
             type: string
             format: uuid
@@ -822,8 +829,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Order Identifier
           required: true
+          description: Order Identifier
           schema:
             type: string
             format: uuid
@@ -851,8 +858,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Order Identifier
           required: true
+          description: Order Identifier
           schema:
             type: string
             format: uuid
@@ -876,13 +883,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Order Identifier
           required: true
+          description: Order Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         content:
           application/xml:
             schema:
@@ -910,8 +918,8 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Order Identifier
           required: true
+          description: Order Identifier
           schema:
             type: string
             format: uuid
@@ -939,13 +947,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: Order Identifier
           required: true
+          description: Order Identifier
           schema:
             type: string
             format: uuid
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
+        required: true
         content:
           application/xml:
             schema:
