@@ -23,9 +23,9 @@ tags:
   - name: product
     description: Operations related to products
   - name: customer
-    description: Operations related to user's persona customer
+    description: Operations related to a customer
   - name: address
-    description: Operations related to user's address
+    description: Operations related to a customer address
   - name: card
     description: Operations related to credit/debit cards
   - name: cart
@@ -131,37 +131,37 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Customer'
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Customer'
     post:
       tags:
         - customer
       summary: Creates a new customer
-      description: Creates a new user. Throws error if address already exists.
-      operationId: createUser
+      description: Creates a new customer. Throws error if address already exists.
+      operationId: createCustomer
       requestBody:
         required: true
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/UserReq'
+              $ref: '#/components/schemas/CustomerReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/UserReq'
+              $ref: '#/components/schemas/CustomerReq'
       responses:
         201: # 201 for resource creation
-          description: The user resource was successfully created.
+          description: The customer resource was successfully created.
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
   /customers/{id}:
     get:
       tags:
@@ -184,16 +184,16 @@ paths:
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
     put:
       tags:
         - customer
       summary: Updates a customer
       description: Updates a customer.
-      operationId: updateUser
+      operationId: updateCustomer
       parameters:
         - name: id
           in: path
@@ -205,24 +205,24 @@ paths:
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       requestBody:
         required: true
-        description: User object (excluding ID which is provided on the path)
+        description: Customer object (excluding ID which is provided on the path)
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/UserReq'
+              $ref: '#/components/schemas/CustomerReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/UserReq'
+              $ref: '#/components/schemas/CustomerReq'
       responses:
         200:
-          description: User updated successfully
+          description: Customer updated successfully
           content:
             application/xml:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Customer'
         404:
           description: Given customer ID doesn't exist
           content: { }
@@ -243,7 +243,7 @@ paths:
             pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
       responses:
         202:
-          description: Request accepted, returns this status even if user does not exist
+          description: Request accepted, returns this status even if customer does not exist
           content: {}
   /customers/{id}/addresses:
     get:
@@ -279,7 +279,7 @@ paths:
       tags:
         - address
       summary: Creates a new customer addresses
-      description: Creates a new user addresses. Does nothing if address already exists.
+      description: Creates a new customer addresses. Does nothing if address already exists.
       operationId: createAddress
       parameters:
         - name: id
@@ -342,8 +342,8 @@ paths:
     post:
       tags:
         - card
-      summary: Creates a new user card
-      description: Creates a new user card. Does nothing if card already exists.
+      summary: Creates a new customer card
+      description: Creates a new customer card. Does nothing if card already exists.
       operationId: registerCard
       parameters:
         - name: id
@@ -427,7 +427,7 @@ paths:
     get:
       tags:
         - cart
-      summary: Retrieves the list of products in user's shopping cart
+      summary: Retrieves the list of products in customer's shopping cart
       description: Retrieves the items in shopping cart of given customer
       operationId: getCustomerCartItems
       parameters:
@@ -536,7 +536,7 @@ paths:
     get:
       tags:
         - cart
-      summary: Retrieves given item from user's shopping cart
+      summary: Retrieves given item from customer's shopping cart
       description: Retrieves items for a given product id from shopping cart of given customer
       operationId: getCustomerCartItemByProductId
       parameters:
@@ -713,8 +713,8 @@ paths:
     delete:
       tags:
         - address
-      summary: Deletes user's address
-      description: Deletes user's address based on given address ID.
+      summary: Deletes customer's address
+      description: Deletes customer's address based on given address ID.
       operationId: deleteAddressById
       parameters:
         - name: id
@@ -817,7 +817,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Order'
         404:
-          description: Order doesn't exist for given user.
+          description: Order doesn't exist for given customer.
           content: { }
   /orders/{id}:
     get:
@@ -846,7 +846,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Order'
         404:
-          description: Order doesn't exist for given user.
+          description: Order doesn't exist for given customer.
           content: {}
   /orders/{id}/payments:
     get:
@@ -1030,9 +1030,9 @@ components:
         name:
           type: string
           description: Tag Name
-    UserBase:
+    CustomerBase:
       type: object
-      description: Base properties of a user object
+      description: Base properties of a customer object
       required:
         - username
       properties:
@@ -1052,27 +1052,27 @@ components:
         userStatus:
           type: string
       xml:
-        name: UserBase
-    UserReq:
+        name: CustomerBase
+    CustomerReq:
       type: object
-      description: Request object for a new user.
+      description: Request object for a new customer.
       allOf:
-        - $ref: '#/components/schemas/UserBase'
+        - $ref: '#/components/schemas/CustomerBase'
       xml:
-        name: UserReq
-    User:
+        name: CustomerReq
+    Customer:
       type: object
-      description: "Represents a complete user resource, including its ID"
+      description: "Represents a complete customer resource, including its ID"
       allOf:
-        - $ref: '#/components/schemas/UserBase'
+        - $ref: '#/components/schemas/CustomerBase'
       required:
         - id
       properties:
         id:
-          description: The id of the user
+          description: The id of the customer
           $ref: '#/components/schemas/UUID'
       xml:
-        name: User
+        name: Customer
     AddressBase:
       type: object
       description: Base properties for an address
@@ -1122,7 +1122,7 @@ components:
         name: AddressReq
     Address:
       type: object
-      description: "Represents a complete address resource, including its ID and associated User ID."
+      description: "Represents a complete address resource, including its ID and associated Customer ID."
       allOf:
         - $ref: '#/components/schemas/AddressBase'
       required:
@@ -1183,7 +1183,7 @@ components:
           description: Card identifier
           $ref: '#/components/schemas/UUID'
         userId:
-          description: Id of user owning the card
+          description: Id of customer owning the card
           $ref: '#/components/schemas/UUID'
         cardNumber:
           type: string
@@ -1235,7 +1235,7 @@ components:
         name: Item
     Cart:
       type: object
-      description: Shopping Cart of the user
+      description: Shopping Cart of the customer
       properties:
         id:
           description: Cart Identifier
@@ -1295,7 +1295,7 @@ components:
           description: Order identifier
           $ref: '#/components/schemas/UUID'
         customer:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/Customer'
         address:
           $ref: '#/components/schemas/Address'
         card:

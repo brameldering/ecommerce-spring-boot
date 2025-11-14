@@ -3,13 +3,13 @@ package com.example.ecommercedemo.controller;
 import com.example.ecommercedemo.api.AdminApi;
 import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
 import com.example.ecommercedemo.hateoas.CardRepresentationModelAssembler;
+import com.example.ecommercedemo.hateoas.CustomerRepresentationModelAssembler;
 import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
-import com.example.ecommercedemo.hateoas.UserRepresentationModelAssembler;
 import com.example.ecommercedemo.model.*;
 import com.example.ecommercedemo.service.AddressService;
 import com.example.ecommercedemo.service.CardService;
 import com.example.ecommercedemo.service.OrderService;
-import com.example.ecommercedemo.service.UserService;
+import com.example.ecommercedemo.service.CustomerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,17 +29,17 @@ public class AdminController implements AdminApi {
   private final AddressRepresentationModelAssembler addressAssembler;
   private final CardService cardService;
   private final CardRepresentationModelAssembler cardAssembler;
-  private final UserService userService;
-  private final UserRepresentationModelAssembler userAssembler;
+  private final CustomerService customerService;
+  private final CustomerRepresentationModelAssembler userAssembler;
   private final OrderService orderService;
   private final OrderRepresentationModelAssembler orderAssembler;
 
-  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, UserService userService, UserRepresentationModelAssembler userAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
+  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, CustomerService customerService, CustomerRepresentationModelAssembler userAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
     this.addressService = addressService;
     this.addressAssembler = addressAssembler;
     this.cardService = cardService;
     this.cardAssembler = cardAssembler;
-    this.userService = userService;
+    this.customerService = customerService;
     this.userAssembler = userAssembler;
     this.orderService = orderService;
     this.orderAssembler = orderAssembler;
@@ -60,8 +60,8 @@ public class AdminController implements AdminApi {
   }
 
   @Override
-  public ResponseEntity<List<User>> getAllCustomers() {
-    return ok(userService.getAllCustomers()
+  public ResponseEntity<List<Customer>> getAllCustomers() {
+    return ok(customerService.getAllCustomers()
         .stream()
         .map(userAssembler::toModel)
         .toList());

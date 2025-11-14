@@ -5,8 +5,8 @@ import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.UserMapper;
-import com.example.ecommercedemo.model.User;
-import com.example.ecommercedemo.model.UserReq;
+import com.example.ecommercedemo.model.Customer;
+import com.example.ecommercedemo.model.CustomerReq;
 import com.example.ecommercedemo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class CustomerServiceTest {
 
   @Mock
   private UserRepository userRepository;
@@ -35,7 +35,7 @@ class UserServiceTest {
   private UserMapper mapper;
 
   @InjectMocks
-  private UserServiceImpl userService;
+  private CustomerServiceImpl userService;
 
   // Argument captor to inspect the entity passed to save()
   private ArgumentCaptor<UserEntity> userEntityCaptor;
@@ -43,8 +43,8 @@ class UserServiceTest {
   // --- Test Data ---
   private UUID customerId;
   private UserEntity userEntity;
-  private User userModel;
-  private UserReq userReq;
+  private Customer customerModel;
+  private CustomerReq customerReq;
 
   @BeforeEach
   void setUp() {
@@ -52,27 +52,27 @@ class UserServiceTest {
     userEntityCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
     // 1. Setup Request DTO
-    userReq = new UserReq();
-    userReq.setUsername("username");
-    userReq.setFirstName("Firstname");
-    userReq.setLastName("Lastname");
-    userReq.setEmail("email@test.com");
+    customerReq = new CustomerReq();
+    customerReq.setUsername("username");
+    customerReq.setFirstName("Firstname");
+    customerReq.setLastName("Lastname");
+    customerReq.setEmail("email@test.com");
 
     // 2. Setup Entities
     userEntity = new UserEntity();
     userEntity.setId(customerId);
-    userEntity.setUsername(userReq.getUsername());
-    userEntity.setFirstName(userReq.getFirstName());
-    userEntity.setLastName(userReq.getLastName());
-    userEntity.setEmail(userReq.getEmail());
+    userEntity.setUsername(customerReq.getUsername());
+    userEntity.setFirstName(customerReq.getFirstName());
+    userEntity.setLastName(customerReq.getLastName());
+    userEntity.setEmail(customerReq.getEmail());
 
     // 2. Setup Models/DTOs
-    userModel = new User();
-    userModel.setId(customerId);
-    userModel.setUsername(userReq.getUsername());
-    userModel.setFirstName(userReq.getFirstName());
-    userModel.setLastName(userReq.getLastName());
-    userModel.setEmail(userReq.getEmail());
+    customerModel = new Customer();
+    customerModel.setId(customerId);
+    customerModel.setUsername(customerReq.getUsername());
+    customerModel.setFirstName(customerReq.getFirstName());
+    customerModel.setLastName(customerReq.getLastName());
+    customerModel.setEmail(customerReq.getEmail());
   }
 
   // ------------------------------------------------------------------
@@ -84,22 +84,22 @@ class UserServiceTest {
   void createUser_Success() {
     // --- Setup Mocks ---
     // 1. Username does not exist
-    when(userRepository.existsByUsername(userReq.getUsername())).thenReturn(false);
+    when(userRepository.existsByUsername(customerReq.getUsername())).thenReturn(false);
     // 2. Repository saves the new entity and returns a mock entity with an ID
     when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
     // 3. Mapper converts the saved entity to the final model
-    when(mapper.entityToModel(userEntity)).thenReturn(userModel);
+    when(mapper.entityToModel(userEntity)).thenReturn(customerModel);
 
     // --- Execute ---
-    User result = userService.createUser(userReq);
+    Customer result = userService.createUser(customerReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
-    assertEquals(userModel.getUsername(), result.getUsername());
+    assertEquals(customerModel.getUsername(), result.getUsername());
 
     verify(userRepository).save(userEntityCaptor.capture());
     UserEntity capturedEntity = userEntityCaptor.getValue();
-    assertEquals(userReq.getUsername(), capturedEntity.getUsername());
+    assertEquals(customerReq.getUsername(), capturedEntity.getUsername());
     // Assert creation happened
     verify(userRepository, times(1)).save(any(UserEntity.class));
   }
@@ -108,12 +108,12 @@ class UserServiceTest {
   @DisplayName("CREATE: Should throw GenericAlreadyExistsException if username exists")
   void createUser_WhenUsernameExists_ThrowsException() {
     // --- Setup Mocks ---
-    when(userRepository.existsByUsername(userReq.getUsername())).thenReturn(true);
+    when(userRepository.existsByUsername(customerReq.getUsername())).thenReturn(true);
 
     // --- Execute & Assert ---
     GenericAlreadyExistsException exception = assertThrows(
         GenericAlreadyExistsException.class,
-        () -> userService.createUser(userReq)
+        () -> userService.createUser(customerReq)
     );
 
     // --- Verify ---
@@ -135,9 +135,9 @@ class UserServiceTest {
   @DisplayName("CREATE: Should throw IllegalArgumentException if username is null")
   void createUser_WhenUsernameIsNull_ThrowsException() {
     // --- Setup ---
-    userReq.setUsername(null);
+    customerReq.setUsername(null);
     // --- Execute & Assert ---
-    assertThrows(IllegalArgumentException.class, () -> userService.createUser(userReq));
+    assertThrows(IllegalArgumentException.class, () -> userService.createUser(customerReq));
 
     // --- Verify ---
     verify(userRepository, never()).existsByUsername(any());
@@ -156,14 +156,14 @@ class UserServiceTest {
     // 2. Repository saves the updated entity
     when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
     // 3. Mapper converts to model
-    when(mapper.entityToModel(userEntity)).thenReturn(userModel);
+    when(mapper.entityToModel(userEntity)).thenReturn(customerModel);
 
     // --- Execute ---
-    User result = userService.updateUser(customerId, userReq);
+    Customer result = userService.updateUser(customerId, customerReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
-    assertEquals(userModel.getUsername(), result.getUsername());
+    assertEquals(customerModel.getUsername(), result.getUsername());
 
     // Verify: existsByUsername was NOT called because username didn't change
     verify(userRepository, never()).existsByUsername(any());
@@ -177,10 +177,10 @@ class UserServiceTest {
   void updateUser_WithNewUniqueUsername_Success() {
     // --- Setup ---
     String newUsername = "new_unique_name";
-    UserReq newReq = new UserReq();
+    CustomerReq newReq = new CustomerReq();
     // Copy all fields but change username
     newReq.setUsername(newUsername);
-    newReq.setFirstName(userReq.getFirstName());
+    newReq.setFirstName(customerReq.getFirstName());
     // ... set other required fields ...
 
     // --- Setup Mocks ---
@@ -194,13 +194,13 @@ class UserServiceTest {
     updatedEntity.setUsername(newUsername);
     when(userRepository.save(any(UserEntity.class))).thenReturn(updatedEntity);
     // 4. Mapper converts
-    User updatedModel = new User();
+    Customer updatedModel = new Customer();
     updatedModel.setId(customerId);
     updatedModel.setUsername(newUsername);
     when(mapper.entityToModel(updatedEntity)).thenReturn(updatedModel);
 
     // --- Execute ---
-    User result = userService.updateUser(customerId, newReq);
+    Customer result = userService.updateUser(customerId, newReq);
 
     // --- Assert & Verify ---
     assertNotNull(result);
@@ -218,7 +218,7 @@ class UserServiceTest {
   void updateUser_WhenNewUsernameConflicts_ThrowsException() {
     // --- Setup ---
     String conflictingUsername = "existing_user_name";
-    UserReq newReq = new UserReq();
+    CustomerReq newReq = new CustomerReq();
     newReq.setUsername(conflictingUsername);
     // Setup existing entity with a *different* username
     userEntity.setUsername("original_name");
@@ -248,7 +248,7 @@ class UserServiceTest {
     when(userRepository.findById(customerId)).thenReturn(Optional.empty());
 
     // --- Execute & Assert ---
-    assertThrows(CustomerNotFoundException.class, () -> userService.updateUser(customerId, userReq));
+    assertThrows(CustomerNotFoundException.class, () -> userService.updateUser(customerId, customerReq));
 
     // --- Verify ---
     verify(userRepository, never()).existsByUsername(any());
@@ -264,12 +264,12 @@ class UserServiceTest {
   void getAllCustomers_ReturnsList() {
     // --- Setup Mocks ---
     List<UserEntity> entityList = List.of(userEntity);
-    List<User> modelList = List.of(userModel);
+    List<Customer> modelList = List.of(customerModel);
     when(userRepository.findAll()).thenReturn(entityList);
     when(mapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
-    List<User> result = userService.getAllCustomers();
+    List<Customer> result = userService.getAllCustomers();
 
     // --- Assert & Verify ---
     assertNotNull(result);
@@ -288,7 +288,7 @@ class UserServiceTest {
     when(mapper.entityToModelList(List.of())).thenReturn(List.of());
 
     // --- Execute ---
-    List<User> result = userService.getAllCustomers();
+    List<Customer> result = userService.getAllCustomers();
 
     // --- Assert & Verify ---
     assertNotNull(result);
@@ -302,10 +302,10 @@ class UserServiceTest {
   void getCustomerById_WhenFound_ReturnsOptionalUser() {
     // --- Setup Mocks ---
     when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.entityToModel(userEntity)).thenReturn(userModel);
+    when(mapper.entityToModel(userEntity)).thenReturn(customerModel);
 
     // --- Execute ---
-    Optional<User> result = userService.getCustomerById(customerId);
+    Optional<Customer> result = userService.getCustomerById(customerId);
 
     // --- Assert & Verify ---
     assertTrue(result.isPresent());
@@ -320,7 +320,7 @@ class UserServiceTest {
     when(userRepository.findById(customerId)).thenReturn(Optional.empty());
 
     // --- Execute ---
-    Optional<User> result = userService.getCustomerById(customerId);
+    Optional<Customer> result = userService.getCustomerById(customerId);
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());

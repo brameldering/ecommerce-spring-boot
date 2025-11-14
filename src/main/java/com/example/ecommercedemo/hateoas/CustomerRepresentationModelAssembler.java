@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controller.*;
-import com.example.ecommercedemo.model.User;
+import com.example.ecommercedemo.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
@@ -13,17 +13,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class UserRepresentationModelAssembler extends
-    RepresentationModelAssemblerSupport<User, User> {
+public class CustomerRepresentationModelAssembler extends
+    RepresentationModelAssemblerSupport<Customer, Customer> {
 
-  private final static Logger logger = LoggerFactory.getLogger(UserRepresentationModelAssembler.class);
+  private final static Logger logger = LoggerFactory.getLogger(CustomerRepresentationModelAssembler.class);
 
   /**
    * Creates a new {@link RepresentationModelAssemblerSupport}
    * using the given controller class and resource type.
    */
-  public UserRepresentationModelAssembler() {
-    super(CustomerController.class, User.class);
+  public CustomerRepresentationModelAssembler() {
+    super(CustomerController.class, Customer.class);
   }
 
   /**
@@ -32,9 +32,9 @@ public class UserRepresentationModelAssembler extends
    * @param resource
    */
   @Override
-  public User toModel(User resource) {
+  public Customer toModel(Customer resource) {
 
-    logger.info("UserRepresentationModelAssembler toModel, for user {}", resource.getUsername());
+    logger.info("CustomerRepresentationModelAssembler toModel, for user {}", resource.getUsername());
 
     // 3. Add HATEOAS links
     resource.add(linkTo(methodOn(CustomerController.class).getCustomerById(resource.getId())).withSelfRel());
@@ -57,7 +57,7 @@ public class UserRepresentationModelAssembler extends
    *
    * @param resources
    */
-  public List<User> toModelList(List<User> resources) {
+  public List<Customer> toModelList(List<Customer> resources) {
     return resources.stream().map(this::toModel).toList();
   }
 

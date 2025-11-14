@@ -1,10 +1,10 @@
 package com.example.ecommercedemo.controller;
 
 import com.example.ecommercedemo.api.CustomerApi;
-import com.example.ecommercedemo.hateoas.UserRepresentationModelAssembler;
-import com.example.ecommercedemo.model.User;
-import com.example.ecommercedemo.model.UserReq;
-import com.example.ecommercedemo.service.UserService;
+import com.example.ecommercedemo.hateoas.CustomerRepresentationModelAssembler;
+import com.example.ecommercedemo.model.Customer;
+import com.example.ecommercedemo.model.CustomerReq;
+import com.example.ecommercedemo.service.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,32 +21,32 @@ import static org.springframework.http.ResponseEntity.*;
 @RequestMapping("/api/v1")
 public class CustomerController implements CustomerApi {
 
-  private final UserService service;
+  private final CustomerService service;
 
-  private final UserRepresentationModelAssembler userAssembler;
+  private final CustomerRepresentationModelAssembler userAssembler;
 
-  public CustomerController(UserService service, UserRepresentationModelAssembler userAssembler) {
+  public CustomerController(CustomerService service, CustomerRepresentationModelAssembler userAssembler) {
     this.service = service;
     this.userAssembler = userAssembler;
   }
 
   @Override
-  public ResponseEntity<User> createUser (UserReq userReq) {
-    User createdUser = service.createUser(userReq);
-    User userWithLinks = userAssembler.toModel(createdUser);
-    return status(HttpStatus.CREATED).body(userWithLinks);
+  public ResponseEntity<Customer> createCustomer (CustomerReq customerReq) {
+    Customer createdCustomer = service.createUser(customerReq);
+    Customer customerWithLinks = userAssembler.toModel(createdCustomer);
+    return status(HttpStatus.CREATED).body(customerWithLinks);
   }
 
   @Override
-  public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, UserReq userReq) {
+  public ResponseEntity<Customer> updateCustomer(@PathVariable("id") UUID id, CustomerReq customerReq) {
 
-    User updatedUser = service.updateUser(id, userReq);
-    User userWithLinks = userAssembler.toModel(updatedUser);
+    Customer updatedCustomer = service.updateUser(id, customerReq);
+    Customer userWithLinks = userAssembler.toModel(updatedCustomer);
     return status(HttpStatus.OK).body(userWithLinks);
   }
 
   @Override
-  public ResponseEntity<User> getCustomerById(UUID id) {
+  public ResponseEntity<Customer> getCustomerById(UUID id) {
      return service.getCustomerById(id) // 1. Returns Optional<User>
         .map(userAssembler::toModel) // 2. Applies HATEOAS links *inside* the Optional
         .map(ResponseEntity::ok)     // 3. Wraps the linked resource in a 200 OK
