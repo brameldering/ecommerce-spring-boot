@@ -37,7 +37,7 @@ public class RestApiErrorHandler {
   }
 
   @ExceptionHandler(CartNotFoundException.class)
-  public ResponseEntity<Error> cartNotFoundException(HttpServletRequest request, ItemNotFoundException ex, Locale locale) {
+  public ResponseEntity<Error> cartNotFoundException(HttpServletRequest request, CartNotFoundException ex, Locale locale) {
     log.warn("Cart Not Found (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
@@ -51,7 +51,7 @@ public class RestApiErrorHandler {
   }
 
   @ExceptionHandler(CustomerAlreadyExistsException.class)
-  public ResponseEntity<Error> customerAlreadyExistsException(HttpServletRequest request, ItemNotFoundException ex, Locale locale) {
+  public ResponseEntity<Error> customerAlreadyExistsException(HttpServletRequest request, CustomerAlreadyExistsException ex, Locale locale) {
     log.warn("Customer already exists (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
@@ -66,7 +66,7 @@ public class RestApiErrorHandler {
   }
 
   @ExceptionHandler(CustomerNotFoundException.class)
-  public ResponseEntity<Error> customerNotFoundException(HttpServletRequest request, ItemNotFoundException ex, Locale locale) {
+  public ResponseEntity<Error> customerNotFoundException(HttpServletRequest request, CustomerNotFoundException ex, Locale locale) {
     log.warn("Customer Not Found (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
@@ -97,7 +97,7 @@ public class RestApiErrorHandler {
   }
 
   @ExceptionHandler(ItemAlreadyExistsException.class)
-  public ResponseEntity<Error> itemAlreadyExistsException(HttpServletRequest request, ItemNotFoundException ex, Locale locale) {
+  public ResponseEntity<Error> itemAlreadyExistsException(HttpServletRequest request, ItemAlreadyExistsException ex, Locale locale) {
     log.warn("Item already exists (409): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
