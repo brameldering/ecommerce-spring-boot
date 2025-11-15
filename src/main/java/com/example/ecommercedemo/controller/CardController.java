@@ -25,43 +25,43 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/api/v1")
 public class CardController implements CardApi {
 
-  private final CardService service;
+  private final CardService cardService;
 
-  private final CardRepresentationModelAssembler assembler;
+  private final CardRepresentationModelAssembler cardAssembler;
 
-  public CardController(CardService service, CardRepresentationModelAssembler assembler) {
-    this.service = service;
-    this.assembler = assembler;
+  public CardController(CardService cardService, CardRepresentationModelAssembler cardAssembler) {
+    this.cardService = cardService;
+    this.cardAssembler = cardAssembler;
   }
 
   @Override
   public ResponseEntity<Card> registerCard(@PathVariable("id") UUID customerId, CardReq cardReq) {
-    Card newCard = service.registerCard(customerId, cardReq);
+    Card newCard = cardService.registerCard(customerId, cardReq);
     // Add HATEOAS links to the newly created card
-    Card cardWithLinks = assembler.toModel(newCard);
+    Card cardWithLinks = cardAssembler.toModel(newCard);
     return status(HttpStatus.CREATED).body(cardWithLinks);
   }
 
   @Override
   public ResponseEntity<List<Card>> getCustomerCards (@PathVariable("id") UUID id) {
     return ResponseEntity.ok(
-        service.getCardsByCustomerId(id) // returns Optional<List<Card>>
-            .map(assembler::toModelList)
+        cardService.getCardsByCustomerId(id) // returns Optional<List<Card>>
+            .map(cardAssembler::toModelList)
             .orElse(List.of()) // If Optional is empty (service returned null), provide an empty List<Card>
     );
   }
 
   @Override
   public ResponseEntity<Card> getCardById(UUID uuid) {
-    return service.getCardById(uuid)
-        .map(assembler::toModel)
+    return cardService.getCardById(uuid)
+        .map(cardAssembler::toModel)
         .map(ResponseEntity::ok)
         .orElse(notFound().build());
   }
 
   @Override
   public ResponseEntity<Void> deleteCardById(UUID id) {
-    service.deleteCardById(id);
+    cardService.deleteCardById(id);
     return accepted().build();
   }
 }

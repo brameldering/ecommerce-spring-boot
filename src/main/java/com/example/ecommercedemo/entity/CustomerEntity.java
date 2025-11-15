@@ -9,20 +9,20 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "\"user\"") // with \" because user is a reserved word in SQL
+@Table(name = "customer")
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(exclude = {"addresses", "cards", "cart", "orders"})
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
-public class UserEntity {
+public class CustomerEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ID", updatable = false, nullable = false)
   @ToString.Include
   private UUID id;
 
-  @NotNull(message = "User name is required.")
+  @NotNull(message = "Customer username is required.")
   @Basic(optional = false)
   @Column(name = "USERNAME", unique = true, nullable = false, length = 16)
   @ToString.Include
@@ -44,25 +44,25 @@ public class UserEntity {
   @ToString.Include
   private String phone;
 
-  @Column(name = "USER_STATUS")
+  @Column(name = "STATUS")
   @ToString.Include
-  private String userStatus;
+  private String status;
 
   @OneToMany(
-      mappedBy = "user", // "user" is the field name in AddressEntity
-      cascade = CascadeType.ALL, // Save/update/delete addresses with the user
-      orphanRemoval = true // Delete addresses that are no longer linked to this user
+      mappedBy = "customer", // "customer" is the field name in AddressEntity
+      cascade = CascadeType.ALL, // Save/update/delete addresses with the customer
+      orphanRemoval = true // Delete addresses that are no longer linked to this customer
   )
   private List<AddressEntity> addresses = new ArrayList<>();
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, orphanRemoval = true)
   private List<CardEntity> cards;
 
   // , orphanRemoval = true
-  @OneToOne(mappedBy = "user")
+  @OneToOne(mappedBy = "customer")
   private CartEntity cart;
 
-  @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "customerEntity", fetch = FetchType.LAZY)
   private List<OrderEntity> orders;
 
 }

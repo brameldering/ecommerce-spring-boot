@@ -11,11 +11,11 @@ import org.springframework.data.jpa.repository.Query;
 public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
   @Query(
       value = """
-      select i.* from ecomm.cart c
-      join ecomm.cart_item ci on c.id = ci.cart_id
-      join ecomm.item i on i.id = ci.item_id
-      join ecomm."user" u on u.id = c.user_id
-      where u.id = :customerId
+      select item.* from ecomm.cart
+      join ecomm.cart_item on cart.id = cart_item.cart_id
+      join ecomm.item on item.id = cart_item.item_id
+      join ecomm.customer on customer.id = cart.customer_id
+      where customer.id = :customerId
     """,
       nativeQuery = true)
   List<ItemEntity> findByCustomerId(UUID customerId);

@@ -30,17 +30,17 @@ public class AdminController implements AdminApi {
   private final CardService cardService;
   private final CardRepresentationModelAssembler cardAssembler;
   private final CustomerService customerService;
-  private final CustomerRepresentationModelAssembler userAssembler;
+  private final CustomerRepresentationModelAssembler customerAssembler;
   private final OrderService orderService;
   private final OrderRepresentationModelAssembler orderAssembler;
 
-  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, CustomerService customerService, CustomerRepresentationModelAssembler userAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
+  public AdminController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler, CardService cardService, CardRepresentationModelAssembler cardAssembler, CustomerService customerService, CustomerRepresentationModelAssembler customerAssembler, OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
     this.addressService = addressService;
     this.addressAssembler = addressAssembler;
     this.cardService = cardService;
     this.cardAssembler = cardAssembler;
     this.customerService = customerService;
-    this.userAssembler = userAssembler;
+    this.customerAssembler = customerAssembler;
     this.orderService = orderService;
     this.orderAssembler = orderAssembler;
   }
@@ -63,7 +63,7 @@ public class AdminController implements AdminApi {
   public ResponseEntity<List<Customer>> getAllCustomers() {
     return ok(customerService.getAllCustomers()
         .stream()
-        .map(userAssembler::toModel)
+        .map(customerAssembler::toModel)
         .toList());
   }
 

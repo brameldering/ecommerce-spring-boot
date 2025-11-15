@@ -18,13 +18,13 @@ import java.util.UUID;
 @Validated
 public class OrderServiceImpl implements OrderService {
 
-  private final OrderRepository repository;
+  private final OrderRepository orderRepository;
 
-  private final OrderMapper mapper;
+  private final OrderMapper orderMapper;
 
-  public OrderServiceImpl(OrderRepository repository, OrderMapper mapper) {
-    this.repository = repository;
-    this.mapper = mapper;
+  public OrderServiceImpl(OrderRepository orderRepository, OrderMapper orderMapper) {
+    this.orderRepository = orderRepository;
+    this.orderMapper = orderMapper;
   }
 
   @Override
@@ -45,8 +45,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 1. Add HATEOAS links
-    OrderEntity createdOrderEntity = repository.insert(customerId, orderReq);
-    return mapper.entityToModel(createdOrderEntity);
+    OrderEntity createdOrderEntity = orderRepository.insert(customerId, orderReq);
+    return orderMapper.entityToModel(createdOrderEntity);
     // Ideally, here it will trigger the rest of the process
     // 2. Initiate the payment
     // 3. Once the payment is authorized, change the status to paid
@@ -56,23 +56,23 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional(readOnly = true)
   public List<Order> getAllOrders() {
-    return mapper.entityToModelList(repository.findAll());
+    return orderMapper.entityToModelList(orderRepository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Order> getOrderById(UUID orderId) {
-    return repository.findById(orderId).map(mapper::entityToModel);
+    return orderRepository.findById(orderId).map(orderMapper::entityToModel);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Order> getOrdersByCustomerId(UUID customerId) {
     // 1. Get the list of OrderEntity objects (returns List<OrderEntity>, potentially empty but never null)
-    List<OrderEntity> orderEntities = repository.findByCustomerId(customerId);
+    List<OrderEntity> orderEntities = orderRepository.findByCustomerId(customerId);
 
     // 2. Map the List of Entities to a List of Models using the mapper
-    return mapper.entityToModelList(orderEntities);
+    return orderMapper.entityToModelList(orderEntities);
   }
 }
 

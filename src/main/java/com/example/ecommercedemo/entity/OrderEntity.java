@@ -19,7 +19,7 @@ import com.example.ecommercedemo.model.Order.StatusEnum;
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(exclude = {
-    "userEntity",
+    "customerEntity",
     "addressEntity",
     "paymentEntity",
     "shipment",
@@ -50,7 +50,7 @@ public class OrderEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="CUSTOMER_ID", nullable=false)
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID")

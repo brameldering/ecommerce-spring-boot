@@ -12,31 +12,30 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Validated
 public class ProductServiceImpl implements ProductService {
 
-  private final ProductRepository repository;
-  private final ProductMapper mapper;
+  private final ProductRepository productRepository;
+  private final ProductMapper productMapper;
 
-  public ProductServiceImpl(ProductRepository repository,
-                            ProductRepresentationModelAssembler assembler, ProductMapper mapper) {
-    this.repository = repository;
-    this.mapper = mapper;
+  public ProductServiceImpl(ProductRepository productRepository,
+                            ProductRepresentationModelAssembler assembler, ProductMapper productMapper) {
+    this.productRepository = productRepository;
+    this.productMapper = productMapper;
   }
 
   @Transactional(readOnly = true)
   @Override
   public List<Product> getAllProducts() {
-    List<ProductEntity> entities = repository.findAllWithTags();
-    return mapper.entityToModelList(entities);
+    List<ProductEntity> entities = productRepository.findAllWithTags();
+    return productMapper.entityToModelList(entities);
   }
 
   @Transactional(readOnly = true)
   @Override
   public Optional<Product> getProductById(UUID id) {
-    return repository.findByIdWithTags(id).map(mapper::entityToModel);
+    return productRepository.findByIdWithTags(id).map(productMapper::entityToModel);
   }
 }

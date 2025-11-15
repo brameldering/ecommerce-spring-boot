@@ -24,22 +24,22 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/api/v1")
 public class AddressController implements AddressApi {
 
-  private final AddressService service;
+  private final AddressService addressService;
 
-  private final AddressRepresentationModelAssembler assembler;
+  private final AddressRepresentationModelAssembler addressAssembler;
 
-  public AddressController(AddressService addressService, AddressRepresentationModelAssembler assembler) {
-    this.service = addressService;
-    this.assembler = assembler;
+  public AddressController(AddressService addressService, AddressRepresentationModelAssembler addressAssembler) {
+    this.addressService = addressService;
+    this.addressAssembler = addressAssembler;
   }
 
   @Override
   public ResponseEntity<Address> createAddress(@PathVariable("id") UUID customerId, AddressReq addressReq) {
     // 1. Call the service method, which returns Address or throws an exception.
-    Address createdAddress = service.createAddress(customerId, addressReq);
+    Address createdAddress = addressService.createAddress(customerId, addressReq);
 
     // 2. Add HATEOAS links using the assembler.
-    Address addressWithLinks = assembler.toModel(createdAddress);
+    Address addressWithLinks = addressAssembler.toModel(createdAddress);
 
     // 3. Return the 201 Created response.
     return status(HttpStatus.CREATED).body(addressWithLinks);
@@ -47,19 +47,19 @@ public class AddressController implements AddressApi {
 
   @Override
   public ResponseEntity<List<Address>> getCustomerAddresses (@PathVariable("id") UUID id) {
-    return ResponseEntity.ok(assembler.toModelList(service.getAddressesByCustomerId(id)));
+    return ResponseEntity.ok(addressAssembler.toModelList(addressService.getAddressesByCustomerId(id)));
   }
 
   @Override
   public ResponseEntity<Address> getAddressById(UUID uuid) {
-    return service.getAddressById(uuid)
-        .map(assembler::toModel) // add HATEOAS links
+    return addressService.getAddressById(uuid)
+        .map(addressAssembler::toModel) // add HATEOAS links
         .map(ResponseEntity::ok).orElse(notFound().build());
   }
 
   @Override
   public ResponseEntity<Void> deleteAddressById(UUID uuid) {
-    service.deleteAddressById(uuid);
+    addressService.deleteAddressById(uuid);
     return accepted().build();
   }
 }

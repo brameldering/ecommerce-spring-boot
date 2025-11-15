@@ -25,14 +25,14 @@ public class CardMapper {
 
     Card resource = new Card();
 
-    UUID userUuid = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
+    UUID customerUuid = Objects.nonNull(entity.getCustomer()) ? entity.getCustomer().getId() : null;
 
     // Copy properties and set ID
     logger.info("Cardmodel before copyProperties " + resource);
     BeanUtils.copyProperties(entity, resource);
     logger.info("Cardmodel after copyProperties " + resource);
     resource.id(entity.getId()).cardNumber(entity.getNumber())
-        .cvv(entity.getCvv()).expires(entity.getExpires()).userId(userUuid);
+        .cvv(entity.getCvv()).expires(entity.getExpires()).customerId(customerUuid);
     logger.info("Cardmodel after explicit property settings " + resource);
     return resource;
   }

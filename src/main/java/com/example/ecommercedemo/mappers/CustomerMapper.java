@@ -1,6 +1,6 @@
 package com.example.ecommercedemo.mappers;
 
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.model.Customer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class UserMapper {
+public class CustomerMapper {
   // Transform from entity to model
-  public Customer entityToModel(UserEntity entity) {
+  public Customer entityToModel(CustomerEntity entity) {
     if (entity == null) {
       return null;
     }
@@ -24,7 +24,7 @@ public class UserMapper {
   }
 
   // Transform from entity list to model list
-  public List<Customer> entityToModelList(List<UserEntity> entities) {
+  public List<Customer> entityToModelList(List<CustomerEntity> entities) {
     return entities.stream().map(this::entityToModel).toList();
   }
 }

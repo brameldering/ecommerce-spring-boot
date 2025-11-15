@@ -9,6 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CartRepository extends JpaRepository<CartEntity, UUID> {
-  @Query("select c from CartEntity c join c.user u where u.id = :customerId")
+  @Query("select cart from CartEntity cart join CustomerEntity cust where cust.id = :customerId")
   Optional<CartEntity> findByCustomerId(@Param("customerId") UUID customerId);
 }

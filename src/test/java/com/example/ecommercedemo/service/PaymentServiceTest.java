@@ -25,13 +25,13 @@ import static org.mockito.Mockito.*;
 class PaymentServiceTest {
 
   @Mock
-  private PaymentRepository repository;
+  private PaymentRepository paymentRepository;
 
   @Mock
-  private OrderRepository orderRepo;
+  private OrderRepository orderRepository;
 
   @Mock
-  private AuthorizationMapper mapper;
+  private AuthorizationMapper authorizationMapper;
 
   @InjectMocks
   private PaymentServiceImpl paymentService;
@@ -75,7 +75,7 @@ class PaymentServiceTest {
 
     // --- Assert & Verify ---
     assertNull(result);
-    verifyNoInteractions(repository, orderRepo, mapper);
+    verifyNoInteractions(paymentRepository, orderRepository, authorizationMapper);
   }
 
   // ------------------------------------------------------------------
@@ -86,8 +86,8 @@ class PaymentServiceTest {
   @DisplayName("GET_AUTH: Should return Optional<Authorization> when order and authorization are found")
   void getAuthorization_WhenFound_ReturnsOptionalAuthorizationByOrderId() {
     // --- Setup Mocks ---
-    when(orderRepo.findById(orderId)).thenReturn(Optional.of(orderEntity));
-    when(mapper.entityToModel(authorizationEntity)).thenReturn(authorizationModel);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
+    when(authorizationMapper.entityToModel(authorizationEntity)).thenReturn(authorizationModel);
 
     // --- Execute ---
     Optional<Authorization> result = paymentService.getAuthorizationByOrderId(orderId);
@@ -95,23 +95,23 @@ class PaymentServiceTest {
     // --- Assert & Verify ---
     assertTrue(result.isPresent());
     assertEquals(authorizationModel, result.get());
-    verify(orderRepo, times(1)).findById(orderId);
-    verify(mapper, times(1)).entityToModel(authorizationEntity);
+    verify(orderRepository, times(1)).findById(orderId);
+    verify(authorizationMapper, times(1)).entityToModel(authorizationEntity);
   }
 
   @Test
   @DisplayName("GET_AUTH: Should return Optional.empty() when the Order is not found")
   void getAuthorization_ByOrderId_WhenOrderNotFound_ReturnsEmptyOptional() {
     // --- Setup Mocks ---
-    when(orderRepo.findById(orderId)).thenReturn(Optional.empty());
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
     // --- Execute ---
     Optional<Authorization> result = paymentService.getAuthorizationByOrderId(orderId);
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
-    verify(orderRepo, times(1)).findById(orderId);
-    verifyNoInteractions(mapper); // Mapper should never be called
+    verify(orderRepository, times(1)).findById(orderId);
+    verifyNoInteractions(authorizationMapper); // Mapper should never be called
   }
 
   @Test
@@ -124,14 +124,14 @@ class PaymentServiceTest {
     orderWithoutAuth.setAuthorizationEntity(null);
 
     // --- Setup Mocks ---
-    when(orderRepo.findById(orderId)).thenReturn(Optional.of(orderWithoutAuth));
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderWithoutAuth));
 
     // --- Execute ---
     Optional<Authorization> result = paymentService.getAuthorizationByOrderId(orderId);
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
-    verify(orderRepo, times(1)).findById(orderId);
-    verifyNoInteractions(mapper); // Mapper should never be called
+    verify(orderRepository, times(1)).findById(orderId);
+    verifyNoInteractions(authorizationMapper); // Mapper should never be called
   }
 }

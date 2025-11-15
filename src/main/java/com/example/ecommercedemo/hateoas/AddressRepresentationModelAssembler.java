@@ -42,7 +42,7 @@ public class AddressRepresentationModelAssembler extends
 
     resource.add(
         linkTo(methodOn(CustomerController.class)
-            .getCustomerById(resource.getUserId()))
+            .getCustomerById(resource.getCustomerId()))
         .withRel("customer")
     );
 

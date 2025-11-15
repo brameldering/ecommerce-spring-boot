@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(exclude = {"user", "orders"})
+@EqualsAndHashCode(exclude = {"customer", "orders"})
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
 public class CardEntity {
   @Id
@@ -34,8 +34,8 @@ public class CardEntity {
   private String cvv;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-  private UserEntity user;
+  @JoinColumn(name = "CUSTOMER_ID", referencedColumnName = "ID")
+  private CustomerEntity customer;
 
   @OneToMany(mappedBy = "cardEntity", fetch = FetchType.LAZY)
   private List<OrderEntity> orders;

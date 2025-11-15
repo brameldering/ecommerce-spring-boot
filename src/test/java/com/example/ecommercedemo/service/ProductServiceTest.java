@@ -30,7 +30,7 @@ class ProductServiceTest {
   private ProductRepository productRepository;
 
   @Mock
-  private ProductMapper mapper;
+  private ProductMapper productMapper;
 
   @InjectMocks
   private ProductServiceImpl productService;
@@ -82,7 +82,7 @@ class ProductServiceTest {
     List<ProductEntity> entityList = List.of(productEntity);
     List<Product> modelList = List.of(productModel);
     when(productRepository.findAllWithTags()).thenReturn(entityList);
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(productMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Product> result = productService.getAllProducts();
@@ -99,7 +99,7 @@ class ProductServiceTest {
   void getProductById_WhenFound_ReturnsProduct() {
     // --- Setup Mocks ---
     when(productRepository.findByIdWithTags(productId)).thenReturn(Optional.of(productEntity));
-    when(mapper.entityToModel(productEntity)).thenReturn(productModel);
+    when(productMapper.entityToModel(productEntity)).thenReturn(productModel);
 
     // --- Execute ---
     Optional<Product> result = productService.getProductById(productId);
@@ -122,6 +122,6 @@ class ProductServiceTest {
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
     verify(productRepository, times(1)).findByIdWithTags(productId);
-    verify(mapper, never()).entityToModel(any());
+    verify(productMapper, never()).entityToModel(any());
   }
 }

@@ -1,14 +1,14 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CardEntity;
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.repository.CardRepository;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import com.example.ecommercedemo.model.CardReq;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +23,13 @@ import java.util.UUID;
 public class CardServiceImpl implements CardService {
 
   private final CardRepository cardRepository;
-  private final UserRepository userRepository;
-  private final CardMapper mapper;
+  private final CustomerRepository customerRepository;
+  private final CardMapper cardMapper;
 
-  public CardServiceImpl(CardRepository cardRepository, UserRepository userRepository, CardMapper mapper) {
+  public CardServiceImpl(CardRepository cardRepository, CustomerRepository customerRepository, CardMapper cardMapper) {
     this.cardRepository = cardRepository;
-    this.userRepository = userRepository;
-    this.mapper = mapper;
+    this.customerRepository = customerRepository;
+    this.cardMapper = cardMapper;
   }
 
   @Override
@@ -40,48 +40,48 @@ public class CardServiceImpl implements CardService {
       throw new IllegalArgumentException("Card request cannot be null.");
     }
     if (customerId == null) {
-      throw new IllegalArgumentException("UserId cannot be null.");
+      throw new IllegalArgumentException("CustomerId cannot be null.");
     }
     // --- END VALIDATION ---
 
-      // Check if user exists
-    UserEntity user = userRepository.findById(customerId)
+      // Check if customerEntity exists
+    CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-    // Check if a card already exists for this user
-    if (cardRepository.existsByUserId(customerId)) {
+    // Check if a card already exists for this customerEntity
+    if (cardRepository.existsByCustomerId(customerId)) {
       throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
     }
 
     // Create and save new card
     CardEntity cardEntity = new CardEntity()
-        .setUser(user)
+        .setCustomer(customerEntity)
         .setNumber(addCardReq.getCardNumber())
         .setCvv(addCardReq.getCvv())
         .setExpires(addCardReq.getExpires());
 
     CardEntity saved = cardRepository.save(cardEntity);
-    return mapper.entityToModel(saved);
+    return cardMapper.entityToModel(saved);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Card> getAllCards() {
-    return mapper.entityToModelList(cardRepository.findAll());
+    return cardMapper.entityToModelList(cardRepository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<List<Card>> getCardsByCustomerId(UUID id) {
-    return userRepository.findById(id) // Returns Optional<UserEntity>
-        .map(UserEntity::getCards) // Returns Optional<List<CardEntity>>
-        .map(mapper::entityToModelList); // Returns Optional<List<Card>>
+    return customerRepository.findById(id) // Returns Optional<CustomerEntity>
+        .map(CustomerEntity::getCards) // Returns Optional<List<CardEntity>>
+        .map(cardMapper::entityToModelList); // Returns Optional<List<Card>>
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Card> getCardById(UUID uuid) {
-    return cardRepository.findById(uuid).map(mapper::entityToModel);
+    return cardRepository.findById(uuid).map(cardMapper::entityToModel);
   }
 
   @Override

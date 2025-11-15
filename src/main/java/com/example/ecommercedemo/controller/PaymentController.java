@@ -19,14 +19,14 @@ import java.util.UUID;
 @RequestMapping("/api/v1")
 public class PaymentController implements PaymentApi {
 
-  private final PaymentService service;
-  private final PaymentRepresentationModelAssembler assembler;
+  private final PaymentService paymentService;
+  private final PaymentRepresentationModelAssembler paymentAssembler;
 
   private static final Logger log = LoggerFactory.getLogger(CartController.class);
 
-  public PaymentController(PaymentService service, PaymentRepresentationModelAssembler assembler) {
-    this.service = service;
-    this.assembler = assembler;
+  public PaymentController(PaymentService paymentService, PaymentRepresentationModelAssembler paymentAssembler) {
+    this.paymentService = paymentService;
+    this.paymentAssembler = paymentAssembler;
   }
 
   @Override

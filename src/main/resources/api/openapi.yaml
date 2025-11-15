@@ -1049,7 +1049,7 @@ components:
           format: email
         phone:
           type: string
-        userStatus:
+        status:
           type: string
       xml:
         name: CustomerBase
@@ -1127,12 +1127,12 @@ components:
         - $ref: '#/components/schemas/AddressBase'
       required:
         - id
-        - userId
+        - customerId
       properties:
         id:
           description: Address identifier
           $ref: '#/components/schemas/UUID'
-        userId:
+        customerId:
           description: The customer ID associated with this address.
           $ref: '#/components/schemas/UUID'
       xml:
@@ -1175,14 +1175,14 @@ components:
           - $ref: '#/components/schemas/CardDetailsBase'
       required:
         - id
-        - userId
+        - customerId
         - cardNumber
         - expires
       properties:
         id:
           description: Card identifier
           $ref: '#/components/schemas/UUID'
-        userId:
+        customerId:
           description: Id of customer owning the card
           $ref: '#/components/schemas/UUID'
         cardNumber:

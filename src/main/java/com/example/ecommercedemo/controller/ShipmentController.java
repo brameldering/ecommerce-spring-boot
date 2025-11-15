@@ -21,27 +21,27 @@ import java.util.UUID;
 @RequestMapping("/api/v1")
 public class ShipmentController implements ShipmentApi {
 
-  private final ShipmentService service;
+  private final ShipmentService shipmentService;
 
-  private final ShipmentRepresentationModelAssembler assembler;
+  private final ShipmentRepresentationModelAssembler shipmentAssembler;
 
   private static final Logger log = LoggerFactory.getLogger(ShipmentController.class);
 
-  public ShipmentController(ShipmentService service, ShipmentRepresentationModelAssembler assembler) {
-    this.service = service;
-    this.assembler = assembler;
+  public ShipmentController(ShipmentService shipmentService, ShipmentRepresentationModelAssembler shipmentAssembler) {
+    this.shipmentService = shipmentService;
+    this.shipmentAssembler = shipmentAssembler;
   }
 
   @Override
   public ResponseEntity<List<Shipment>> getShipmentByOrderId(UUID id) {
 
-    List<Shipment> shipments = service.getShipmentsByOrderId(id);
+    List<Shipment> shipments = shipmentService.getShipmentsByOrderId(id);
 
     // 1. Convert List to Stream
     // 2. Map (assemble) the HATEOAS links
     // 3. Convert back to List
     List<Shipment> shipmentsWithLinks = shipments.stream()
-        .map(assembler::toModel)
+        .map(shipmentAssembler::toModel)
         .toList();
 
     return ResponseEntity.ok(shipmentsWithLinks);

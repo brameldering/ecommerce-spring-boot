@@ -22,34 +22,34 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/api/v1")
 public class OrderController implements OrderApi {
 
-  private final OrderService service;
+  private final OrderService orderService;
 
-  private final OrderRepresentationModelAssembler assembler;
+  private final OrderRepresentationModelAssembler orderAssembler;
 
-  public OrderController(OrderService service, OrderRepresentationModelAssembler assembler) {
-    this.service = service;
-    this.assembler = assembler;
+  public OrderController(OrderService orderService, OrderRepresentationModelAssembler orderAssembler) {
+    this.orderService = orderService;
+    this.orderAssembler = orderAssembler;
   }
 
   @Override
   public ResponseEntity<Order> addOrder(UUID customerId, OrderReq orderReq) {
-    Order createdOrder = service.addOrder(customerId, orderReq);
+    Order createdOrder = orderService.addOrder(customerId, orderReq);
     return status(HttpStatus.CREATED).body(createdOrder);
   }
 
 
   @Override
   public ResponseEntity<List<Order>> getCustomerOrders(UUID customerId) {
-    List<Order> orders = service.getOrdersByCustomerId(customerId);
-    List<Order> ordersWithLinks = assembler.toModelList(orders);
+    List<Order> orders = orderService.getOrdersByCustomerId(customerId);
+    List<Order> ordersWithLinks = orderAssembler.toModelList(orders);
     return ResponseEntity.ok(ordersWithLinks);
   }
 
   @Override
   public ResponseEntity<Order> getByOrderId(UUID orderId) {
 
-    return service.getOrderById(orderId)
-        .map(assembler::toModel) // add HATEOAS links
+    return orderService.getOrderById(orderId)
+        .map(orderAssembler::toModel) // add HATEOAS links
         .map(ResponseEntity::ok).orElse(notFound().build());
   }
 }

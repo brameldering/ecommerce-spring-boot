@@ -4,8 +4,6 @@ import com.example.ecommercedemo.mappers.ShipmentMapper;
 import com.example.ecommercedemo.model.Shipment;
 import com.example.ecommercedemo.model.ShipmentReq;
 import com.example.ecommercedemo.repository.ShipmentRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -17,19 +15,19 @@ import java.util.UUID;
 @Validated
 public class ShipmentServiceImpl implements ShipmentService {
 
-  private final ShipmentRepository repository;
+  private final ShipmentRepository shipmentRepository;
 
-  private final ShipmentMapper mapper;
+  private final ShipmentMapper shipmentMapper;
 
-  public ShipmentServiceImpl(ShipmentRepository repository, ShipmentMapper mapper) {
-    this.repository = repository;
-    this.mapper = mapper;
+  public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentMapper shipmentMapper) {
+    this.shipmentRepository = shipmentRepository;
+    this.shipmentMapper = shipmentMapper;
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Shipment> getShipmentsByOrderId(UUID orderId) {
-    return mapper.entityToModelList(repository.findByOrderEntity_Id(orderId));
+    return shipmentMapper.entityToModelList(shipmentRepository.findByOrderEntity_Id(orderId));
   }
 
   @Override

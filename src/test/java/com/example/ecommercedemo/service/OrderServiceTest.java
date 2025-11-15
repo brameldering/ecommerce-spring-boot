@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.service;
 
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.entity.OrderEntity;
-import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.mappers.OrderMapper;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.model.OrderReq;
@@ -27,10 +27,10 @@ import static org.mockito.Mockito.*;
 class OrderServiceTest {
 
   @Mock
-  private OrderRepository repository;
+  private OrderRepository orderRepository;
 
   @Mock
-  private OrderMapper mapper;
+  private OrderMapper orderMapper;
 
   @InjectMocks
   private OrderServiceImpl orderService;
@@ -40,7 +40,7 @@ class OrderServiceTest {
   private UUID customerId;
   private UUID addressId;
   private UUID cardId;
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
   private OrderEntity orderEntity;
   private Order orderModel;
   private OrderReq orderReq;
@@ -53,14 +53,14 @@ class OrderServiceTest {
     cardId = UUID.randomUUID();
 
     // 1. Setup Entities
-    userEntity = new UserEntity();
-    userEntity.setId(customerId);
-    userEntity.setFirstName("FirstName");
-    userEntity.setLastName("LastName");
+    customerEntity = new CustomerEntity();
+    customerEntity.setId(customerId);
+    customerEntity.setFirstName("FirstName");
+    customerEntity.setLastName("LastName");
 
     orderEntity = new OrderEntity();
     orderEntity.setId(orderId);
-    orderEntity.setUserEntity(userEntity);
+    orderEntity.setCustomerEntity(customerEntity);
     // Set other properties as needed for a real entity
 
     // 2. Setup Models/DTOs
@@ -82,8 +82,8 @@ class OrderServiceTest {
   @DisplayName("ADD: Should successfully create and return a new Order")
   void addOrder_Success() {
     // --- Setup Mocks ---
-    when(repository.insert(customerId, orderReq)).thenReturn(orderEntity);
-    when(mapper.entityToModel(orderEntity)).thenReturn(orderModel);
+    when(orderRepository.insert(customerId, orderReq)).thenReturn(orderEntity);
+    when(orderMapper.entityToModel(orderEntity)).thenReturn(orderModel);
 
     // --- Execute ---
     Order result = orderService.addOrder(customerId, orderReq);
@@ -91,7 +91,7 @@ class OrderServiceTest {
     // --- Assert & Verify ---
     assertNotNull(result);
     assertEquals(orderModel.getId(), result.getId());
-    verify(repository, times(1)).insert(customerId, orderReq);
+    verify(orderRepository, times(1)).insert(customerId, orderReq);
   }
 
   // ------------------------------------------------------------------
@@ -107,7 +107,7 @@ class OrderServiceTest {
         () -> orderService.addOrder(customerId, null)
     );
     assertEquals("Order cannot be null.", exception.getMessage());
-    verifyNoInteractions(repository, mapper);
+    verifyNoInteractions(orderRepository, orderMapper);
   }
 
   @Test
@@ -120,7 +120,7 @@ class OrderServiceTest {
         () -> orderService.addOrder(null, orderReq)
     );
     assertEquals("Customer ID cannot be null.", exception.getMessage());
-    verifyNoInteractions(repository, mapper);
+    verifyNoInteractions(orderRepository, orderMapper);
   }
 
   @Test
@@ -135,7 +135,7 @@ class OrderServiceTest {
         () -> orderService.addOrder(customerId, orderReq)
     );
     assertEquals("Address ID cannot be null.", exception.getMessage());
-    verifyNoInteractions(repository, mapper);
+    verifyNoInteractions(orderRepository, orderMapper);
   }
 
   @Test
@@ -150,7 +150,7 @@ class OrderServiceTest {
         () -> orderService.addOrder(customerId, orderReq)
     );
     assertEquals("Card ID cannot be null.", exception.getMessage());
-    verifyNoInteractions(repository, mapper);
+    verifyNoInteractions(orderRepository, orderMapper);
   }
 
   // ------------------------------------------------------------------
@@ -163,8 +163,8 @@ class OrderServiceTest {
     // --- Setup Mocks ---
     List<OrderEntity> entityList = List.of(orderEntity);
     List<Order> modelList = List.of(orderModel);
-    when(repository.findAll()).thenReturn(entityList);
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(orderRepository.findAll()).thenReturn(entityList);
+    when(orderMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Order> result = orderService.getAllOrders();
@@ -173,7 +173,7 @@ class OrderServiceTest {
     assertNotNull(result);
     assertFalse(result.isEmpty());
     assertEquals(1, result.size());
-    verify(repository, times(1)).findAll();
+    verify(orderRepository, times(1)).findAll();
   }
 
   @Test
@@ -182,8 +182,8 @@ class OrderServiceTest {
     // --- Setup Mocks ---
     List<OrderEntity> entityList = List.of(orderEntity);
     List<Order> modelList = List.of(orderModel);
-    when(repository.findByCustomerId(customerId)).thenReturn(entityList);
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(orderRepository.findByCustomerId(customerId)).thenReturn(entityList);
+    when(orderMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Order> result = orderService.getOrdersByCustomerId(customerId);
@@ -192,7 +192,7 @@ class OrderServiceTest {
     assertNotNull(result);
     assertFalse(result.isEmpty());
     assertEquals(1, result.size());
-    verify(repository, times(1)).findByCustomerId(customerId);
+    verify(orderRepository, times(1)).findByCustomerId(customerId);
   }
 
   @Test
@@ -201,8 +201,8 @@ class OrderServiceTest {
     // --- Setup Mocks ---
     List<OrderEntity> emptyEntityList = Collections.emptyList();
     List<Order> emptyModelList = Collections.emptyList();
-    when(repository.findByCustomerId(customerId)).thenReturn(emptyEntityList);
-    when(mapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
+    when(orderRepository.findByCustomerId(customerId)).thenReturn(emptyEntityList);
+    when(orderMapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
 
     // --- Execute ---
     List<Order> result = orderService.getOrdersByCustomerId(customerId);
@@ -210,15 +210,15 @@ class OrderServiceTest {
     // --- Assert & Verify ---
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(repository, times(1)).findByCustomerId(customerId);
+    verify(orderRepository, times(1)).findByCustomerId(customerId);
   }
 
   @Test
   @DisplayName("GET_BY_ORDER_ID: Should return Optional<Order> when found")
   void getOrderId_WhenFound_ReturnsOptionalOrderBy() {
     // --- Setup Mocks ---
-    when(repository.findById(orderId)).thenReturn(Optional.of(orderEntity));
-    when(mapper.entityToModel(orderEntity)).thenReturn(orderModel);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
+    when(orderMapper.entityToModel(orderEntity)).thenReturn(orderModel);
 
     // --- Execute ---
     Optional<Order> result = orderService.getOrderById(orderId);
@@ -226,21 +226,21 @@ class OrderServiceTest {
     // --- Assert & Verify ---
     assertTrue(result.isPresent());
     assertEquals(orderId, result.get().getId());
-    verify(repository, times(1)).findById(orderId);
+    verify(orderRepository, times(1)).findById(orderId);
   }
 
   @Test
   @DisplayName("GET_BY_ORDER_ID: Should return Optional.empty() when not found")
   void getOrderById_WhenNotFound_ReturnsEmptyOptional() {
     // --- Setup Mocks ---
-    when(repository.findById(orderId)).thenReturn(Optional.empty());
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
     // --- Execute ---
     Optional<Order> result = orderService.getOrderById(orderId);
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
-    verify(repository, times(1)).findById(orderId);
-    verify(mapper, never()).entityToModel(any());
+    verify(orderRepository, times(1)).findById(orderId);
+    verify(orderMapper, never()).entityToModel(any());
   }
 }

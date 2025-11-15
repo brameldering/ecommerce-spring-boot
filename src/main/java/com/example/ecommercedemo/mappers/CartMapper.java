@@ -22,8 +22,8 @@ public class CartMapper {
 
     Cart resource = new Cart();
 
-    // Retrieve user id and cart id
-    UUID userId = Objects.nonNull(entity.getUser()) ? entity.getUser().getId() : null;
+    // Retrieve customer id and cart id
+    UUID customerId = Objects.nonNull(entity.getCustomer()) ? entity.getCustomer().getId() : null;
     UUID cartId = Objects.nonNull(entity.getId()) ? entity.getId() : null;
 
     // Copy properties and set ID
@@ -31,7 +31,7 @@ public class CartMapper {
     // Explicitly set all DTO properties for clarity and safety,
     // replacing BeanUtils.copyProperties
     resource.id(cartId)
-        .customerId(userId)
+        .customerId(customerId)
         .items(itemMapper.entityToModelList(entity.getItems()));
 
     return resource;

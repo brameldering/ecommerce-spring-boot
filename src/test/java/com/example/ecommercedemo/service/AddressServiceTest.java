@@ -1,13 +1,13 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AddressEntity;
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.repository.AddressRepository;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,10 +34,10 @@ class AddressServiceTest {
   private AddressRepository addressRepository;
 
   @Mock
-  private UserRepository userRepository;
+  private CustomerRepository customerRepository;
 
   @Mock
-  private AddressMapper mapper;
+  private AddressMapper addressMapper;
 
   @InjectMocks
   private AddressServiceImpl addressService;
@@ -45,7 +45,7 @@ class AddressServiceTest {
   // --- Test Data ---
   private UUID addressId;
   private UUID customerId;
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
   private AddressEntity addressEntity;
   private Address addressModel;
   private AddressReq addressReq;
@@ -56,19 +56,19 @@ class AddressServiceTest {
     customerId = UUID.randomUUID();
 
     // 1. Setup Entities
-    userEntity = new UserEntity();
-    userEntity.setId(customerId);
+    customerEntity = new CustomerEntity();
+    customerEntity.setId(customerId);
 
     addressEntity = new AddressEntity();
     addressEntity.setId(addressId);
     addressEntity.setStreet("123 Main St");
-    addressEntity.setUser(userEntity);
+    addressEntity.setCustomer(customerEntity);
 
     // 2. Setup Models/DTOs
     addressModel = new Address();
     addressModel.setId(addressId);
     addressModel.setStreet("123 Main St");
-    addressModel.setUserId(customerId);
+    addressModel.setCustomerId(customerId);
 
     addressReq = new AddressReq();
     addressReq.setStreet("123 Main St");
@@ -84,11 +84,11 @@ class AddressServiceTest {
   @DisplayName("CREATE: Should successfully create and return an Address")
   void createAddress_Success() {
     // --- Setup Mocks ---
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.addressReqToEntity(addressReq)).thenReturn(addressEntity);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(addressMapper.addressReqToEntity(addressReq)).thenReturn(addressEntity);
     // Mock save to return the entity it was passed
     when(addressRepository.save(any(AddressEntity.class))).then(AdditionalAnswers.returnsFirstArg());
-    when(mapper.entityToModel(addressEntity)).thenReturn(addressModel);
+    when(addressMapper.entityToModel(addressEntity)).thenReturn(addressModel);
 
     // --- Execute ---
     Address result = addressService.createAddress(customerId, addressReq);
@@ -112,7 +112,7 @@ class AddressServiceTest {
         () -> addressService.createAddress(customerId, null)
     );
     assertEquals("Address cannot be null.", exception.getMessage());
-    verifyNoInteractions(addressRepository, mapper, userRepository);
+    verifyNoInteractions(addressRepository, addressMapper, customerRepository);
   }
 
   @Test
@@ -126,7 +126,7 @@ class AddressServiceTest {
         () -> addressService.createAddress(null, addressReq)
     );
 //    assertEquals("CustomerId cannot be null.", exception.getMessage());
-    verifyNoInteractions(addressRepository, mapper);
+    verifyNoInteractions(addressRepository, addressMapper);
   }
 
   @Test
@@ -168,7 +168,7 @@ class AddressServiceTest {
     List<AddressEntity> entityList = List.of(addressEntity);
     List<Address> modelList = List.of(addressModel);
     when(addressRepository.findAll()).thenReturn(entityList);
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(addressMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Address> result = addressService.getAllAddresses();
@@ -185,7 +185,7 @@ class AddressServiceTest {
   void getAddressById_WhenFound_ReturnsOptionalAddress() {
     // --- Setup Mocks ---
     when(addressRepository.findById(addressId)).thenReturn(Optional.of(addressEntity));
-    when(mapper.entityToModel(addressEntity)).thenReturn(addressModel);
+    when(addressMapper.entityToModel(addressEntity)).thenReturn(addressModel);
 
     // --- Execute ---
     Optional<Address> result = addressService.getAddressById(addressId);
@@ -208,21 +208,21 @@ class AddressServiceTest {
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
     verify(addressRepository, times(1)).findById(addressId);
-    verify(mapper, never()).entityToModel(any());
+    verify(addressMapper, never()).entityToModel(any());
   }
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should return List<Address> when user has addresses")
-  void getAddressesByCustomerId_WhenUserHasAddresses_ReturnsList() {
+  @DisplayName("GET_BY_CUSTOMER_ID: Should return List<Address> when customer has addresses")
+  void getAddressesByCustomerId_WhenCustomerHasAddresses_ReturnsList() {
     // --- Setup Mocks ---
     List<AddressEntity> entityList = List.of(addressEntity);
     List<Address> modelList = List.of(addressModel);
 
-    // Set up the UserEntity to return the AddressEntity list
-    userEntity.setAddresses(entityList);
+    // Set up the CustomerEntity to return the AddressEntity list
+    customerEntity.setAddresses(entityList);
 
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(addressMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Address> result = addressService.getAddressesByCustomerId(customerId);
@@ -238,36 +238,36 @@ class AddressServiceTest {
     assertEquals(1, result.size());
 
     // 4. Verify the repository call (The implementation should now call findById)
-    verify(userRepository, times(1)).findById(customerId);
+    verify(customerRepository, times(1)).findById(customerId);
   }
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should throw CustomerNotFoundException when user is not found")
+  @DisplayName("GET_BY_CUSTOMER_ID: Should throw CustomerNotFoundException when customer is not found")
   void getAddressesByCustomerId_WhenUserNotFound_ReturnsCustomerNotFoundException() {
     // --- Setup Mocks ---
-    when(userRepository.findById(customerId)).thenReturn(Optional.empty());
+    when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
     assertThrows(
         CustomerNotFoundException.class,
         () -> addressService.getAddressesByCustomerId(customerId)
     );
 
-    verify(userRepository, times(1)).findById(customerId);
-    verify(mapper, never()).entityToModelList(anyList());
+    verify(customerRepository, times(1)).findById(customerId);
+    verify(addressMapper, never()).entityToModelList(anyList());
   }
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should return empty List<Address> when user has no addresses")
+  @DisplayName("GET_BY_CUSTOMER_ID: Should return empty List<Address> when customer has no addresses")
   void getAddressesByCustomerId_WhenUserHasNoAddresses_ReturnsEmptyListInOptional() {
     // --- Setup Mocks ---
     List<AddressEntity> emptyEntityList = Collections.emptyList();
     List<Address> emptyModelList = Collections.emptyList();
 
-    // Set up the UserEntity to return the empty AddressEntity list
-    userEntity.setAddresses(emptyEntityList);
+    // Set up the CustomerEntity to return the empty AddressEntity list
+    customerEntity.setAddresses(emptyEntityList);
 
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(addressMapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
 
     // --- Execute ---
     List<Address> result = addressService.getAddressesByCustomerId(customerId);
@@ -275,7 +275,7 @@ class AddressServiceTest {
     // --- Assert & Verify ---
     assertNotNull(result);
     assertTrue(result.isEmpty());
-    verify(userRepository, times(1)).findById(customerId);
+    verify(customerRepository, times(1)).findById(customerId);
   }
 
 

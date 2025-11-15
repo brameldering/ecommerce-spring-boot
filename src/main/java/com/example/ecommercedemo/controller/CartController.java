@@ -25,13 +25,13 @@ import static org.springframework.http.ResponseEntity.*;
 public class CartController implements CartApi {
 
   private static final Logger log = LoggerFactory.getLogger(CartController.class);
-  private final CartService service;
+  private final CartService cartService;
 
   private final CartRepresentationModelAssembler cartAssembler;
   private final ItemRepresentationModelAssembler itemAssembler;
 
-  public CartController(CartService service, CartRepresentationModelAssembler cartAssembler, ItemRepresentationModelAssembler itemAssembler) {
-    this.service = service;
+  public CartController(CartService cartService, CartRepresentationModelAssembler cartAssembler, ItemRepresentationModelAssembler itemAssembler) {
+    this.cartService = cartService;
     this.cartAssembler = cartAssembler;
     this.itemAssembler = itemAssembler;
   }
@@ -40,7 +40,7 @@ public class CartController implements CartApi {
   public ResponseEntity<Cart> addItemToCart(UUID customerId, Item item) {
     log.info("Add Item to Cart Request for customer ID: {}", customerId);
 
-    Cart cart = service.addItemToCart(customerId, item);
+    Cart cart = cartService.addItemToCart(customerId, item);
 
     // Use the itemAssembler to add HATEOASlinks to every item in the cart
     List<Item> cartItemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
@@ -51,7 +51,7 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<Cart> replaceItemInCart(UUID customerId, Item item) {
 
-    Cart cart = service.replaceItemInCart(customerId, item);
+    Cart cart = cartService.replaceItemInCart(customerId, item);
     // Use the itemAssembler to add links to every item in the cart
     List<Item> cartItemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
     cart.setItems(cartItemsWithLinks);
@@ -63,7 +63,7 @@ public class CartController implements CartApi {
   public ResponseEntity<Cart> getCustomerCart(UUID customerId) {
 
     // 1. Fetch the cart
-    return service.getCartByCustomerId(customerId)
+    return cartService.getCartByCustomerId(customerId)
         .map(cart -> {
           // 2. Add HATEOAS links to items in cart
           List<Item> itemsWithLinks = itemAssembler.toModelList(cart.getItems(), customerId);
@@ -79,7 +79,7 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<List<Item>> getCustomerCartItems(UUID customerId) {
 
-    List<Item> items = service.getCartItemsByCustomerId(customerId);
+    List<Item> items = cartService.getCartItemsByCustomerId(customerId);
     List<Item> cartItemsWithLinks = items.stream()
         .map(i -> itemAssembler.toModel(i, customerId))
         .toList();
@@ -89,7 +89,7 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<Item> getCustomerCartItemByProductId(UUID customerId, UUID productId) {
 
-    Item item = service.getCartItemByProductId(customerId, productId);
+    Item item = cartService.getCartItemByProductId(customerId, productId);
     if (item == null) {
       return notFound().build();
     }
@@ -101,14 +101,14 @@ public class CartController implements CartApi {
   @Override
   public ResponseEntity<Void> deleteCustomerCart(UUID customerId) {
 
-    service.deleteCartByCustomerId(customerId);
+    cartService.deleteCartByCustomerId(customerId);
     return accepted().build();
   }
 
   @Override
   public ResponseEntity<Void> deleteItemFromCustomerCart(UUID customerId, UUID productId) {
 
-    service.deleteItemFromCartByCustomerIdAndProductId(customerId, productId);
+    cartService.deleteItemFromCartByCustomerIdAndProductId(customerId, productId);
     return accepted().build();
   }
 }

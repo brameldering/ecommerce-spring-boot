@@ -17,15 +17,15 @@ import java.util.UUID;
 @Validated
 public class PaymentServiceImpl implements PaymentService {
 
-  private final PaymentRepository repository;
-  private final OrderRepository orderRepo;
+  private final PaymentRepository paymentRepository;
+  private final OrderRepository orderRepository;
 
-  private final AuthorizationMapper mapper;
+  private final AuthorizationMapper authorizationMapper;
 
-  public PaymentServiceImpl(PaymentRepository repository, OrderRepository orderRepo, AuthorizationMapper mapper) {
-    this.repository = repository;
-    this.orderRepo = orderRepo;
-    this.mapper = mapper;
+  public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository, AuthorizationMapper authorizationMapper) {
+    this.paymentRepository = paymentRepository;
+    this.orderRepository = orderRepository;
+    this.authorizationMapper = authorizationMapper;
   }
 
   @Override
@@ -37,8 +37,8 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   @Transactional(readOnly = true)
   public Optional<Authorization> getAuthorizationByOrderId(UUID orderId) {
-    return orderRepo.findById(orderId).map(OrderEntity::getAuthorizationEntity)
-        .map(mapper::entityToModel);
+    return orderRepository.findById(orderId).map(OrderEntity::getAuthorizationEntity)
+        .map(authorizationMapper::entityToModel);
   }
 }
 

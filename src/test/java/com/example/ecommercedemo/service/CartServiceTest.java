@@ -1,9 +1,9 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CartEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.ProductEntity;
-import com.example.ecommercedemo.entity.UserEntity;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.mappers.CartMapper;
@@ -11,7 +11,7 @@ import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,7 +43,7 @@ class CartServiceTest {
   private ItemRepository itemRepository; // Mock dependency
 
   @Mock
-  private UserRepository userRepository; // Mock dependency
+  private CustomerRepository customerRepository; // Mock dependency
 
   @Mock
   private CartMapper cartMapper; // Mock dependency
@@ -67,7 +64,7 @@ class CartServiceTest {
   private UUID customerId;
   private UUID existingProductId;
   private UUID newProductId;
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
   private CartEntity cartEntity;
   private ItemEntity existingItemEntity;
   private ProductEntity existingProduct;
@@ -88,10 +85,10 @@ class CartServiceTest {
     existingProductId = UUID.randomUUID();
     newProductId = UUID.randomUUID();
 
-    // Setup the user / customer entity
-    userEntity = new UserEntity();
-    userEntity.setId(UUID.randomUUID());
-    userEntity.setUsername("username");
+    // Setup the customer entity
+    customerEntity = new CustomerEntity();
+    customerEntity.setId(UUID.randomUUID());
+    customerEntity.setUsername("username");
 
     // Setup the product entity that's referred to by the item in the cart
     existingProduct = new ProductEntity();
@@ -106,13 +103,13 @@ class CartServiceTest {
 
     // Setup the cart entity
     cartEntity = new CartEntity();
-    cartEntity.setUser(userEntity);
+    cartEntity.setCustomer(customerEntity);
     // IMPORTANT: Initialize with a *mutable* list for tests
     cartEntity.setItems(new ArrayList<>(List.of(existingItemEntity)));
 
-    // Ensure userRepo always returns a user when looked up by a non-null ID
+    // Ensure CustomerRepo always returns a Customer when looked up by a non-null ID
     // This prevents CustomerNotFoundException when testing validation for other null parameters.
-    lenient().when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(userEntity));
+    lenient().when(customerRepository.findById(any(UUID.class))).thenReturn(Optional.of(customerEntity));
     lenient().when(itemRepository.save(any(ItemEntity.class))).then(AdditionalAnswers.returnsFirstArg());
   }
 
@@ -266,7 +263,7 @@ class CartServiceTest {
     when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
     // Create an empty cart and set its items list to null
     CartEntity emptyCart = new CartEntity();
-    emptyCart.setUser(userEntity);
+    emptyCart.setCustomer(customerEntity);
     emptyCart.setItems(null); // <-- This is the key part of this test
 
     // Mock the repository to return this empty cart

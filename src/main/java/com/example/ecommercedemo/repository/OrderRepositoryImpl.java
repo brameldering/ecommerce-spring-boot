@@ -28,24 +28,24 @@ import java.util.UUID;
 public class OrderRepositoryImpl implements OrderRepositoryExt{
 
   @PersistenceContext
-  private final EntityManager em;
+  private final EntityManager entityManager;
 
-  private final ItemRepository itemRepo;
-  private final CartRepository cRepo;
-  private final OrderItemRepository oiRepo;
+  private final ItemRepository itemRepository;
+  private final CartRepository cartRepository;
+  private final OrderItemRepository orderItemRepository;
 
   public OrderRepositoryImpl(
-      EntityManager em, ItemRepository itemRepo, CartRepository cRepo, OrderItemRepository oiRepo) {
-    this.em = em;
-    this.itemRepo = itemRepo;
-    this.cRepo = cRepo;
-    this.oiRepo = oiRepo;
+      EntityManager entityManager, ItemRepository itemRepository, CartRepository cartRepository, OrderItemRepository orderItemRepository) {
+    this.entityManager = entityManager;
+    this.itemRepository = itemRepository;
+    this.cartRepository = cartRepository;
+    this.orderItemRepository = orderItemRepository;
   }
 
   @Override
   public OrderEntity insert(UUID customerId, OrderReq orderReq) {
     // Items are in db (cart, cart_item and item) and saved to db as an order
-    List<ItemEntity> items = itemRepo.findByCustomerId(customerId);
+    List<ItemEntity> items = itemRepository.findByCustomerId(customerId);
     if (items.isEmpty()) {
       throw new ItemNotFoundException(
           String.format("There are no items found in customer's (ID: %s) cart.", customerId));
@@ -56,7 +56,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
     }
     Timestamp orderDate = Timestamp.from(Instant.now());
 
-    em.createNativeQuery(
+    entityManager.createNativeQuery(
             """
         INSERT INTO ecomm.orders (address_id, card_id, customer_id, order_date, total, status)
          VALUES(?, ?, ?, ?, ?, ?)
@@ -69,7 +69,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         .setParameter(6, Order.StatusEnum.CREATED.getValue())
         .executeUpdate();
 
-    Optional<CartEntity> oCart = cRepo.findByCustomerId(customerId);
+    Optional<CartEntity> oCart = cartRepository.findByCustomerId(customerId);
     CartEntity cart =
         oCart.orElseThrow(
             () ->
@@ -77,12 +77,12 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                     String.format(
                         "Cart not found for given customer (ID: %s)", customerId)));
 
-    itemRepo.deleteCartItemJoinById(
+    itemRepository.deleteCartItemJoinById(
         cart.getItems().stream().map(ItemEntity::getId).toList(), cart.getId());
 
     OrderEntity entity =
         (OrderEntity)
-            em.createNativeQuery(
+            entityManager.createNativeQuery(
                     """
         SELECT o.* FROM ecomm.orders o WHERE o.customer_id = ? AND o.order_date >= ?
         """,
@@ -94,7 +94,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                         .truncatedTo(ChronoUnit.MICROS))
                 .getSingleResult();
 
-    oiRepo.saveAll(
+    orderItemRepository.saveAll(
         cart.getItems().stream()
             .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId())).toList());
 

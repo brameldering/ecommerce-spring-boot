@@ -1,14 +1,14 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CardEntity;
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.CardReq;
 import com.example.ecommercedemo.repository.CardRepository;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,10 +33,10 @@ class CardServiceTest {
   private CardRepository cardRepository;
 
   @Mock
-  private UserRepository userRepository;
+  private CustomerRepository customerRepository;
 
   @Mock
-  private CardMapper mapper;
+  private CardMapper cardMapper;
 
   @InjectMocks
   private CardServiceImpl cardService;
@@ -44,7 +44,7 @@ class CardServiceTest {
   // --- Test Data ---
   private UUID customerId;
   private UUID cardId;
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
   private CardEntity cardEntity;
   private Card cardModel;
   private CardReq cardReq;
@@ -55,12 +55,12 @@ class CardServiceTest {
     cardId = UUID.randomUUID();
 
     // 1. Setup Entities
-    userEntity = new UserEntity();
-    userEntity.setId(customerId);
+    customerEntity = new CustomerEntity();
+    customerEntity.setId(customerId);
 
     cardEntity = new CardEntity()
         .setId(cardId)
-        .setUser(userEntity)
+        .setCustomer(customerEntity)
         .setNumber("1234567890123456")
         .setCvv("123")
         .setExpires("12/25");
@@ -68,7 +68,7 @@ class CardServiceTest {
     // 2. Setup Models/DTOs
     cardModel = new Card();
     cardModel.setId(cardId);
-    cardModel.setUserId(customerId);
+    cardModel.setCustomerId(customerId);
     cardModel.setCardNumber("************3456"); // Assuming mapper masks the number
 
     cardReq = new CardReq();
@@ -85,14 +85,14 @@ class CardServiceTest {
   @DisplayName("REGISTER: Should successfully register a new card")
   void registerCard_Success() {
     // --- Setup Mocks ---
-    // 1. Find user
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
+    // 1. Find Customer
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
     // 2. Check if card exists (it doesn't)
-    when(cardRepository.existsByUserId(customerId)).thenReturn(false);
+    when(cardRepository.existsByCustomerId(customerId)).thenReturn(false);
     // 3. Save the card (use any() because the entity is created *inside* the method)
     when(cardRepository.save(any(CardEntity.class))).thenReturn(cardEntity);
     // 4. Map the result
-    when(mapper.entityToModel(cardEntity)).thenReturn(cardModel);
+    when(cardMapper.entityToModel(cardEntity)).thenReturn(cardModel);
 
     // --- Execute ---
     Card result = cardService.registerCard(customerId, cardReq);
@@ -102,8 +102,8 @@ class CardServiceTest {
     assertEquals(cardModel.getId(), result.getId());
     assertEquals(cardModel.getCardNumber(), result.getCardNumber());
 
-    verify(userRepository, times(1)).findById(customerId);
-    verify(cardRepository, times(1)).existsByUserId(customerId);
+    verify(customerRepository, times(1)).findById(customerId);
+    verify(cardRepository, times(1)).existsByCustomerId(customerId);
     verify(cardRepository, times(1)).save(any(CardEntity.class));
   }
 
@@ -120,27 +120,27 @@ class CardServiceTest {
         () -> cardService.registerCard(customerId, null)
     );
     assertEquals("Card request cannot be null.", exception.getMessage());
-    verifyNoInteractions(userRepository, cardRepository, mapper);
+    verifyNoInteractions(customerRepository, cardRepository, cardMapper);
   }
 
   @Test
-  @DisplayName("REGISTER: Should throw IllegalArgumentException when UserId is null")
-  void registerCard_WhenUserIdIsNull_ShouldThrowException() {
+  @DisplayName("REGISTER: Should throw IllegalArgumentException when CustomerId is null")
+  void registerCard_WhenCustomerIdIsNull_ShouldThrowException() {
 
     // --- Execute & Assert ---
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
         () -> cardService.registerCard(null, cardReq)
     );
-    assertEquals("UserId cannot be null.", exception.getMessage());
-    verifyNoInteractions(userRepository, cardRepository, mapper);
+    assertEquals("CustomerId cannot be null.", exception.getMessage());
+    verifyNoInteractions(customerRepository, cardRepository, cardMapper);
   }
 
   @Test
-  @DisplayName("REGISTER: Should throw CustomerNotFoundException when user does not exist")
-  void registerCard_WhenUserNotFound_ShouldThrowException() {
+  @DisplayName("REGISTER: Should throw CustomerNotFoundException when Customer does not exist")
+  void registerCard_WhenCustomerNotFound_ShouldThrowException() {
     // --- Setup Mocks ---
-    when(userRepository.findById(customerId)).thenReturn(Optional.empty());
+    when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
     // --- Execute & Assert ---
     assertThrows(
@@ -148,8 +148,8 @@ class CardServiceTest {
         () -> cardService.registerCard(customerId, cardReq)
     );
 
-    verify(userRepository, times(1)).findById(customerId);
-    verify(cardRepository, never()).existsByUserId(any());
+    verify(customerRepository, times(1)).findById(customerId);
+    verify(cardRepository, never()).existsByCustomerId(any());
     verify(cardRepository, never()).save(any());
   }
 
@@ -157,8 +157,8 @@ class CardServiceTest {
   @DisplayName("REGISTER: Should throw GenericAlreadyExistsException when card already exists")
   void registerCard_WhenCardAlreadyExists_ShouldThrowException() {
     // --- Setup Mocks ---
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(cardRepository.existsByUserId(customerId)).thenReturn(true);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(cardRepository.existsByCustomerId(customerId)).thenReturn(true);
 
     // --- Execute & Assert ---
     assertThrows(
@@ -166,8 +166,8 @@ class CardServiceTest {
         () -> cardService.registerCard(customerId, cardReq)
     );
 
-    verify(userRepository, times(1)).findById(customerId);
-    verify(cardRepository, times(1)).existsByUserId(customerId);
+    verify(customerRepository, times(1)).findById(customerId);
+    verify(cardRepository, times(1)).existsByCustomerId(customerId);
     verify(cardRepository, never()).save(any());
   }
 
@@ -176,17 +176,17 @@ class CardServiceTest {
   // ------------------------------------------------------------------
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional<List<Card>> when user has cards")
-  void getCardsByCustomerId_WhenUserHasCards_ReturnsList() {
+  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional<List<Card>> when Customer has cards")
+  void getCardsByCustomerId_WhenCustomerHasCards_ReturnsList() {
     // --- Setup Mocks ---
     List<CardEntity> entityList = List.of(cardEntity);
     List<Card> modelList = List.of(cardModel);
 
-    // Set up the UserEntity to return the CardEntity list
-    userEntity.setCards(entityList);
+    // Set up the CustomerEntity to return the CardEntity list
+    customerEntity.setCards(entityList);
 
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(cardMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     Optional<List<Card>> result = cardService.getCardsByCustomerId(customerId);
@@ -195,31 +195,31 @@ class CardServiceTest {
     assertTrue(result.isPresent());
     assertFalse(result.get().isEmpty());
     assertEquals(1, result.get().size());
-    verify(userRepository, times(1)).findById(customerId);
+    verify(customerRepository, times(1)).findById(customerId);
   }
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional.empty() when user is not found")
-  void getCardsByCustomerId_WhenUserNotFound_ReturnsEmptyOptional() {
+  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional.empty() when Customer is not found")
+  void getCardsByCustomerId_WhenCustomerNotFound_ReturnsEmptyOptional() {
     // --- Setup Mocks ---
-    when(userRepository.findById(customerId)).thenReturn(Optional.empty());
+    when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
     // --- Execute ---
     Optional<List<Card>> result = cardService.getCardsByCustomerId(customerId);
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
-    verify(userRepository, times(1)).findById(customerId);
-    verify(mapper, never()).entityToModelList(any());
+    verify(customerRepository, times(1)).findById(customerId);
+    verify(cardMapper, never()).entityToModelList(any());
   }
 
   @Test
-  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional<List<Card>> when user has no cards")
-  void getCardsByCustomerId_WhenUserHasNoCards_ReturnsEmptyListInOptional() {
+  @DisplayName("GET_BY_CUSTOMER_ID: Should return Optional<List<Card>> when Customer has no cards")
+  void getCardsByCustomerId_WhenCustomerHasNoCards_ReturnsEmptyListInOptional() {
     // --- Setup Mocks ---
-    userEntity.setCards(Collections.emptyList()); // User exists but has empty list
-    when(userRepository.findById(customerId)).thenReturn(Optional.of(userEntity));
-    when(mapper.entityToModelList(Collections.emptyList())).thenReturn(Collections.emptyList());
+    customerEntity.setCards(Collections.emptyList()); // Customer exists but has empty list
+    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
+    when(cardMapper.entityToModelList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
     // --- Execute ---
     Optional<List<Card>> result = cardService.getCardsByCustomerId(customerId);
@@ -234,7 +234,7 @@ class CardServiceTest {
   void getCardById_WhenFound_ReturnsOptionalCard() {
     // --- Setup Mocks ---
     when(cardRepository.findById(cardId)).thenReturn(Optional.of(cardEntity));
-    when(mapper.entityToModel(cardEntity)).thenReturn(cardModel);
+    when(cardMapper.entityToModel(cardEntity)).thenReturn(cardModel);
 
     // --- Execute ---
     Optional<Card> result = cardService.getCardById(cardId);
@@ -255,7 +255,7 @@ class CardServiceTest {
 
     // --- Assert & Verify ---
     assertFalse(result.isPresent());
-    verify(mapper, never()).entityToModel(any());
+    verify(cardMapper, never()).entityToModel(any());
   }
 
   // ------------------------------------------------------------------

@@ -1,13 +1,13 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
-import com.example.ecommercedemo.mappers.UserMapper;
+import com.example.ecommercedemo.mappers.CustomerMapper;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
@@ -22,93 +22,93 @@ import java.util.UUID;
 @Validated
 public class CustomerServiceImpl implements CustomerService {
 
-  private final UserRepository userRepository;
-  private final UserMapper userMapper;
+  private final CustomerRepository customerRepository;
+  private final CustomerMapper customerMapper;
 
-  public CustomerServiceImpl(UserRepository userRepository, UserMapper userMapper) {
-    this.userRepository = userRepository;
-    this.userMapper = userMapper;
+  public CustomerServiceImpl(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    this.customerRepository = customerRepository;
+    this.customerMapper = customerMapper;
   }
 
   @Override
   @Transactional
-  public Customer createUser(@Valid CustomerReq customerReq) {
+  public Customer createCustomer(@Valid CustomerReq customerReq) {
     if (customerReq == null) {
-      throw new IllegalArgumentException("UserReq cannot be null");
+      throw new IllegalArgumentException("CustomerReq cannot be null");
     }
     if (customerReq.getUsername() == null || customerReq.getUsername().isEmpty()) {
       throw new IllegalArgumentException("UserName cannot be null");
     }
-    if (userRepository.existsByUsername(customerReq.getUsername())) {
+    if (customerRepository.existsByUsername(customerReq.getUsername())) {
       throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
     }
 
-    UserEntity userEntity = new UserEntity()
+    CustomerEntity customerEntity = new CustomerEntity()
         .setUsername(customerReq.getUsername())
         .setFirstName(customerReq.getFirstName())
         .setLastName(customerReq.getLastName())
         .setEmail(customerReq.getEmail())
         .setPhone(customerReq.getPhone())
-        .setUserStatus(customerReq.getUserStatus());
+        .setStatus(customerReq.getStatus());
 
-    UserEntity savedUser = userRepository.save(userEntity);
-    return userMapper.entityToModel(savedUser);
+    CustomerEntity savedCustomer = customerRepository.save(customerEntity);
+    return customerMapper.entityToModel(savedCustomer);
   }
 
   @Override
   @Transactional
-  public Customer updateUser(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid CustomerReq customerReq) {
+  public Customer updateCustomer(@NotNull(message = "Customer UUID cannot be null.") UUID customerId, @Valid CustomerReq customerReq) {
     if (customerReq == null) {
-      throw new IllegalArgumentException("UserReq cannot be null");
+      throw new IllegalArgumentException("Body cannot be null");
     }
     if (customerReq.getUsername() == null || customerReq.getUsername().isEmpty()) {
       throw new IllegalArgumentException("UserName cannot be null");
     }
 
     // 1.  Check if customer exists and retrieve existing customer
-    UserEntity existingUserEntity = userRepository.findById(customerId)
+    CustomerEntity existingCustomerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
     // 2. Check for Username Conflict
     String newUsername = customerReq.getUsername();
     // Check 2a: Only perform a uniqueness check if the username has actually changed.
-    if (!existingUserEntity.getUsername().equals(newUsername)) {
+    if (!existingCustomerEntity.getUsername().equals(newUsername)) {
       // Check 2b: If the new username exists in the repository (i.e., belongs to someone else)
-      if (userRepository.existsByUsername(newUsername)) {
+      if (customerRepository.existsByUsername(newUsername)) {
         throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
       }
     }
 
-    existingUserEntity
+    existingCustomerEntity
         .setUsername(customerReq.getUsername())
         .setFirstName(customerReq.getFirstName())
         .setLastName(customerReq.getLastName())
         .setEmail(customerReq.getEmail())
         .setPhone(customerReq.getPhone())
-        .setUserStatus(customerReq.getUserStatus());
+        .setStatus(customerReq.getStatus());
 
-    UserEntity updatedUser = userRepository.save(existingUserEntity);
-    return userMapper.entityToModel(updatedUser);
+    CustomerEntity updatedCustomer = customerRepository.save(existingCustomerEntity);
+    return customerMapper.entityToModel(updatedCustomer);
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Customer> getAllCustomers() {
-    List<UserEntity> entities = userRepository.findAll();
-    return userMapper.entityToModelList(entities);
+    List<CustomerEntity> entities = customerRepository.findAll();
+    return customerMapper.entityToModelList(entities);
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Customer> getCustomerById(UUID id) {
-    return userRepository.findById(id)
-        .map(userMapper::entityToModel);
+    return customerRepository.findById(id)
+        .map(customerMapper::entityToModel);
   }
 
   @Override
   @Transactional
   public void deleteCustomerById(UUID id) {
-    userRepository.deleteById(id);
+    customerRepository.deleteById(id);
   }
 }
 

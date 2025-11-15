@@ -20,7 +20,7 @@ public class AddressMapper {
     // Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
     resource.setId(entity.getId());
-    resource.setUserId(entity.getUser().getId());
+    resource.setCustomerId(entity.getCustomer().getId());
 
     return resource;
   }

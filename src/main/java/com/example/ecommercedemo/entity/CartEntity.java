@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(exclude = {"user", "items"})
+@EqualsAndHashCode(exclude = {"customer", "items"})
 @Accessors(chain = true) // Enable fluent api, makes the setters return 'this'
 public class CartEntity {
 
@@ -24,8 +24,8 @@ public class CartEntity {
   private UUID id;
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
-  private UserEntity user;
+  @JoinColumn(name = "CUSTOMER_ID", referencedColumnName = "ID")
+  private CustomerEntity customer;
 
   @ManyToMany
   @JoinTable(

@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CustomerService {
-  Customer createUser(@Valid CustomerReq customerReq);
-  Customer updateUser(@NotNull(message = "Customer UUID cannot be null.") UUID id, @Valid CustomerReq customerReq);
+  Customer createCustomer(@Valid CustomerReq customerReq);
+  Customer updateCustomer(@NotNull(message = "Customer UUID cannot be null.") UUID id, @Valid CustomerReq customerReq);
   List<Customer> getAllCustomers();
   Optional<Customer> getCustomerById(@NotNull(message = "Customer UUID cannot be null.") UUID id);
   void deleteCustomerById(@NotNull(message = "Customer UUID cannot be null.") UUID id);

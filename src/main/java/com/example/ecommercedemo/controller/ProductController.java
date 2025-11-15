@@ -18,20 +18,20 @@ import static org.springframework.http.ResponseEntity.ok;
 @RequestMapping("/api/v1")
 public class ProductController implements ProductApi {
 
-  private final ProductService service;
+  private final ProductService productService;
 
-  public ProductController(ProductService service) {
-    this.service = service;
+  public ProductController(ProductService productService) {
+    this.productService = productService;
   }
 
   @Override
   public ResponseEntity<List<Product>> queryProducts(String tag, String name, Integer page, Integer size) {
-    return ok(service.getAllProducts());
+    return ok(productService.getAllProducts());
   }
 
   @Override
   public ResponseEntity<Product> getProduct(UUID id) {
-    return service.getProductById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    return productService.getProductById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
   }
 }
 

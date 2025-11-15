@@ -3,7 +3,7 @@ package com.example.ecommercedemo.service;
 import com.example.ecommercedemo.entity.AddressEntity;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.entity.ShipmentEntity;
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.mappers.ShipmentMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.Shipment;
@@ -31,7 +31,7 @@ public class ShipmentServiceTest {
   private ShipmentRepository shipmentRepository;
 
   @Mock
-  private ShipmentMapper mapper;
+  private ShipmentMapper shipmentMapper;
 
   @InjectMocks
   private ShipmentServiceImpl shipmentService;
@@ -42,7 +42,7 @@ public class ShipmentServiceTest {
   private UUID customerId;
   private UUID addressId;
   private OrderEntity orderEntity;
-  private UserEntity userEntity;
+  private CustomerEntity customerEntity;
   private AddressEntity addressEntity;
   private Address addressModel;
   private ShipmentEntity shipmentEntity;
@@ -57,18 +57,18 @@ public class ShipmentServiceTest {
     customerId = UUID.randomUUID();
 
     // 1. Setup Entities
-    userEntity = new UserEntity();
-    userEntity.setId(customerId);
+    customerEntity = new CustomerEntity();
+    customerEntity.setId(customerId);
 
     addressEntity = new AddressEntity();
     addressEntity.setId(addressId);
     addressEntity.setStreet("123 Main St");
-    addressEntity.setUser(userEntity);
+    addressEntity.setCustomer(customerEntity);
 
     orderEntity = new OrderEntity();
     orderEntity.setId(orderId);
     orderEntity.setShipment(shipmentEntity);
-    orderEntity.setUserEntity(userEntity);
+    orderEntity.setCustomerEntity(customerEntity);
     orderEntity.setAddressEntity(addressEntity);
 
     shipmentEntity = new ShipmentEntity();
@@ -80,7 +80,7 @@ public class ShipmentServiceTest {
     addressModel = new Address();
     addressModel.setId(addressId);
     addressModel.setStreet("123 Main St");
-    addressModel.setUserId(customerId);
+    addressModel.setCustomerId(customerId);
 
     shipmentModel = new Shipment();
     shipmentModel.setId(shipmentId);
@@ -105,7 +105,7 @@ public class ShipmentServiceTest {
         .thenReturn(entityList);
 
     // Mock the mapper
-    when(mapper.entityToModelList(entityList)).thenReturn(modelList);
+    when(shipmentMapper.entityToModelList(entityList)).thenReturn(modelList);
 
     // --- Execute ---
     List<Shipment> result = shipmentService.getShipmentsByOrderId(orderId);
@@ -136,7 +136,7 @@ public class ShipmentServiceTest {
     when(shipmentRepository.findByOrderEntity_Id(orderId))
         .thenReturn(emptyEntityList);
 
-    when(mapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
+    when(shipmentMapper.entityToModelList(emptyEntityList)).thenReturn(emptyModelList);
 
     // --- Execute ---
     List<Shipment> result = shipmentService.getShipmentsByOrderId(orderId);
@@ -160,6 +160,6 @@ public class ShipmentServiceTest {
 
     // --- Assert & Verify ---
     assertNull(result);
-    verifyNoInteractions(shipmentRepository, mapper);
+    verifyNoInteractions(shipmentRepository, shipmentMapper);
   }
 }

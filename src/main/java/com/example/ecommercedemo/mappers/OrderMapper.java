@@ -22,7 +22,7 @@ public class OrderMapper {
     BeanUtils.copyProperties(entity, resource);
     resource.setId(entity.getId());
     // TO DO : MAP ITEMS etc
-//        .customer(uAssembler.toModel(entity.getUserEntity()))
+//        .customer(uAssembler.toModel(entity.getCustomerEntity()))
 //        .address(aAssembler.toModel(entity.getAddressEntity()))
 //        .card(cAssembler.toModel(entity.getCardEntity()))
 //        .items(itemService.entityToModelList(entity.getItems()))

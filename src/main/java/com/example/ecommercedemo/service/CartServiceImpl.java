@@ -9,8 +9,8 @@ import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.repository.CartRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
-import com.example.ecommercedemo.repository.UserRepository;
 import com.example.ecommercedemo.model.Item;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +27,14 @@ public class CartServiceImpl implements CartService {
 
   private final CartRepository cartRepository;
   private final ItemRepository itemRepository;
-  private final UserRepository userRepository;
+  private final CustomerRepository customerRepository;
   private final CartMapper cartMapper;
   private final ItemMapper itemMapper;
 
-  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, UserRepository userRepository, CartMapper cartMapper, ItemMapper itemMapper) {
+  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper) {
     this.cartRepository = cartRepository;
     this.itemRepository = itemRepository;
-    this.userRepository = userRepository;
+    this.customerRepository = customerRepository;
     this.cartMapper = cartMapper;
     this.itemMapper = itemMapper;
   }
@@ -152,8 +152,8 @@ public class CartServiceImpl implements CartService {
 
     CartEntity entity = cartRepository.findByCustomerId(customerId)
         .orElse(new CartEntity());
-    if (entity.getUser() == null) {
-      entity.setUser(userRepository.findById(customerId)
+    if (entity.getCustomer() == null) {
+      entity.setCustomer(customerRepository.findById(customerId)
           .orElseThrow(() -> new CustomerNotFoundException(
               String.format(" - %s", customerId))));
     }

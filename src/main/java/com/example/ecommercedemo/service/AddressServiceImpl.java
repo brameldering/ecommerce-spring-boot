@@ -1,14 +1,14 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.AddressEntity;
-import com.example.ecommercedemo.entity.UserEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.mappers.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.repository.AddressRepository;
-import com.example.ecommercedemo.repository.UserRepository;
+import com.example.ecommercedemo.repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,15 +24,15 @@ import java.util.UUID;
 public class AddressServiceImpl implements AddressService {
 
   private final AddressRepository addressRepository;
-  private final UserRepository userRepository;
-  private final AddressMapper mapper;
+  private final CustomerRepository customerRepository;
+  private final AddressMapper addressMapper;
 
   private final static Logger LOGGER = LoggerFactory.getLogger(AddressServiceImpl.class);
 
-  public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, AddressMapper mapper) {
+  public AddressServiceImpl(AddressRepository addressRepository, CustomerRepository customerRepository, AddressMapper addressMapper) {
     this.addressRepository = addressRepository;
-    this.userRepository = userRepository;
-    this.mapper = mapper;
+    this.customerRepository = customerRepository;
+    this.addressMapper = addressMapper;
   }
 
   @Override
@@ -55,52 +55,52 @@ public class AddressServiceImpl implements AddressService {
     }
     // --- END VALIDATION ---
 
-    // 1. Find the User (this replaces the old validation)
-    UserEntity user = userRepository.findById(customerId)
+    // 1. Find the Customer
+    CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-    // 2. Map the DTO (which no longer has userId) to an entity
-    AddressEntity newAddress = mapper.addressReqToEntity(addressReq);
+    // 2. Map the DTO
+    AddressEntity newAddress = addressMapper.addressReqToEntity(addressReq);
 
-    // 3. Set the user for the new address
-    newAddress.setUser(user);
+    // 3. Set the customerEntity for the new address
+    newAddress.setCustomer(customerEntity);
 
     // 4. Save the new address entity
     AddressEntity savedAddress = addressRepository.save(newAddress);
 
     // 5. Map the saved address entity back to the model and return it
-    return mapper.entityToModel(savedAddress);
+    return addressMapper.entityToModel(savedAddress);
 //    return mapper.entityToModel(addressRepository.save(mapper.addressReqToEntity(addressReq)));
   }
 
   @Override
   @Transactional(readOnly = true)
   public List<Address> getAllAddresses() {
-    return mapper.entityToModelList(addressRepository.findAll());
+    return addressMapper.entityToModelList(addressRepository.findAll());
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Address> getAddressById(UUID AddressId) {
-    return addressRepository.findById(AddressId).map(mapper::entityToModel);
+    return addressRepository.findById(AddressId).map(addressMapper::entityToModel);
    }
 
   @Override
   @Transactional(readOnly = true)
   public List<Address> getAddressesByCustomerId(UUID customerId) {
-//    return userRepository.findById(id) // Returns Optional<UserEntity>
-//        .map(UserEntity::getAddresses) // Returns Optional<List<AddressEntity>>
+//    return customerRepository.findById(id) // Returns Optional<CustomerEntity>
+//        .map(CustomerEntity::getAddresses) // Returns Optional<List<AddressEntity>>
 //        .map(mapper::entityToModelList); // Returns Optional<List<Address>>
 
-    // 1. Check if the user exists. If not, throw CustomerNotFoundException.
-    UserEntity user = userRepository.findById(customerId)
+    // 1. Check if the customer exists. If not, throw CustomerNotFoundException.
+    CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
     // 2. Get the list of addresses (which is guaranteed non-null, potentially empty).
-    List<AddressEntity> addressEntities = user.getAddresses();
+    List<AddressEntity> addressEntities = customerEntity.getAddresses();
 
     // 3. Map the non-null list and return it directly.
-    return mapper.entityToModelList(addressEntities);
+    return addressMapper.entityToModelList(addressEntities);
   }
 
   @Override

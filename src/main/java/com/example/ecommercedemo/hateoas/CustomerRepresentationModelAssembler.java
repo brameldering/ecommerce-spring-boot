@@ -34,7 +34,7 @@ public class CustomerRepresentationModelAssembler extends
   @Override
   public Customer toModel(Customer resource) {
 
-    logger.info("CustomerRepresentationModelAssembler toModel, for user {}", resource.getUsername());
+    logger.info("CustomerRepresentationModelAssembler toModel, for customer username {}", resource.getUsername());
 
     // 3. Add HATEOAS links
     resource.add(linkTo(methodOn(CustomerController.class).getCustomerById(resource.getId())).withSelfRel());
