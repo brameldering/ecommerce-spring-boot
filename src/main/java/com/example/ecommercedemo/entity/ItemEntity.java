@@ -23,7 +23,7 @@ public class ItemEntity {
   @ToString.Include
   private UUID id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "PRODUCT_ID", referencedColumnName = "ID")
   private ProductEntity product;
 

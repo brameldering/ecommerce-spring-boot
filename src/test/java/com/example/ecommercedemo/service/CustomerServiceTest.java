@@ -1,9 +1,9 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CustomerEntity;
+import com.example.ecommercedemo.exceptions.CustomerAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CustomerMapper;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
@@ -105,19 +105,19 @@ class CustomerServiceTest {
   }
 
   @Test
-  @DisplayName("CREATE: Should throw GenericAlreadyExistsException if username exists")
+  @DisplayName("CREATE: Should throw CustomerAlreadyExistsException if username exists")
   void createUser_WhenUsernameExists_ThrowsException() {
     // --- Setup Mocks ---
     when(customerRepository.existsByUsername(customerReq.getUsername())).thenReturn(true);
 
     // --- Execute & Assert ---
-    GenericAlreadyExistsException exception = assertThrows(
-        GenericAlreadyExistsException.class,
+    CustomerAlreadyExistsException exception = assertThrows(
+        CustomerAlreadyExistsException.class,
         () -> customerService.createCustomer(customerReq)
     );
 
     // --- Verify ---
-    assertEquals(ErrorCode.GENERIC_ALREADY_EXISTS.getErrCode(), exception.getErrorCode());
+    assertEquals(ErrorCode.CUSTOMER_ALREADY_EXISTS.getErrCode(), exception.getErrorCode());
     verify(customerRepository, never()).save(any());
   }
 
@@ -214,7 +214,7 @@ class CustomerServiceTest {
   }
 
   @Test
-  @DisplayName("UPDATE: Should throw GenericAlreadyExistsException if new username conflicts")
+  @DisplayName("UPDATE: Should throw CustomerAlreadyExistsException if new username conflicts")
   void updateUser_WhenNewUsernameConflicts_ThrowsException() {
     // --- Setup ---
     String conflictingUsername = "existing_user_name";
@@ -230,13 +230,13 @@ class CustomerServiceTest {
     when(customerRepository.existsByUsername(conflictingUsername)).thenReturn(true);
 
     // --- Execute & Assert ---
-    GenericAlreadyExistsException exception = assertThrows(
-        GenericAlreadyExistsException.class,
+    CustomerAlreadyExistsException exception = assertThrows(
+        CustomerAlreadyExistsException.class,
         () -> customerService.updateCustomer(customerId, newReq)
     );
 
     // --- Verify ---
-    assertEquals(ErrorCode.GENERIC_ALREADY_EXISTS.getErrCode(), exception.getErrorCode());
+    assertEquals(ErrorCode.CUSTOMER_ALREADY_EXISTS.getErrCode(), exception.getErrorCode());
     verify(customerRepository, times(1)).existsByUsername(conflictingUsername);
     verify(customerRepository, never()).save(any());
   }

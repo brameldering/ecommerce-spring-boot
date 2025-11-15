@@ -4,7 +4,7 @@ import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.ProductEntity;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
+import com.example.ecommercedemo.exceptions.ItemAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
@@ -75,7 +75,7 @@ class CartServiceTest {
    */
   private void mockGetCartEntity() {
     // This simulates the 'getCartEntityByCustomerId' logic
-    when(cartRepository.findByCustomerId(customerId)).thenReturn(Optional.of(cartEntity));
+    when(cartRepository.findCartAndItemsAndProductsByCustomerId(customerId)).thenReturn(Optional.of(cartEntity));
   }
 
   @BeforeEach
@@ -149,7 +149,7 @@ class CartServiceTest {
   }
 
   @Test
-  @DisplayName("ADD: Should throw GenericAlreadyExistsException if item already exists")
+  @DisplayName("ADD: Should throw ItemAlreadyExistsException if item already exists")
   void addItemToCart_WhenItemExists_ShouldThrowException() {
     // --- Setup ---
 //    when(cartRepository.save(any(CartEntity.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -158,8 +158,8 @@ class CartServiceTest {
     itemDto.setProductId(existingProductId);
 
     // --- Execute & Assert ---
-    GenericAlreadyExistsException exception = assertThrows(
-        GenericAlreadyExistsException.class,
+    ItemAlreadyExistsException exception = assertThrows(
+        ItemAlreadyExistsException.class,
         () -> cartService.addItemToCart(customerId, itemDto)
     );
 
@@ -267,7 +267,7 @@ class CartServiceTest {
     emptyCart.setItems(null); // <-- This is the key part of this test
 
     // Mock the repository to return this empty cart
-    when(cartRepository.findByCustomerId(customerId)).thenReturn(java.util.Optional.of(emptyCart));
+    when(cartRepository.findCartAndItemsAndProductsByCustomerId(customerId)).thenReturn(java.util.Optional.of(emptyCart));
 
     // This is the new item entity that the mapper will "create"
     ProductEntity newProduct = new ProductEntity();
@@ -484,7 +484,7 @@ class CartServiceTest {
     // 1. Verify the repository's delete method was called with the entity's ID
     verify(cartRepository, times(1)).deleteById(cartEntity.getId());
     // 2. Verify findByCustomerId was called (via mockGetCartEntity)
-    verify(cartRepository, times(1)).findByCustomerId(customerId);
+    verify(cartRepository, times(1)).findCartAndItemsAndProductsByCustomerId(customerId);
   }
 
 }

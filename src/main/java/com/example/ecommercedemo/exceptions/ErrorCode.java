@@ -1,10 +1,15 @@
 package com.example.ecommercedemo.exceptions;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * An enumeration of error codes and associated i18n message keys for order
  * related validation errors.
  *
  **/
+@Getter
+@AllArgsConstructor
 public enum ErrorCode {
   // Internal Errors: 1 to 0999
   GENERIC_ERROR("PACKT-0001", "The system is unable to complete the request. Contact system support."),
@@ -16,34 +21,16 @@ public enum ErrorCode {
   HTTP_REQUEST_METHOD_NOT_SUPPORTED("PACKT-0007", "Request method not supported."),
   CONSTRAINT_VIOLATION("PACKT-0008", "Validation failed."),
   ILLEGAL_ARGUMENT_EXCEPTION("PACKT-0009", "Invalid data passed."),
-  RESOURCE_NOT_FOUND("PACKT-0010", "Requested resource not found"),
+  PRODUCT_NOT_FOUND("PACKT-0010", "Product not found"),
   CUSTOMER_NOT_FOUND("PACKT-0011", "Requested customer not found"),
-  ITEM_NOT_FOUND("PACKT-0012", "Requested item not found"),
-  GENERIC_ALREADY_EXISTS("PACKT-0013", "Already exists."),
-  ADDRESS_CREATION_FAILED("PACKT-0014", "AAddress creation failed."),
-  ORDER_CREATION_FAILED("PACKT-0015", "Order creation failed."),
-  VALIDATION_ERROR("PACKT-0016", "Validation of input failed."),;
+  CART_NOT_FOUND("PACKT-0012", "Cart not found"),
+  ITEM_NOT_FOUND("PACKT-0013", "Item not found"),
+  CUSTOMER_ALREADY_EXISTS("PACKT-0014", "Customer already exists."),
+  ITEM_ALREADY_EXISTS("PACKT-0015", "Item already exists."),
+  ADDRESS_CREATION_FAILED("PACKT-0016", "AAddress creation failed."),
+  ORDER_CREATION_FAILED("PACKT-0017", "Order creation failed."),
+  VALIDATION_ERROR("PACKT-0018", "Validation of input failed."),;
 
-  private String errCode;
-  private String errMsgKey;
-
-  ErrorCode(final String errCode, final String errMsgKey) {
-    this.errCode = errCode;
-    this.errMsgKey = errMsgKey;
-  }
-
-  /**
-   * @return the errCode
-   */
-  public String getErrCode() {
-    return errCode;
-  }
-
-  /**
-   * @return the errMsgKey
-   */
-  public String getErrMsgKey() {
-    return errMsgKey;
-  }
-
+  private final String errCode;
+  private final String errMsgKey;
 }

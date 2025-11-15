@@ -3,7 +3,6 @@ package com.example.ecommercedemo.service;
 import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.CardReq;
@@ -88,7 +87,7 @@ class CardServiceTest {
     // 1. Find Customer
     when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
     // 2. Check if card exists (it doesn't)
-    when(cardRepository.existsByCustomerId(customerId)).thenReturn(false);
+//    when(cardRepository.existsByCustomerId(customerId)).thenReturn(false);
     // 3. Save the card (use any() because the entity is created *inside* the method)
     when(cardRepository.save(any(CardEntity.class))).thenReturn(cardEntity);
     // 4. Map the result
@@ -103,7 +102,7 @@ class CardServiceTest {
     assertEquals(cardModel.getCardNumber(), result.getCardNumber());
 
     verify(customerRepository, times(1)).findById(customerId);
-    verify(cardRepository, times(1)).existsByCustomerId(customerId);
+//    verify(cardRepository, times(1)).existsByCustomerId(customerId);
     verify(cardRepository, times(1)).save(any(CardEntity.class));
   }
 
@@ -149,25 +148,7 @@ class CardServiceTest {
     );
 
     verify(customerRepository, times(1)).findById(customerId);
-    verify(cardRepository, never()).existsByCustomerId(any());
-    verify(cardRepository, never()).save(any());
-  }
-
-  @Test
-  @DisplayName("REGISTER: Should throw GenericAlreadyExistsException when card already exists")
-  void registerCard_WhenCardAlreadyExists_ShouldThrowException() {
-    // --- Setup Mocks ---
-    when(customerRepository.findById(customerId)).thenReturn(Optional.of(customerEntity));
-    when(cardRepository.existsByCustomerId(customerId)).thenReturn(true);
-
-    // --- Execute & Assert ---
-    assertThrows(
-        GenericAlreadyExistsException.class,
-        () -> cardService.registerCard(customerId, cardReq)
-    );
-
-    verify(customerRepository, times(1)).findById(customerId);
-    verify(cardRepository, times(1)).existsByCustomerId(customerId);
+//    verify(cardRepository, never()).existsByCustomerId(any());
     verify(cardRepository, never()).save(any());
   }
 

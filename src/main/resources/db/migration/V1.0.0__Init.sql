@@ -58,7 +58,7 @@ create TABLE IF NOT EXISTS ecomm.payment (
 create TABLE IF NOT EXISTS ecomm.card (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     number varchar(16),
-    customer_id uuid NOT NULL UNIQUE,
+    customer_id uuid NOT NULL,
     last_name varchar(16),
     expires varchar(5),
     cvv varchar(4),

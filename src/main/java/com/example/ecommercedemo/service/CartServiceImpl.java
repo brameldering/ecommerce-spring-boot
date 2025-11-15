@@ -3,7 +3,7 @@ package com.example.ecommercedemo.service;
 import com.example.ecommercedemo.entity.CartEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
+import com.example.ecommercedemo.exceptions.ItemAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
 import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
@@ -12,12 +12,14 @@ import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.CustomerRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
 import com.example.ecommercedemo.model.Item;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -30,6 +32,8 @@ public class CartServiceImpl implements CartService {
   private final CustomerRepository customerRepository;
   private final CartMapper cartMapper;
   private final ItemMapper itemMapper;
+
+  private final static Logger log = LoggerFactory.getLogger(CartServiceImpl.class);
 
   public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper) {
     this.cartRepository = cartRepository;
@@ -59,7 +63,7 @@ public class CartServiceImpl implements CartService {
     long count = originalCartEntity.getItems().stream()
         .filter(i -> i.getProduct().getId().equals(item.getProductId())).count();
     if (count > 0) {
-      throw new GenericAlreadyExistsException(
+      throw new ItemAlreadyExistsException(
           String.format("Item with Id (%s) already exists.", item.getProductId()));
     }
 
@@ -135,6 +139,7 @@ public class CartServiceImpl implements CartService {
       throw new IllegalArgumentException("CustomerId cannot be null.");
     }
     // --- END VALIDATION ---
+    log.info("---> getCartByCustomerId: Getting cart by customer id {}", customerId);
 
     // 1. Get the entity directly from the repository, which returns Optional<CartEntity>
     return cartRepository.findByCustomerId(customerId)
@@ -148,15 +153,28 @@ public class CartServiceImpl implements CartService {
     if (customerId == null) {
       throw new IllegalArgumentException("CustomerId cannot be null.");
     }
+
+    log.info("---> getCartEntityByCustomerId: Getting cart entity by customer id {}", customerId);
+
+    // Validate if customer exists
+    customerRepository.findById(customerId)
+        .orElseThrow(() -> new CustomerNotFoundException(String.format(" - %s", customerId)));
     // --- END VALIDATION ---
 
-    CartEntity entity = cartRepository.findByCustomerId(customerId)
-        .orElse(new CartEntity());
-    if (entity.getCustomer() == null) {
-      entity.setCustomer(customerRepository.findById(customerId)
-          .orElseThrow(() -> new CustomerNotFoundException(
-              String.format(" - %s", customerId))));
-    }
+    log.info("---> getCartEntityByCustomerId: Fetching cart for customerId: {}", customerId);
+
+    // Fetch existing cart or create new cart if not exists
+    CartEntity entity = cartRepository.findCartAndItemsAndProductsByCustomerId(customerId)
+        .orElseThrow(() -> new ItemNotFoundException( // <-- Use ItemNotFound or a new CartNotFoundException
+            String.format("Cart not found for customer ID: %s", customerId)));
+
+    log.info("---> getCartEntityByCustomerId: Cart found with id: {}", entity);
+
+//    if (entity.getCustomer() == null) {
+//      entity.setCustomer(customerRepository.findById(customerId)
+//          .orElseThrow(() -> new CustomerNotFoundException(
+//              String.format(" - %s", customerId))));
+//    }
     return entity;
   }
 
@@ -177,18 +195,21 @@ public class CartServiceImpl implements CartService {
       throw new IllegalArgumentException("ProductId cannot be null.");
     }
     // --- END VALIDATION ---
-
+    log.info("---> getCartItemByProductId: Fetching cart entity for customerId: {}", customerId);
     CartEntity entity = getCartEntityByCustomerId(customerId);
-    AtomicReference<ItemEntity> itemEntity = new AtomicReference<>();
-    entity.getItems().forEach(i -> {
-      if (i.getProduct().getId().equals(productId)) {
-        itemEntity.set(i);
-      }
-    });
-    if (itemEntity.get() == null) {
-      throw new ItemNotFoundException(String.format(" - %s", productId));
-    }
-    return itemMapper.entityToModel(itemEntity.get());
+    log.info("---> getCartItemByProductId: Cart entity found: {}", entity);
+
+    ItemEntity itemEntity = entity.getItems().stream()
+        // 1. Filter out items where the Product is null
+        .filter(i -> i.getProduct() != null)
+        // 2. Filter for the matching Product ID
+        .filter(i -> productId.equals(i.getProduct().getId()))
+        // 3. Get the first match, or empty
+        .findFirst()
+        // 4. Throw custom exception if not found
+        .orElseThrow(() -> new ItemNotFoundException(String.format(" for Customer ID: %s and Product ID: %s", customerId, productId)));
+
+    return itemMapper.entityToModel(itemEntity);
   }
 
   @Override
@@ -211,8 +232,11 @@ public class CartServiceImpl implements CartService {
     // --- END VALIDATION ---
 
     CartEntity entity = getCartEntityByCustomerId(customerId);
+
     List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(productId)).toList();
+        .filter(i -> !i.getProduct().getId().equals(productId))
+        .collect(Collectors.toCollection(ArrayList::new)); // To guarantee mutable list
+
     entity.setItems(updatedItems);
     cartRepository.save(entity);
   }

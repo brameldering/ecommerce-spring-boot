@@ -5,7 +5,7 @@ import com.example.ecommercedemo.entity.ItemEntity;
 import com.example.ecommercedemo.entity.OrderEntity;
 import com.example.ecommercedemo.entity.OrderItemEntity;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
-import com.example.ecommercedemo.exceptions.ResourceNotFoundException;
+import com.example.ecommercedemo.exceptions.CartNotFoundException;
 import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import jakarta.persistence.EntityManager;
@@ -73,7 +73,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
     CartEntity cart =
         oCart.orElseThrow(
             () ->
-                new ResourceNotFoundException(
+                new CartNotFoundException(
                     String.format(
                         "Cart not found for given customer (ID: %s)", customerId)));
 

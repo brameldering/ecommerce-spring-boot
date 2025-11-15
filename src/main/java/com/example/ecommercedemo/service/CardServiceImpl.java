@@ -4,7 +4,6 @@ import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.repository.CardRepository;
@@ -48,10 +47,10 @@ public class CardServiceImpl implements CardService {
     CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-    // Check if a card already exists for this customerEntity
-    if (cardRepository.existsByCustomerId(customerId)) {
-      throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
-    }
+    // UNNECESSARY LIMITATION:Check if a card already exists for this customerEntity
+//    if (cardRepository.existsByCustomerId(customerId)) {
+//      throw new CustomerAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
+//    }
 
     // Create and save new card
     CardEntity cardEntity = new CardEntity()

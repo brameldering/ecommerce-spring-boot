@@ -1,9 +1,9 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CustomerEntity;
+import com.example.ecommercedemo.exceptions.CustomerAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
-import com.example.ecommercedemo.exceptions.GenericAlreadyExistsException;
 import com.example.ecommercedemo.mappers.CustomerMapper;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
@@ -40,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
       throw new IllegalArgumentException("UserName cannot be null");
     }
     if (customerRepository.existsByUsername(customerReq.getUsername())) {
-      throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
+      throw new CustomerAlreadyExistsException(ErrorCode.CUSTOMER_ALREADY_EXISTS);
     }
 
     CustomerEntity customerEntity = new CustomerEntity()
@@ -75,7 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
     if (!existingCustomerEntity.getUsername().equals(newUsername)) {
       // Check 2b: If the new username exists in the repository (i.e., belongs to someone else)
       if (customerRepository.existsByUsername(newUsername)) {
-        throw new GenericAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
+        throw new CustomerAlreadyExistsException(ErrorCode.CUSTOMER_ALREADY_EXISTS);
       }
     }
 
