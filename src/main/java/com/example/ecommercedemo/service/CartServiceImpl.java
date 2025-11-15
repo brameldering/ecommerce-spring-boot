@@ -159,7 +159,7 @@ public class CartServiceImpl implements CartService {
     log.info("---> getCartEntityByCustomerId: Getting cart entity by customer id {}", customerId);
 
     // Validate if customer exists
-    customerRepository.findById(customerId)
+    CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(String.format(" - %s", customerId)));
     // --- END VALIDATION ---
 
@@ -167,16 +167,25 @@ public class CartServiceImpl implements CartService {
 
     // Fetch existing cart or create new cart if not exists
     CartEntity entity = cartRepository.findCartAndItemsAndProductsByCustomerId(customerId)
-        .orElseThrow(() -> new ItemNotFoundException( // <-- Use ItemNotFound or a new CartNotFoundException
-            String.format("Cart not found for customer ID: %s", customerId)));
+        .orElseGet(() -> {
+          // --- LOGIC TO CREATE NEW CART ---
+          log.info("---> Creating new CartEntity for customer ID: {}", customerId);
 
+          // a. Create a new CartEntity
+          CartEntity newCart = new CartEntity();
+
+          // b. Link the customer
+          newCart.setCustomer(customerEntity);
+
+          // c. Initialize the items list (Crucial for later stream operations!)
+          newCart.setItems(new ArrayList<>());
+
+          // d. Save the new cart immediately to get an ID and persist it
+          //    (This is necessary for Hibernate to manage the relationship)
+          return cartRepository.save(newCart);
+        });
     log.info("---> getCartEntityByCustomerId: Cart found with id: {}", entity);
 
-//    if (entity.getCustomer() == null) {
-//      entity.setCustomer(customerRepository.findById(customerId)
-//          .orElseThrow(() -> new CustomerNotFoundException(
-//              String.format(" - %s", customerId))));
-//    }
     return entity;
   }
 
