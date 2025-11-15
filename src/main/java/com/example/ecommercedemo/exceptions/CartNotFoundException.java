@@ -14,11 +14,11 @@ public class CartNotFoundException extends RuntimeException {
   private final String errMsgKey;
   private final String errorCode;
 
-//  public CartNotFoundException(ErrorCode code) {
-//    super(code.getErrMsgKey());
-//    this.errMsgKey = code.getErrMsgKey();
-//    this.errorCode = code.getErrCode();
-//  }
+  public CartNotFoundException(ErrorCode code) {
+    super(code.getErrMsgKey());
+    this.errMsgKey = code.getErrMsgKey();
+    this.errorCode = code.getErrCode();
+  }
 
   public CartNotFoundException(final String message) {
     super(message);

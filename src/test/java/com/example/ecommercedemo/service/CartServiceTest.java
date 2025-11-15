@@ -12,6 +12,7 @@ import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
 import com.example.ecommercedemo.repository.CustomerRepository;
+import com.example.ecommercedemo.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

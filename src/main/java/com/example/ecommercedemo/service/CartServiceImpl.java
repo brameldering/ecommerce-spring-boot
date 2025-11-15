@@ -1,10 +1,9 @@
 package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CartEntity;
+import com.example.ecommercedemo.entity.CustomerEntity;
 import com.example.ecommercedemo.entity.ItemEntity;
-import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.exceptions.ItemAlreadyExistsException;
-import com.example.ecommercedemo.exceptions.ItemNotFoundException;
+import com.example.ecommercedemo.exceptions.*;
 import com.example.ecommercedemo.mappers.CartMapper;
 import com.example.ecommercedemo.mappers.ItemMapper;
 import com.example.ecommercedemo.model.Cart;
@@ -12,6 +11,7 @@ import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.CustomerRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
 import com.example.ecommercedemo.model.Item;
+import com.example.ecommercedemo.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -34,13 +34,15 @@ public class CartServiceImpl implements CartService {
   private final ItemMapper itemMapper;
 
   private final static Logger log = LoggerFactory.getLogger(CartServiceImpl.class);
+  private final ProductRepository productRepository;
 
-  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper) {
+  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper, ProductRepository productRepository) {
     this.cartRepository = cartRepository;
     this.itemRepository = itemRepository;
     this.customerRepository = customerRepository;
     this.cartMapper = cartMapper;
     this.itemMapper = itemMapper;
+    this.productRepository = productRepository;
   }
 
   @Override
@@ -182,6 +184,7 @@ public class CartServiceImpl implements CartService {
   @Override
   public List<Item> getCartItemsByCustomerId(UUID customerId) {
     // customerId is validated by getCartEntityByCustomerId
+
     CartEntity entity = getCartEntityByCustomerId(customerId);
     return itemMapper.entityToModelList(entity.getItems());
   }
@@ -195,6 +198,7 @@ public class CartServiceImpl implements CartService {
       throw new IllegalArgumentException("ProductId cannot be null.");
     }
     // --- END VALIDATION ---
+
     log.info("---> getCartItemByProductId: Fetching cart entity for customerId: {}", customerId);
     CartEntity entity = getCartEntityByCustomerId(customerId);
     log.info("---> getCartItemByProductId: Cart entity found: {}", entity);
@@ -216,7 +220,7 @@ public class CartServiceImpl implements CartService {
   @Transactional
   public void deleteCartByCustomerId(UUID customerId) {
     // customerId is validated by getCartEntityByCustomerId
-    // will throw the error if it doesn't exist
+
     CartEntity entity = getCartEntityByCustomerId(customerId);
     cartRepository.deleteById(entity.getId());
   }

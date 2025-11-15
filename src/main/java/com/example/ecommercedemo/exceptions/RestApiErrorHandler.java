@@ -80,6 +80,21 @@ public class RestApiErrorHandler {
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(ItemAlreadyExistsException.class)
+  public ResponseEntity<Error> itemAlreadyExistsException(HttpServletRequest request, ItemAlreadyExistsException ex, Locale locale) {
+    log.warn("Item already exists (409): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
+
+    Error error = ErrorUtils
+        // Use the fields from your exception object
+        .createError(ex.getErrMsgKey(), ex.getErrorCode(),
+            HttpStatus.CONFLICT.value()) // 404 Not Found
+        .setUrl(request.getRequestURL().toString())
+        .setReqMethod(request.getMethod());
+
+    // Explicitly return a 404 response
+    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+  }
+
   @ExceptionHandler(ItemNotFoundException.class)
   public ResponseEntity<Error> itemNotFoundException(HttpServletRequest request, ItemNotFoundException ex, Locale locale) {
     // Log this as a WARN/INFO because it's a client error (404 Not Found), not a server failure (500)
@@ -96,19 +111,20 @@ public class RestApiErrorHandler {
     return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler(ItemAlreadyExistsException.class)
-  public ResponseEntity<Error> itemAlreadyExistsException(HttpServletRequest request, ItemAlreadyExistsException ex, Locale locale) {
-    log.warn("Item already exists (409): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
+  @ExceptionHandler(ProductNotFoundException.class)
+  public ResponseEntity<Error> productNotFoundException(HttpServletRequest request, ProductNotFoundException ex, Locale locale) {
+    // Log this as a WARN/INFO because it's a client error (404 Not Found), not a server failure (500)
+    log.warn("Product Not Found (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
-            HttpStatus.CONFLICT.value()) // 404 Not Found
+            HttpStatus.NOT_FOUND.value()) // 404 Not Found
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     // Explicitly return a 404 response
-    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(ConstraintViolationException.class)
