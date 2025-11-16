@@ -1,6 +1,7 @@
 package com.example.ecommercedemo.controller;
 
 import com.example.ecommercedemo.api.CartApi;
+import com.example.ecommercedemo.exceptions.CartNotFoundException;
 import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
 import com.example.ecommercedemo.hateoas.ItemRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Cart;
@@ -73,7 +74,7 @@ public class CartController implements CartApi {
         // 3. Add HATEOAS links to the cart
         .map(cartAssembler::toModel)
         .map(ResponseEntity::ok)
-        .orElse(notFound().build());
+        .orElseThrow(() -> new CartNotFoundException("Cart not found for customer: " + customerId));
   }
 
   @Override

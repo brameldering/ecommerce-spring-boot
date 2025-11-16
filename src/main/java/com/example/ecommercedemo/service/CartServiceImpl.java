@@ -14,6 +14,7 @@ import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +32,18 @@ public class CartServiceImpl implements CartService {
   private final CustomerRepository customerRepository;
   private final CartMapper cartMapper;
   private final ItemMapper itemMapper;
+  private final CartServiceImpl self;
 
   private final static Logger log = LoggerFactory.getLogger(CartServiceImpl.class);
-  private final ProductRepository productRepository;
 
-  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper, ProductRepository productRepository) {
+  public CartServiceImpl(CartRepository cartRepository, ItemRepository itemRepository, CustomerRepository customerRepository, CartMapper cartMapper, ItemMapper itemMapper, @Lazy CartServiceImpl self ) {
     this.cartRepository = cartRepository;
     this.itemRepository = itemRepository;
     this.customerRepository = customerRepository;
     this.cartMapper = cartMapper;
     this.itemMapper = itemMapper;
-    this.productRepository = productRepository;
+    // Using the self-injection pattern (injecting a service into itself) to invoke a method in a separate transaction context, used for createCartForCustomer in the context of getCartEntityByCustomerId
+    this.self = self;
   }
 
   @Override
@@ -167,28 +169,33 @@ public class CartServiceImpl implements CartService {
     // Fetch existing cart or create new cart if not exists
     CartEntity entity = cartRepository.findCartAndItemsAndProductsByCustomerId(customerId)
         .orElseGet(() -> {
-          // --- LOGIC TO CREATE NEW CART ---
-          log.info("---> Creating new CartEntity for customer ID: {}", customerId);
-
-          // a. Create a new CartEntity
-          CartEntity newCart = new CartEntity();
-
-          // b. Link the customer
-          newCart.setCustomer(customerEntity);
-
-          // c. Initialize the items list (Crucial for later stream operations!)
-          newCart.setItems(new ArrayList<>());
-
-          // d. Save the new cart immediately to get an ID and persist it
-          //    (This is necessary for Hibernate to manage the relationship)
-          return cartRepository.save(newCart);
+          // Call the new transactional method via the self proxy
+          return self.createCartForCustomer(customerEntity);
         });
     log.info("---> getCartEntityByCustomerId: Cart found with id: {}", entity);
-
     return entity;
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
+  public CartEntity createCartForCustomer(CustomerEntity customerEntity) {
+    // --- LOGIC TO CREATE NEW CART ---
+    log.info("---> Creating new CartEntity for customer ID: {}", customerEntity.getId());
+
+    // 1. Create a new CartEntity
+    CartEntity newCart = new CartEntity();
+
+    // 2. Link the customer
+    newCart.setCustomer(customerEntity);
+
+    // 3. Initialize the items list (Crucial for later stream operations)
+    newCart.setItems(new ArrayList<>());
+
+    // 4. Save the new cart immediately to get an ID and persist it
+    //    (This is necessary for Hibernate to manage the relationship)
+    return cartRepository.save(newCart);
+  }
+
+  @Transactional
   @Override
   public List<Item> getCartItemsByCustomerId(UUID customerId) {
     // customerId is validated by getCartEntityByCustomerId
@@ -197,7 +204,7 @@ public class CartServiceImpl implements CartService {
     return itemMapper.entityToModelList(entity.getItems());
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   @Override
   public Item getCartItemByProductId(UUID customerId, UUID productId) {
     // --- VALIDATION ---
