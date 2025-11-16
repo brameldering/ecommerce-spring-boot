@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -225,13 +224,31 @@ public class CartServiceImpl implements CartService {
     return itemMapper.entityToModel(itemEntity);
   }
 
+  // Explicitly delete records from CART_ITEM, ITEM and CART
+  // No need for CascadeType.ALL or OrphanRemoval since those are unsafe
+  // Because ITEM is shared with Orders and may trigger unwanted deletes if used
   @Override
   @Transactional
   public void deleteCartByCustomerId(UUID customerId) {
     // customerId is validated by getCartEntityByCustomerId
 
     CartEntity entity = getCartEntityByCustomerId(customerId);
-    cartRepository.deleteById(entity.getId());
+
+    // 1. Get the IDs of all items in the cart
+    List<UUID> itemIds = entity.getItems().stream()
+            .map(ItemEntity::getId)
+                .toList();
+
+    // 2. Clear the collection of items (CART_ITEMS)
+    entity.getItems().clear();
+
+    // 3. Delete the cart
+    cartRepository.delete(entity);
+
+    // 4. Delete corresponding items from the ITEM table
+    if (!itemIds.isEmpty()) {
+      itemRepository.deleteUnorderedItemsByIds(itemIds);
+    }
   }
 
   @Override

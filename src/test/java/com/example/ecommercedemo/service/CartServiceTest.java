@@ -12,7 +12,6 @@ import com.example.ecommercedemo.model.Item;
 import com.example.ecommercedemo.repository.CartRepository;
 import com.example.ecommercedemo.repository.ItemRepository;
 import com.example.ecommercedemo.repository.CustomerRepository;
-import com.example.ecommercedemo.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -483,7 +482,7 @@ class CartServiceTest {
 
     // --- Verify ---
     // 1. Verify the repository's delete method was called with the entity's ID
-    verify(cartRepository, times(1)).deleteById(cartEntity.getId());
+    verify(cartRepository, times(1)).delete(cartEntity);
     // 2. Verify findByCustomerId was called (via mockGetCartEntity)
     verify(cartRepository, times(1)).findCartAndItemsAndProductsByCustomerId(customerId);
   }

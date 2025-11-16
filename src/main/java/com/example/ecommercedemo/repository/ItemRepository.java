@@ -7,6 +7,7 @@ import com.example.ecommercedemo.entity.ItemEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
   @Query(
@@ -25,5 +26,15 @@ public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
       value = "delete from ecomm.cart_item where item_id in (:ids) and cart_id = :cartId",
       nativeQuery = true)
   void deleteCartItemJoinById(List<UUID> ids, UUID cartId);
+
+  @Modifying
+  @Query(
+      value = """
+        DELETE FROM ecomm.item 
+        WHERE id IN (:ids) 
+          AND id NOT IN (SELECT item_id FROM ecomm.order_item)
+        """,
+      nativeQuery = true)
+  void deleteUnorderedItemsByIds(@Param("ids") List<UUID> ids);
 }
 
