@@ -244,13 +244,28 @@ public class CartServiceImpl implements CartService {
     }
     // --- END VALIDATION ---
 
-    CartEntity entity = getCartEntityByCustomerId(customerId);
+    CartEntity cartEntity = getCartEntityByCustomerId(customerId);
 
-    List<ItemEntity> updatedItems = entity.getItems().stream()
-        .filter(i -> !i.getProduct().getId().equals(productId))
-        .collect(Collectors.toCollection(ArrayList::new)); // To guarantee mutable list
+    // 1. Find the item to remove
+    ItemEntity itemToRemove = cartEntity.getItems().stream()
+        .filter(i -> i.getProduct() != null && i.getProduct().getId().equals(productId))
+        .findFirst()
+        .orElseThrow(() -> new ItemNotFoundException(
+            String.format("Item not found in cart for Product ID: %s", productId)));
 
-    entity.setItems(updatedItems);
-    cartRepository.save(entity);
+    // 2. Remove the item from the Cart's collection
+    //    This removes the row from the CART_ITEM table
+    cartEntity.getItems().remove(itemToRemove);
+
+    // Save the cart to persist the collection removal
+    cartRepository.save(cartEntity);
+
+    // Delete item (from ITEM table) if it is not linked to an order
+    if (itemToRemove.getOrders().isEmpty()) {
+      log.info("ItemEntity with ID {} is not linked to any Order. Deleting from 'item' table.", itemToRemove.getId());
+      itemRepository.delete(itemToRemove);
+    } else {
+      log.info("ItemEntity with ID {} is linked to an Order. NOT deleting from 'item' table.", itemToRemove.getId());
+    }
   }
 }

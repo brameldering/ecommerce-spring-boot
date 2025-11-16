@@ -10,6 +10,8 @@ import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,8 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   private final CartRepository cartRepository;
   private final OrderItemRepository orderItemRepository;
 
+  private final static Logger log = LoggerFactory.getLogger(OrderRepositoryImpl.class);
+
   public OrderRepositoryImpl(
       EntityManager entityManager, ItemRepository itemRepository, CartRepository cartRepository, OrderItemRepository orderItemRepository) {
     this.entityManager = entityManager;
@@ -44,16 +48,23 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
 
   @Override
   public OrderEntity insert(UUID customerId, OrderReq orderReq) {
+
+    log.info(String.format("---> Received insert order %s", orderReq));
+
     // Items are in db (cart, cart_item and item) and saved to db as an order
     List<ItemEntity> items = itemRepository.findByCustomerId(customerId);
     if (items.isEmpty()) {
       throw new ItemNotFoundException(
           String.format("There are no items found in customer's (ID: %s) cart.", customerId));
     }
+
     BigDecimal total = BigDecimal.ZERO;
     for (ItemEntity i : items) {
       total = (BigDecimal.valueOf(i.getQuantity()).multiply(i.getPrice())).add(total);
     }
+
+    log.info(String.format("---> Total amount for order is: %s", total));
+
     Timestamp orderDate = Timestamp.from(Instant.now());
 
     entityManager.createNativeQuery(
@@ -77,16 +88,17 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                     String.format(
                         "Cart not found for given customer (ID: %s)", customerId)));
 
+    // Delete items from shopping cart
     itemRepository.deleteCartItemJoinById(
         cart.getItems().stream().map(ItemEntity::getId).toList(), cart.getId());
 
     OrderEntity entity =
         (OrderEntity)
             entityManager.createNativeQuery(
-                    """
-        SELECT o.* FROM ecomm.orders o WHERE o.customer_id = ? AND o.order_date >= ?
-        """,
-                    OrderEntity.class)
+               """
+                   SELECT o.* FROM ecomm.orders o 
+                   WHERE o.customer_id = ? AND o.order_date >= ?
+                  """, OrderEntity.class)
                 .setParameter(1, customerId)
                 .setParameter(
                     2,
@@ -94,6 +106,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
                         .truncatedTo(ChronoUnit.MICROS))
                 .getSingleResult();
 
+    // Save order with cart items
     orderItemRepository.saveAll(
         cart.getItems().stream()
             .map(i -> new OrderItemEntity().setOrderId(entity.getId()).setItemId(i.getId())).toList());
