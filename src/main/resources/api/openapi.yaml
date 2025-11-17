@@ -96,7 +96,7 @@ paths:
         - product
       summary: Retrieves a product
       description: Retrieves the product that matches the given product ID
-      operationId: getProduct
+      operationId: getProductById
       parameters:
         - name: id
           in: path
@@ -1285,6 +1285,8 @@ components:
         - $ref: '#/components/schemas/OrderBase'
       required:
         - id
+        - customer
+        - address
         - date
         - total
         - status

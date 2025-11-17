@@ -30,7 +30,7 @@ public class ProductController implements ProductApi {
   }
 
   @Override
-  public ResponseEntity<Product> getProduct(UUID id) {
+  public ResponseEntity<Product> getProductById(UUID id) {
     return productService.getProductById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
   }
 }

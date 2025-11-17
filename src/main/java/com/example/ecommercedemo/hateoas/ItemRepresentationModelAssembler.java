@@ -36,7 +36,7 @@ public class ItemRepresentationModelAssembler extends
         .withSelfRel());
 
     // --- Product Link ---
-    resource.add(linkTo(methodOn(ProductController.class).getProduct(resource.getProductId()))
+    resource.add(linkTo(methodOn(ProductController.class).getProductById(resource.getProductId()))
         .withRel("product"));
 
     // --- Parent Cart Link (optional, but useful) ---

@@ -2,9 +2,8 @@ package com.example.ecommercedemo.mappers;
 
 import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.model.Card;
-import com.example.ecommercedemo.service.CardServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Component
 public class CardMapper {
 
-  private static final Logger logger = LoggerFactory.getLogger(CardServiceImpl.class);
+//  private static final Logger logger = LoggerFactory.getLogger(CardServiceImpl.class);
 
   // Transform from entity to model
   public Card entityToModel(CardEntity entity) {
@@ -28,12 +27,11 @@ public class CardMapper {
     UUID customerUuid = Objects.nonNull(entity.getCustomer()) ? entity.getCustomer().getId() : null;
 
     // Copy properties and set ID
-    logger.info("Cardmodel before copyProperties " + resource);
     BeanUtils.copyProperties(entity, resource);
-    logger.info("Cardmodel after copyProperties " + resource);
+//    logger.info("Cardmodel after copyProperties " + resource);
     resource.id(entity.getId()).cardNumber(entity.getNumber())
         .cvv(entity.getCvv()).expires(entity.getExpires()).customerId(customerUuid);
-    logger.info("Cardmodel after explicit property settings " + resource);
+//    logger.info("Cardmodel after explicit property settings " + resource);
     return resource;
   }
 

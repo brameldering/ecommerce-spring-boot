@@ -49,7 +49,7 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
   @Override
   public OrderEntity insert(UUID customerId, OrderReq orderReq) {
 
-    log.info(String.format("---> Received insert order %s", orderReq));
+    log.info(String.format("---> Received insert order for customer %s", customerId));
 
     // Items are in db (cart, cart_item and item) and saved to db as an order
     List<ItemEntity> items = itemRepository.findByCustomerId(customerId);
@@ -80,13 +80,14 @@ public class OrderRepositoryImpl implements OrderRepositoryExt{
         .setParameter(6, Order.StatusEnum.CREATED.getValue())
         .executeUpdate();
 
-    Optional<CartEntity> oCart = cartRepository.findByCustomerId(customerId);
     CartEntity cart =
-        oCart.orElseThrow(
-            () ->
-                new CartNotFoundException(
-                    String.format(
-                        "Cart not found for given customer (ID: %s)", customerId)));
+        cartRepository
+            .findByCustomerId(customerId)
+            .orElseThrow(
+                () ->
+                    new CartNotFoundException(
+                        String.format(
+                            "Cart not found for given customer (ID: %s)", customerId)));
 
     // Delete items from shopping cart
     itemRepository.deleteCartItemJoinById(

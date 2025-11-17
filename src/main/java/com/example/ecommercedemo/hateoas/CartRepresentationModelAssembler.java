@@ -1,6 +1,7 @@
 package com.example.ecommercedemo.hateoas;
 
 import com.example.ecommercedemo.controller.CartController;
+import com.example.ecommercedemo.controller.CustomerController;
 import com.example.ecommercedemo.model.Cart;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
@@ -39,11 +40,17 @@ public class CartRepresentationModelAssembler extends
     if (Objects.nonNull(uid)) {
       // 1. Self Link
       // Allows the client to retrieve this specific cart using the customer ID
-      resource.add(linkTo(methodOn(CartController.class).getCustomerCart(uid)).withSelfRel());
+      resource.add(linkTo(methodOn(CartController.class)
+          .getCustomerCart(uid)).withSelfRel());
 
-      // 2. Cart Items Link
-      // Allows the client to discover the items related to this cart
-      resource.add(linkTo(methodOn(CartController.class).getCustomerCartItems(uid)).withRel("cart-items"));
+      // 2. Customer link
+      resource.add(linkTo(methodOn(CustomerController.class)
+          .getCustomerById(uid)).withRel("customer"));
+
+      // 3. Cart Items Link
+      resource.add(linkTo(methodOn(CartController.class)
+          .getCustomerCartItems(uid)).withRel("cart-items"));
+
     }
     return resource;
   }

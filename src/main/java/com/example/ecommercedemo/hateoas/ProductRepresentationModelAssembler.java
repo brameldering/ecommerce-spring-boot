@@ -31,7 +31,7 @@ public class ProductRepresentationModelAssembler extends
   public Product toModel(Product resource) {
 
     // Add HATEOAS links
-    resource.add(linkTo(methodOn(ProductController.class).getProduct(resource.getId())).withSelfRel());
+    resource.add(linkTo(methodOn(ProductController.class).getProductById(resource.getId())).withSelfRel());
 
     resource.add(linkTo(methodOn(ProductController.class).queryProducts(null, null, 1, 10)).withRel("products"));
 
