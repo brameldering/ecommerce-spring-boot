@@ -58,6 +58,7 @@ public class OrderRepresentationModelAssembler extends
           .withSelfRel());
     }
 
+    // TO DO: Payments and Shipments
     // 5. Add self link to the nested Payment object
 //    if (Objects.nonNull(resource.getPayment())) {
 //      resource.getPayment().add(linkTo(methodOn(PaymentController.class)
@@ -66,11 +67,11 @@ public class OrderRepresentationModelAssembler extends
 //    }
 
     // 6. Add self link to the nested Shipment object
-    if (Objects.nonNull(resource.getShipment())) {
-      resource.getShipment().add(linkTo(methodOn(ShipmentController.class)
-          .getShipmentByOrderId(resource.getId()))
-          .withSelfRel());
-    }
+//    if (Objects.nonNull(resource.getShipment())) {
+//      resource.getShipment().add(linkTo(methodOn(ShipmentController.class)
+//          .getShipmentByOrderId(resource.getId()))
+//          .withSelfRel());
+//    }
 
     // 7. Add links to each item in the list
     if (Objects.nonNull(resource.getItems())) {

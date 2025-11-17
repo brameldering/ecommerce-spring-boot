@@ -1250,22 +1250,9 @@ components:
             $ref: '#/components/schemas/Item'
       xml:
         name: Cart
-    OrderBase:
-      type: object
-      description: Base properties for an order, including the items list.
-      properties:
-        items:
-          type: array
-          description: Collection of items for the order.
-          items:
-            $ref: '#/components/schemas/Item'
-      xml:
-        name: OrderBase
     OrderReq:
       type: object
       description: Request object for a new order
-      allOf:
-        - $ref: '#/components/schemas/OrderBase'
       required:
         - addressId
         - cardId
@@ -1281,8 +1268,6 @@ components:
     Order:
       type: object
       description: Represents an order
-      allOf:
-        - $ref: '#/components/schemas/OrderBase'
       required:
         - id
         - customer
@@ -1306,6 +1291,11 @@ components:
           type: string
           description: Order's data and time details
           format: date-time
+        items:
+          type: array
+          description: Collection of items for the order.
+          items:
+            $ref: '#/components/schemas/Item'
         total:
           description: Order total
           allOf:
