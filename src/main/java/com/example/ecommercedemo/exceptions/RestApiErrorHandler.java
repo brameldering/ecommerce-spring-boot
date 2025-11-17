@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -36,6 +37,22 @@ public class RestApiErrorHandler {
     this.messageSource = messageSource;
   }
 
+  @ExceptionHandler(CardAlreadyExistsException.class)
+  public ResponseEntity<Error> cardAlreadyExistsException(HttpServletRequest request, CardAlreadyExistsException ex, Locale locale) {
+    log.warn("Card already exists (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
+
+    Error error = ErrorUtils
+        // Use the fields from your exception object
+        .createError(ex.getErrMsgKey(), ex.getErrorCode(),
+            HttpStatus.CONFLICT.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
+        .setReqMethod(request.getMethod());
+
+    // Explicitly return a 409 response
+    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+  }
+
   @ExceptionHandler(CartNotFoundException.class)
   public ResponseEntity<Error> cartNotFoundException(HttpServletRequest request, CartNotFoundException ex, Locale locale) {
     log.warn("Cart Not Found (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
@@ -43,6 +60,7 @@ public class RestApiErrorHandler {
     Error error = ErrorUtils
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.NOT_FOUND.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -58,6 +76,7 @@ public class RestApiErrorHandler {
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.CONFLICT.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -73,6 +92,7 @@ public class RestApiErrorHandler {
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.NOT_FOUND.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -88,6 +108,7 @@ public class RestApiErrorHandler {
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.CONFLICT.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -104,6 +125,7 @@ public class RestApiErrorHandler {
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.NOT_FOUND.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -120,6 +142,7 @@ public class RestApiErrorHandler {
         // Use the fields from your exception object
         .createError(ex.getErrMsgKey(), ex.getErrorCode(),
             HttpStatus.NOT_FOUND.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -136,6 +159,7 @@ public class RestApiErrorHandler {
         .createError(ErrorCode.CONSTRAINT_VIOLATION.getErrMsgKey(),
             ErrorCode.CONSTRAINT_VIOLATION.getErrCode(),
             HttpStatus.BAD_REQUEST.value()) // 400 Bad Request
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -153,9 +177,10 @@ public class RestApiErrorHandler {
         ex.getMessage(), request.getMethod(), request.getRequestURL());
 
     Error error = ErrorUtils
-        .createError(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getErrMsgKey(), // Or a more specific key
-            ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getErrCode(),           // if you have one
+        .createError(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getErrMsgKey(),
+            ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getErrCode(),
             HttpStatus.BAD_REQUEST.value()) // 400 Bad Request
+        .setMessage(ex.getMessage())
         .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
@@ -172,25 +197,44 @@ public class RestApiErrorHandler {
       MethodArgumentNotValidException ex,
       Locale locale) {
 
+    // 1. Log the full details for debugging
     log.warn("Method Argument Not Valid: {} for {} {}",
         ex.getMessage(), request.getMethod(), request.getRequestURL());
 
-    // Create a map of field errors for detailed response
-    Map<String, String> fieldErrors = new HashMap<>();
-    ex.getBindingResult().getAllErrors().forEach((error) -> {
-      String fieldName = ((FieldError) error).getField();
-      String errorMessage = error.getDefaultMessage();
-      fieldErrors.put(fieldName, errorMessage);
-    });
+    // 2. Extract and simplify field errors
+    Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+        .collect(Collectors.toMap(
+            FieldError::getField,
+            // Use a cleaner default message or a specific property if available
+            FieldError::getDefaultMessage
+        ));
 
-    // Create the main error object
+    // 3. Determine a clean, user-facing message
+    String userFriendlyMessage;
+    if (fieldErrors.size() == 1) {
+      Map.Entry<String, String> singleError = fieldErrors.entrySet().iterator().next();
+      // Example: "Field 'expires' failed validation: must match MM/YY format."
+      userFriendlyMessage = String.format("Validation failed for field '%s': %s",
+          singleError.getKey(), singleError.getValue());
+    } else {
+      // Generic message for multiple errors
+      userFriendlyMessage = "Input validation failed. See documentation or error details for required fields.";
+    }
+
+    // 4. Create the main error object
     Error error = ErrorUtils
         .createError(
             ErrorCode.VALIDATION_ERROR.getErrMsgKey(),
             ErrorCode.VALIDATION_ERROR.getErrCode(),
-            HttpStatus.BAD_REQUEST.value()
-        ).setUrl(request.getRequestURL().toString())
+            HttpStatus.BAD_REQUEST.value())
+        .setMessage(userFriendlyMessage)
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
+
+    // 5. Optionally, attach the full field map to the error object if supported
+    // If your Error class supports a Map<String, String> property:
+    // error.setErrors(fieldErrors);
+    // For demonstration, we rely on the clean message.
 
     // Attach the detailed field errors to the response
     // (assuming your Error class has a setErrors method for a Map)
@@ -225,8 +269,9 @@ public class RestApiErrorHandler {
         .createError(
             message,
             ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getErrCode(),
-            HttpStatus.BAD_REQUEST.value()
-        ).setUrl(request.getRequestURL().toString())
+            HttpStatus.BAD_REQUEST.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
      return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -240,7 +285,9 @@ public class RestApiErrorHandler {
     Error error = ErrorUtils
         .createError(ErrorCode.HTTP_MEDIATYPE_NOT_SUPPORTED.getErrMsgKey(),
             ErrorCode.HTTP_MEDIATYPE_NOT_SUPPORTED.getErrCode(),
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()).setUrl(request.getRequestURL().toString())
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -254,7 +301,9 @@ public class RestApiErrorHandler {
     Error error = ErrorUtils
         .createError(ErrorCode.HTTP_MESSAGE_NOT_WRITABLE.getErrMsgKey(),
             ErrorCode.HTTP_MESSAGE_NOT_WRITABLE.getErrCode(),
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()).setUrl(request.getRequestURL().toString())
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -268,7 +317,9 @@ public class RestApiErrorHandler {
     Error error = ErrorUtils
         .createError(ErrorCode.HTTP_MEDIA_TYPE_NOT_ACCEPTABLE.getErrMsgKey(),
             ErrorCode.HTTP_MEDIA_TYPE_NOT_ACCEPTABLE.getErrCode(),
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value()).setUrl(request.getRequestURL().toString())
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -282,7 +333,9 @@ public class RestApiErrorHandler {
    Error error = ErrorUtils
         .createError(ErrorCode.HTTP_MESSAGE_NOT_READABLE.getErrMsgKey(),
             ErrorCode.HTTP_MESSAGE_NOT_READABLE.getErrCode(),
-            HttpStatus.NOT_ACCEPTABLE.value()).setUrl(request.getRequestURL().toString())
+            HttpStatus.NOT_ACCEPTABLE.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
@@ -296,8 +349,10 @@ public class RestApiErrorHandler {
    Error error = ErrorUtils
         .createError(ErrorCode.JSON_PARSE_ERROR.getErrMsgKey(),
             ErrorCode.JSON_PARSE_ERROR.getErrCode(),
-            HttpStatus.NOT_ACCEPTABLE.value()).setUrl(request.getRequestURL().toString())
-        .setReqMethod(request.getMethod());
+            HttpStatus.NOT_ACCEPTABLE.value())
+       .setMessage(ex.getMessage())
+       .setUrl(request.getRequestURL().toString())
+       .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
   }
@@ -310,7 +365,9 @@ public class RestApiErrorHandler {
 
     Error error = ErrorUtils
         .createError(ErrorCode.GENERIC_ERROR.getErrMsgKey(), ErrorCode.GENERIC_ERROR.getErrCode(),
-            HttpStatus.INTERNAL_SERVER_ERROR.value()).setUrl(request.getRequestURL().toString())
+            HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
         .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

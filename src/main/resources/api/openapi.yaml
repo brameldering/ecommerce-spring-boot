@@ -1152,7 +1152,7 @@ components:
           type: string
           description: Expiration date (e.g., MM/YY or MM/YYYY)
           example: 01/29
-          pattern: '^(0[1-9]|1[0-2])\/\d{2}(\d{2})?$' # Example: MM/YY or MM/YYYY
+          pattern: '^(0[1-9]|1[0-2])\/\d{2}$' # MM/YY
         cvv:
           type: string
           description: CVV code (Only sent in the request, never stored or returned)

@@ -2,6 +2,7 @@ package com.example.ecommercedemo.service;
 
 import com.example.ecommercedemo.entity.CardEntity;
 import com.example.ecommercedemo.entity.CustomerEntity;
+import com.example.ecommercedemo.exceptions.CardAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
 import com.example.ecommercedemo.mappers.CardMapper;
@@ -31,6 +32,9 @@ public class CardServiceImpl implements CardService {
     this.cardMapper = cardMapper;
   }
 
+  // Regex for MM/YY format
+  private static final String EXPIRY_PATTERN = "^(0[1-9]|1[0-2])\\/\\d{2}$";
+
   @Override
   @Transactional
   public Card registerCard(UUID customerId, CardReq addCardReq) {
@@ -41,16 +45,22 @@ public class CardServiceImpl implements CardService {
     if (customerId == null) {
       throw new IllegalArgumentException("CustomerId cannot be null.");
     }
-    // --- END VALIDATION ---
-
-      // Check if customerEntity exists
+    // Check if customerEntity exists
     CustomerEntity customerEntity = customerRepository.findById(customerId)
         .orElseThrow(() -> new CustomerNotFoundException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-    // UNNECESSARY LIMITATION:Check if a card already exists for this customerEntity
-//    if (cardRepository.existsByCustomerId(customerId)) {
-//      throw new CustomerAlreadyExistsException(ErrorCode.GENERIC_ALREADY_EXISTS);
-//    }
+    // Check if a card with the provided number already exists for this customerEntity
+    if (cardRepository.existsByCustomerIdAndNumber(customerId, addCardReq.getCardNumber())) {
+      throw new CardAlreadyExistsException(ErrorCode.CARD_ALREADY_EXISTS);
+    }
+
+    // Check for strict MM/YY format
+    String expiry = addCardReq.getExpires();
+    if (expiry == null || !expiry.matches(EXPIRY_PATTERN)) {
+      throw new IllegalArgumentException("Card expiration date '" + expiry + "' must be in the strict MM/YY format.");
+    }
+
+    // --- END VALIDATION ---
 
     // Create and save new card
     CardEntity cardEntity = new CardEntity()

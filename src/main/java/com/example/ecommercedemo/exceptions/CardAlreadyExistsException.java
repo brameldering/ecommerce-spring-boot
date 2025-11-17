@@ -8,20 +8,20 @@ import java.io.Serial;
 
 @Getter
 @ResponseStatus(value = HttpStatus.CONFLICT)
-public class ItemAlreadyExistsException extends RuntimeException {
+public class CardAlreadyExistsException extends RuntimeException {
 
   @Serial
   private static final long serialVersionUID = 1L;
   private final String errMsgKey;
   private final String errorCode;
 
-  public ItemAlreadyExistsException(ErrorCode code) {
+  public CardAlreadyExistsException(ErrorCode code) {
     super(code.getErrMsgKey());
     this.errMsgKey = code.getErrMsgKey();
     this.errorCode = code.getErrCode();
   }
 
-  public ItemAlreadyExistsException(final String message) {
+  public CardAlreadyExistsException(final String message) {
     super(message);
     this.errMsgKey = ErrorCode.ITEM_ALREADY_EXISTS.getErrMsgKey();
     this.errorCode = ErrorCode.ITEM_ALREADY_EXISTS.getErrCode();

@@ -21,7 +21,7 @@ public class CardEntity {
   @ToString.Include
   private UUID id;
 
-  @Column(name = "NUMBER")
+  @Column(name = "NUMBER", unique = true, nullable = false)
   @ToString.Include
   private String number;
 
