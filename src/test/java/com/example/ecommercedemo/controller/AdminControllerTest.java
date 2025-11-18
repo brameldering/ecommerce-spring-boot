@@ -1,17 +1,18 @@
 package com.example.ecommercedemo.controller;
 
-import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
-import com.example.ecommercedemo.hateoas.CardRepresentationModelAssembler;
-import com.example.ecommercedemo.hateoas.CustomerRepresentationModelAssembler;
-import com.example.ecommercedemo.hateoas.OrderRepresentationModelAssembler;
+import com.example.ecommercedemo.admin.AdminController;
+import com.example.ecommercedemo.address.AddressRepresentationModelAssembler;
+import com.example.ecommercedemo.card.CardRepresentationModelAssembler;
+import com.example.ecommercedemo.customer.CustomerRepresentationModelAssembler;
+import com.example.ecommercedemo.order.OrderRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.Order;
-import com.example.ecommercedemo.service.AddressService;
-import com.example.ecommercedemo.service.CardService;
-import com.example.ecommercedemo.service.CustomerService;
-import com.example.ecommercedemo.service.OrderService;
+import com.example.ecommercedemo.address.AddressService;
+import com.example.ecommercedemo.card.CardService;
+import com.example.ecommercedemo.customer.CustomerService;
+import com.example.ecommercedemo.order.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

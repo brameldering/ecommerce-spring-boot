@@ -1,13 +1,14 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.CardEntity;
-import com.example.ecommercedemo.entity.CustomerEntity;
+import com.example.ecommercedemo.card.CardServiceImpl;
+import com.example.ecommercedemo.card.CardEntity;
+import com.example.ecommercedemo.customer.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.mappers.CardMapper;
+import com.example.ecommercedemo.card.CardMapper;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.CardReq;
-import com.example.ecommercedemo.repository.CardRepository;
-import com.example.ecommercedemo.repository.CustomerRepository;
+import com.example.ecommercedemo.card.CardRepository;
+import com.example.ecommercedemo.customer.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

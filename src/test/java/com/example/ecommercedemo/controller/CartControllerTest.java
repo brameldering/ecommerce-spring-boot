@@ -1,11 +1,11 @@
 package com.example.ecommercedemo.controller;
 
-import com.example.ecommercedemo.exceptions.CartNotFoundException;
-import com.example.ecommercedemo.hateoas.CartRepresentationModelAssembler;
-import com.example.ecommercedemo.hateoas.ItemRepresentationModelAssembler;
+import com.example.ecommercedemo.cart.CartController;
+import com.example.ecommercedemo.cart.CartRepresentationModelAssembler;
+import com.example.ecommercedemo.item.ItemRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;
-import com.example.ecommercedemo.service.CartService;
+import com.example.ecommercedemo.cart.CartService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

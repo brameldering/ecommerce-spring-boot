@@ -1,12 +1,13 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.AuthorizationEntity;
-import com.example.ecommercedemo.entity.OrderEntity;
-import com.example.ecommercedemo.mappers.AuthorizationMapper;
+import com.example.ecommercedemo.payment.AuthorizationEntity;
+import com.example.ecommercedemo.order.OrderEntity;
+import com.example.ecommercedemo.payment.AuthorizationMapper;
 import com.example.ecommercedemo.model.Authorization;
 import com.example.ecommercedemo.model.PaymentReq;
-import com.example.ecommercedemo.repository.OrderRepository;
-import com.example.ecommercedemo.repository.PaymentRepository;
+import com.example.ecommercedemo.order.OrderRepository;
+import com.example.ecommercedemo.payment.PaymentRepository;
+import com.example.ecommercedemo.payment.PaymentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

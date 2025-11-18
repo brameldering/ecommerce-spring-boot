@@ -1,9 +1,10 @@
 package com.example.ecommercedemo.controller;
 
-import com.example.ecommercedemo.hateoas.AddressRepresentationModelAssembler;
+import com.example.ecommercedemo.address.AddressController;
+import com.example.ecommercedemo.address.AddressRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
-import com.example.ecommercedemo.service.AddressService;
+import com.example.ecommercedemo.address.AddressService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

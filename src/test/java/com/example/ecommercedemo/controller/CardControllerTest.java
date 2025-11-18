@@ -1,9 +1,10 @@
 package com.example.ecommercedemo.controller;
 
-import com.example.ecommercedemo.hateoas.CardRepresentationModelAssembler;
+import com.example.ecommercedemo.card.CardController;
+import com.example.ecommercedemo.card.CardRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.model.CardReq;
-import com.example.ecommercedemo.service.CardService;
+import com.example.ecommercedemo.card.CardService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

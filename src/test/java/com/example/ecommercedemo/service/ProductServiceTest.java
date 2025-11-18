@@ -1,11 +1,12 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.ProductEntity;
-import com.example.ecommercedemo.entity.TagEntity;
-import com.example.ecommercedemo.mappers.ProductMapper;
+import com.example.ecommercedemo.product.ProductEntity;
+import com.example.ecommercedemo.product.TagEntity;
+import com.example.ecommercedemo.product.ProductMapper;
 import com.example.ecommercedemo.model.Product;
 import com.example.ecommercedemo.model.Tag;
-import com.example.ecommercedemo.repository.ProductRepository;
+import com.example.ecommercedemo.product.ProductRepository;
+import com.example.ecommercedemo.product.ProductServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

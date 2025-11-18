@@ -1,9 +1,10 @@
 package com.example.ecommercedemo.controller;
 
-import com.example.ecommercedemo.hateoas.CustomerRepresentationModelAssembler;
+import com.example.ecommercedemo.customer.CustomerController;
+import com.example.ecommercedemo.customer.CustomerRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
-import com.example.ecommercedemo.service.CustomerService;
+import com.example.ecommercedemo.customer.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

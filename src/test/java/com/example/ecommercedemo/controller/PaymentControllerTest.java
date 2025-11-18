@@ -1,13 +1,14 @@
 package com.example.ecommercedemo.controller;
 
-//import com.example.ecommercedemo.hateoas.PaymentRepresentationModelAssembler;
+//import com.example.ecommercedemo.payment.PaymentRepresentationModelAssembler;
 //import com.example.ecommercedemo.model.Authorization;
 //import com.example.ecommercedemo.model.PaymentReq;
-//import com.example.ecommercedemo.service.PaymentService;
+//import com.example.ecommercedemo.payment.PaymentService;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
+import com.example.ecommercedemo.payment.PaymentController;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 //import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.http.MediaType;

@@ -1,17 +1,18 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.CartEntity;
-import com.example.ecommercedemo.entity.CustomerEntity;
-import com.example.ecommercedemo.entity.ItemEntity;
-import com.example.ecommercedemo.entity.ProductEntity;
+import com.example.ecommercedemo.cart.CartServiceImpl;
+import com.example.ecommercedemo.cart.CartEntity;
+import com.example.ecommercedemo.customer.CustomerEntity;
+import com.example.ecommercedemo.item.ItemEntity;
+import com.example.ecommercedemo.product.ProductEntity;
 import com.example.ecommercedemo.exceptions.ItemAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.ItemNotFoundException;
-import com.example.ecommercedemo.mappers.CartMapper;
-import com.example.ecommercedemo.mappers.ItemMapper;
+import com.example.ecommercedemo.cart.CartMapper;
+import com.example.ecommercedemo.item.ItemMapper;
 import com.example.ecommercedemo.model.Item;
-import com.example.ecommercedemo.repository.CartRepository;
-import com.example.ecommercedemo.repository.ItemRepository;
-import com.example.ecommercedemo.repository.CustomerRepository;
+import com.example.ecommercedemo.cart.CartRepository;
+import com.example.ecommercedemo.item.ItemRepository;
+import com.example.ecommercedemo.customer.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

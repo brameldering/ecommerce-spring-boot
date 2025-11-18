@@ -1,13 +1,14 @@
 package com.example.ecommercedemo.service;
 
-import com.example.ecommercedemo.entity.AddressEntity;
-import com.example.ecommercedemo.entity.CustomerEntity;
+import com.example.ecommercedemo.address.AddressServiceImpl;
+import com.example.ecommercedemo.address.AddressEntity;
+import com.example.ecommercedemo.customer.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.mappers.AddressMapper;
+import com.example.ecommercedemo.address.AddressMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
-import com.example.ecommercedemo.repository.AddressRepository;
-import com.example.ecommercedemo.repository.CustomerRepository;
+import com.example.ecommercedemo.address.AddressRepository;
+import com.example.ecommercedemo.customer.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
