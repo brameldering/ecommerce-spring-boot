@@ -95,7 +95,26 @@ public class CardServiceImpl implements CardService {
 
   @Override
   @Transactional
-  public void deleteCardById(UUID uuid) {
-    cardRepository.deleteById(uuid);
+  public boolean deleteCardById(UUID uuid) {
+    if (uuid == null) {
+      // Optional: Handle null input gracefully, though controller should prevent this
+      return false;
+    }
+
+    // 1. Check if the entity exists
+    boolean exists = cardRepository.existsById(uuid);
+
+    if (exists) {
+      // 2. If it exists, perform the deletion
+      cardRepository.deleteById(uuid);
+
+      // Note: For systems demanding absolute certainty, you could check again
+      // after deletion, but for a simple primary key delete, this is sufficient.
+
+      return true; // Card was found and deleted
+    } else {
+      // 3. If it doesn't exist, return false
+      return false; // Card was not found
+    }
   }
 }

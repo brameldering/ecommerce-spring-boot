@@ -14,5 +14,5 @@ public interface CardService {
   List<Card> getAllCards();
   Optional<Card> getCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
   Optional<List<Card>> getCardsByCustomerId(@NotNull(message = "Customer UUID cannot be null.") UUID id);
-  void deleteCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
+  boolean deleteCardById(@NotNull(message = "Card UUID cannot be null.") UUID uuid);
 }

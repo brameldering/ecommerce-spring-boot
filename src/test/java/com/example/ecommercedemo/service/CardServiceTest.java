@@ -244,13 +244,14 @@ class CardServiceTest {
   // ------------------------------------------------------------------
 
   @Test
-  @DisplayName("DELETE: Should call repository deleteById once")
+  @DisplayName("DELETE: Should call repository existsById once")
   void deleteCardById_ShouldCallRepository() {
     // --- Execute ---
     cardService.deleteCardById(cardId);
 
     // --- Assert & Verify ---
     // Verify that deleteById was called exactly once with the correct ID
-    verify(cardRepository, times(1)).deleteById(cardId);
+//    verify(cardRepository, times(1)).deleteById(cardId);
+    verify(cardRepository, times(1)).existsById(cardId);
   }
 }

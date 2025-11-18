@@ -61,7 +61,15 @@ public class CardController implements CardApi {
 
   @Override
   public ResponseEntity<Void> deleteCardById(UUID id) {
-    cardService.deleteCardById(id);
-    return accepted().build();
+
+    boolean wasDeleted = cardService.deleteCardById(id);
+
+    if (wasDeleted) {
+      // Correct way to return 204 No Content for a successful deletion
+      return ResponseEntity.noContent().build();
+    } else {
+      // Keep 404 Not Found if the resource didn't exist
+      return ResponseEntity.notFound().build();
+    }
   }
 }
