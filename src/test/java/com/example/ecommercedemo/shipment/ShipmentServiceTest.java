@@ -1,15 +1,11 @@
-package com.example.ecommercedemo.service;
+package com.example.ecommercedemo.shipment;
 
 import com.example.ecommercedemo.address.AddressEntity;
 import com.example.ecommercedemo.order.OrderEntity;
-import com.example.ecommercedemo.shipment.ShipmentEntity;
 import com.example.ecommercedemo.customer.CustomerEntity;
-import com.example.ecommercedemo.shipment.ShipmentMapper;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.Shipment;
 import com.example.ecommercedemo.model.ShipmentReq;
-import com.example.ecommercedemo.shipment.ShipmentRepository;
-import com.example.ecommercedemo.shipment.ShipmentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

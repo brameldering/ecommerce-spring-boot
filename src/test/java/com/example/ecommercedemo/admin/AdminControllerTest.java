@@ -1,6 +1,5 @@
-package com.example.ecommercedemo.controller;
+package com.example.ecommercedemo.admin;
 
-import com.example.ecommercedemo.admin.AdminController;
 import com.example.ecommercedemo.address.AddressRepresentationModelAssembler;
 import com.example.ecommercedemo.card.CardRepresentationModelAssembler;
 import com.example.ecommercedemo.customer.CustomerRepresentationModelAssembler;

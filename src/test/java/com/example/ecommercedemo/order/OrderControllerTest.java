@@ -1,10 +1,7 @@
-package com.example.ecommercedemo.controller;
+package com.example.ecommercedemo.order;
 
-import com.example.ecommercedemo.order.OrderRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.model.OrderReq;
-import com.example.ecommercedemo.order.OrderController;
-import com.example.ecommercedemo.order.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

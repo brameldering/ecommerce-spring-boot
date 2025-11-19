@@ -1,14 +1,10 @@
-package com.example.ecommercedemo.service;
+package com.example.ecommercedemo.customer;
 
-import com.example.ecommercedemo.customer.CustomerServiceImpl;
-import com.example.ecommercedemo.customer.CustomerEntity;
 import com.example.ecommercedemo.exceptions.CustomerAlreadyExistsException;
 import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
 import com.example.ecommercedemo.exceptions.ErrorCode;
-import com.example.ecommercedemo.customer.CustomerMapper;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
-import com.example.ecommercedemo.customer.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

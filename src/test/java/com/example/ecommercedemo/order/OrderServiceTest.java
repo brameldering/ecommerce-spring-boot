@@ -1,12 +1,8 @@
-package com.example.ecommercedemo.service;
+package com.example.ecommercedemo.order;
 
 import com.example.ecommercedemo.customer.CustomerEntity;
-import com.example.ecommercedemo.order.OrderEntity;
-import com.example.ecommercedemo.order.OrderMapper;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.model.OrderReq;
-import com.example.ecommercedemo.order.OrderRepository;
-import com.example.ecommercedemo.order.OrderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

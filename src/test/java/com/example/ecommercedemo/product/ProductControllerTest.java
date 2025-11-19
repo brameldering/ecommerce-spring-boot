@@ -1,8 +1,6 @@
-package com.example.ecommercedemo.controller;
+package com.example.ecommercedemo.product;
 
 import com.example.ecommercedemo.model.Product;
-import com.example.ecommercedemo.product.ProductController;
-import com.example.ecommercedemo.product.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
