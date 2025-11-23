@@ -1534,6 +1534,9 @@ components:
     SignInReq:
       description: Request body for Sign-in
       type: object
+      required:
+        - username
+        - password
       properties:
         username:
           description: username of the User

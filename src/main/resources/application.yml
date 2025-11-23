@@ -44,7 +44,8 @@ logging:
 
 springdoc:
   swagger-ui:
-    url: /api/openapi.yaml
+#    url: /api/openapi.yaml
+    path: /swagger-ui.html
 app:
   security:
       jwt:

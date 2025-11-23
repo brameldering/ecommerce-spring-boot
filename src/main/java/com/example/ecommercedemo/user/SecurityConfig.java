@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.example.ecommercedemo.user.Constants.*;
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+// H2 specific:  import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Configuration
 @EnableWebSecurity
@@ -85,9 +86,9 @@ public class SecurityConfig {
             .ignoringRequestMatchers(
                 API_URL_PREFIX + "**"
             )
-            .ignoringRequestMatchers(toH2Console())
+// H2 specific: .ignoringRequestMatchers(toH2Console())
         )
-        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+// H2 specific: .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
 
         // 4. CORS Configuration
         .cors(cors -> {
@@ -95,8 +96,18 @@ public class SecurityConfig {
 
         // 5. Authorization
         .authorizeHttpRequests(auth -> auth
-            // Public/Permit All Endpoints
-            .requestMatchers(toH2Console()).permitAll()
+// H2 specific:  .requestMatchers(toH2Console()).permitAll()
+                .requestMatchers(
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/swagger-ui.html",
+                    "/swagger-ui/",
+                    "/swagger-ui/**",
+                    "/webjars/**",
+                    "/api/openapi.yaml",
+                    "/favicon.ico"
+                ).permitAll()
+                // Permit the following public Endpoints
             .requestMatchers(HttpMethod.POST, TOKEN_URL).permitAll()
             .requestMatchers(HttpMethod.DELETE, TOKEN_URL).permitAll()
             .requestMatchers(HttpMethod.POST, SIGNUP_URL).permitAll()

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserService {
 
-  Optional<SignedInUser> createUser(User user);
+  SignedInUser createUser(User user);
 
   UserEntity findUserByUsername(String username);
 

@@ -24,30 +24,32 @@ public class UserServiceImpl implements UserService {
   private final UserRepository repository;
   private final UserTokenRepository userTokenRepository;
   private final PasswordEncoder bCryptPasswordEncoder;
-  private final JwtManager tokenManager;
+  private final JwtManager jwtManager;
 
   public UserServiceImpl(
       UserRepository repository,
       UserTokenRepository userTokenRepository,
       PasswordEncoder bCryptPasswordEncoder,
-      JwtManager tokenManager) {
+      JwtManager jwtManager) {
     this.repository = repository;
     this.userTokenRepository = userTokenRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    this.tokenManager = tokenManager;
+    this.jwtManager = jwtManager;
   }
 
   @Override
   @Transactional
-  public Optional<SignedInUser> createUser(User user) {
+  public SignedInUser createUser(User user) {
+    // 1. Business Validation Check (handled via exception, caught by @ControllerAdvice)
     Integer count = repository.findByUsernameCount(user.getUsername());
     if (count > 0) {
       throw new UsernameAlreadyExistsException("Use different username.");
     }
-    UserEntity userEntity = repository.save(toEntity(user));
-    return Optional.of(createSignedUserWithRefreshToken(userEntity));
-  }
 
+    UserEntity userEntity = repository.save(toEntity(user));
+    return createSignedUserWithRefreshToken(userEntity);
+  }
+  // 2. Successful path returns the guaranteed object
   @Override
   @Transactional
   public SignedInUser getSignedInUser(UserEntity userEntity) {
@@ -61,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
   private SignedInUser createSignedInUser(UserEntity userEntity) {
     String token =
-        tokenManager.create(
+        jwtManager.create(
             org.springframework.security.core.userdetails.User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
