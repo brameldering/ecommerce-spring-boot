@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,8 +52,11 @@ public class SecurityConfig {
 
   private final ObjectMapper mapper;
 
+//  @Value("${app.security.jwt.keystore-location}")
+//  private String keyStorePath;
+
   @Value("${app.security.jwt.keystore-location}")
-  private String keyStorePath;
+  private Resource keyStoreResource;
 
   @Value("${app.security.jwt.keystore-password}")
   private String keyStorePassword;
@@ -157,17 +161,23 @@ public class SecurityConfig {
   @Bean
   public KeyStore keyStore() {
     try {
+      LOG.info("Loading keystore from: {}", keyStoreResource.getDescription());
+      LOG.info("Resolved Keystore Path: {}", keyStoreResource.getURI());
+
       // Explicitly use PKCS12 instead of getDefaultType()
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
 
-      InputStream resourceAsStream =
-          Thread.currentThread().getContextClassLoader().getResourceAsStream(keyStorePath);
+      // Use the Resource object to get the stream
+      InputStream resourceAsStream = keyStoreResource.getInputStream();
+//      InputStream resourceAsStream =
+//          Thread.currentThread().getContextClassLoader().getResourceAsStream(keyStorePath);
 
       keyStore.load(resourceAsStream, keyStorePassword.toCharArray());
 
       return keyStore;
+
     } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
-      LOG.error("Unable to load keystore: {}", keyStorePath, e);
+      LOG.error("Unable to load keystore: {}", keyStoreResource.getDescription(), e);
     }
     throw new IllegalArgumentException("Unable to load keystore");
   }
@@ -180,7 +190,7 @@ public class SecurityConfig {
         return (RSAPrivateKey) key;
       }
     } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException e) {
-      LOG.error("Unable to load private key from keystore: {}", keyStorePath, e);
+      LOG.error("Unable to load private key from keystore: {}", keyStoreResource.getDescription(), e);
     }
     throw new IllegalArgumentException("Unable to load private key");
   }
@@ -213,7 +223,7 @@ public class SecurityConfig {
       throw new IllegalArgumentException("Unable to load RSA public key");
 
     } catch (KeyStoreException e) {
-      LOG.error("Unable to load private key from keystore: {}", keyStorePath, e);
+      LOG.error("Unable to load private key from keystore: {}", keyStoreResource.getDescription(), e);
       // Re-throw a RuntimeException to terminate bean creation
       throw new RuntimeException("Failed to access keystore for JWT validation.", e);
     }
