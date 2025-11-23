@@ -1,6 +1,7 @@
-package com.example.ecommercedemo.exceptions;
+package com.example.ecommercedemo.exception;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +41,8 @@ public class Error implements Serializable {
    * Method of request that produced the error.
    */
   private String reqMethod = "Not available";
+
+  private Instant timestamp;
 
   /**
    * Specific setters for Url and method: ignore blank values when

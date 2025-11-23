@@ -2,7 +2,7 @@ package com.example.ecommercedemo.cart;
 
 import com.example.ecommercedemo.customer.CustomerEntity;
 import com.example.ecommercedemo.item.ItemEntity;
-import com.example.ecommercedemo.exceptions.*;
+import com.example.ecommercedemo.exception.*;
 import com.example.ecommercedemo.item.ItemMapper;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.customer.CustomerRepository;

@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.cart;
 
 import com.example.ecommercedemo.api.CartApi;
-import com.example.ecommercedemo.exceptions.CartNotFoundException;
+import com.example.ecommercedemo.exception.CartNotFoundException;
 import com.example.ecommercedemo.item.ItemRepresentationModelAssembler;
 import com.example.ecommercedemo.model.Cart;
 import com.example.ecommercedemo.model.Item;

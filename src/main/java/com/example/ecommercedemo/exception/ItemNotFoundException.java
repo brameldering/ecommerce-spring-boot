@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.exceptions;
+package com.example.ecommercedemo.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

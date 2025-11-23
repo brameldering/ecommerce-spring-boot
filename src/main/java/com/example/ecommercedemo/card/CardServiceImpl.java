@@ -1,9 +1,9 @@
 package com.example.ecommercedemo.card;
 
 import com.example.ecommercedemo.customer.CustomerEntity;
-import com.example.ecommercedemo.exceptions.CardAlreadyExistsException;
-import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.exceptions.ErrorCode;
+import com.example.ecommercedemo.exception.CardAlreadyExistsException;
+import com.example.ecommercedemo.exception.CustomerNotFoundException;
+import com.example.ecommercedemo.exception.ErrorCode;
 import com.example.ecommercedemo.model.Card;
 import com.example.ecommercedemo.customer.CustomerRepository;
 import com.example.ecommercedemo.model.CardReq;

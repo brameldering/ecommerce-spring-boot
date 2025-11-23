@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.exceptions;
+package com.example.ecommercedemo.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -8,23 +8,22 @@ import java.io.Serial;
 
 @Getter
 @ResponseStatus(value = HttpStatus.CONFLICT)
-public class CustomerAlreadyExistsException extends RuntimeException {
+public class ItemAlreadyExistsException extends RuntimeException {
 
   @Serial
   private static final long serialVersionUID = 1L;
   private final String errMsgKey;
   private final String errorCode;
 
-  public CustomerAlreadyExistsException(ErrorCode code) {
+  public ItemAlreadyExistsException(ErrorCode code) {
     super(code.getErrMsgKey());
     this.errMsgKey = code.getErrMsgKey();
     this.errorCode = code.getErrCode();
   }
 
-  public CustomerAlreadyExistsException(final String message) {
+  public ItemAlreadyExistsException(final String message) {
     super(message);
-    this.errMsgKey = ErrorCode.CUSTOMER_ALREADY_EXISTS.getErrMsgKey();
-    this.errorCode = ErrorCode.CUSTOMER_ALREADY_EXISTS.getErrCode();
+    this.errMsgKey = ErrorCode.ITEM_ALREADY_EXISTS.getErrMsgKey();
+    this.errorCode = ErrorCode.ITEM_ALREADY_EXISTS.getErrCode();
   }
-
 }

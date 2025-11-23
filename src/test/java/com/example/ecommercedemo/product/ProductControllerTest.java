@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
+@WithMockUser(username = "testuser")
 public class ProductControllerTest {
 
   @Autowired
@@ -25,6 +28,9 @@ public class ProductControllerTest {
 
   @MockBean
   private ProductService productService;
+
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   private final UUID PRODUCT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
   private Product mockProduct;

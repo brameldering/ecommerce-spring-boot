@@ -1,8 +1,8 @@
 package com.example.ecommercedemo.customer;
 
-import com.example.ecommercedemo.exceptions.CustomerAlreadyExistsException;
-import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
-import com.example.ecommercedemo.exceptions.ErrorCode;
+import com.example.ecommercedemo.exception.CustomerAlreadyExistsException;
+import com.example.ecommercedemo.exception.CustomerNotFoundException;
+import com.example.ecommercedemo.exception.ErrorCode;
 import com.example.ecommercedemo.model.Customer;
 import com.example.ecommercedemo.model.CustomerReq;
 import org.junit.jupiter.api.BeforeEach;

@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminController.class)
+@WithMockUser(roles = {"ADMIN"})
 public class AdminControllerTest {
 
   @Autowired
@@ -56,6 +59,9 @@ public class AdminControllerTest {
   private CustomerRepresentationModelAssembler customerAssembler;
   @MockBean
   private OrderRepresentationModelAssembler orderAssembler;
+
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   // Sample data setup
   private final UUID CUST_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");

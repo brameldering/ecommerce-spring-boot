@@ -2,8 +2,8 @@ package com.example.ecommercedemo.order;
 
 import com.example.ecommercedemo.cart.CartEntity;
 import com.example.ecommercedemo.item.ItemEntity;
-import com.example.ecommercedemo.exceptions.ItemNotFoundException;
-import com.example.ecommercedemo.exceptions.CartNotFoundException;
+import com.example.ecommercedemo.exception.ItemNotFoundException;
+import com.example.ecommercedemo.exception.CartNotFoundException;
 import com.example.ecommercedemo.model.OrderReq;
 import com.example.ecommercedemo.model.Order;
 import com.example.ecommercedemo.cart.CartRepository;

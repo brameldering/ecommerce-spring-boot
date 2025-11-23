@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -18,11 +20,13 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // 1. Specifies the controller to test and loads only the web layer components
 @WebMvcTest(AddressController.class)
+@WithMockUser(username = "testuser") // 3. Simulates a logged-in user for ALL tests in this class
 public class AddressControllerTest {
 
   // MockMvc is auto-configured and injected for making HTTP requests
@@ -43,6 +47,9 @@ public class AddressControllerTest {
   // or provide a simple implementation for testing purposes. We'll mock it here.
   @MockBean
   private AddressRepresentationModelAssembler mockAssembler;
+
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   private static final String BASE_URL = "/api/v1/addresses";
   private final UUID customerId = UUID.randomUUID();
@@ -73,7 +80,8 @@ public class AddressControllerTest {
     mockMvc.perform(post("/api/v1/customers/{id}/addresses", customerId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request))
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // REQUIRED for POST/PUT/DELETE to pass CSRF checks
         .andExpect(status().isCreated())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(addressId.toString()))
@@ -135,7 +143,8 @@ public class AddressControllerTest {
     // Mock the Service behavior (it returns void/nothing)
     doNothing().when(mockAddressService).deleteAddressById(addressId);
 
-    mockMvc.perform(delete(BASE_URL + "/{uuid}", addressId))
-        .andExpect(status().isAccepted());
+    mockMvc.perform(delete(BASE_URL + "/{uuid}", addressId)
+            .with(csrf()))// REQUIRED for DELETE requests
+          .andExpect(status().isAccepted());
   }
 }

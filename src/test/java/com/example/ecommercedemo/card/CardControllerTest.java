@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -18,10 +20,12 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CardController.class)
+@WithMockUser(username = "testuser")
 public class CardControllerTest {
 
   @Autowired
@@ -36,6 +40,10 @@ public class CardControllerTest {
   // Mock HATEOAS Assembler: returns the object as is for simple testing
   @MockBean
   private CardRepresentationModelAssembler cardAssembler;
+
+  // Mock the JwtDecoder to allow the OAuth2 Security Filter Chain to initialize
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   private final UUID CUSTOMER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
   private final UUID CARD_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -75,7 +83,8 @@ public class CardControllerTest {
     mockMvc.perform(post("/api/v1/customers/{id}/cards", CUSTOMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(cardReq)))
+            .content(objectMapper.writeValueAsString(cardReq))
+            .with(csrf())) // CSRF for POST requests
         .andExpect(status().isCreated()) // Expect 201 CREATED
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(CARD_ID.toString()))
@@ -158,7 +167,8 @@ public class CardControllerTest {
 
     // Act & Assert
     mockMvc.perform(delete("/api/v1/cards/{id}", CARD_ID)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // CSRF for DELETE requests
         .andExpect(status().isNoContent()) // Expect 204 NO CONTENT
         .andExpect(content().string(""));
 
@@ -172,7 +182,8 @@ public class CardControllerTest {
 
     // Act & Assert
     mockMvc.perform(delete("/api/v1/cards/{id}", CARD_ID)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // CSRF for DELETE requests
         .andExpect(status().isNotFound()) // Expect 404 NOT FOUND
         .andExpect(content().string(""));
 

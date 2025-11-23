@@ -1,7 +1,7 @@
 package com.example.ecommercedemo.address;
 
 import com.example.ecommercedemo.customer.CustomerEntity;
-import com.example.ecommercedemo.exceptions.CustomerNotFoundException;
+import com.example.ecommercedemo.exception.CustomerNotFoundException;
 import com.example.ecommercedemo.model.Address;
 import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.customer.CustomerRepository;

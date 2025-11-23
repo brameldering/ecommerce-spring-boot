@@ -45,3 +45,10 @@ logging:
 springdoc:
   swagger-ui:
     url: /api/openapi.yaml
+app:
+  security:
+      jwt:
+        keystore-location: jwt-keystore.jks
+        keystore-password: password
+        key-alias: jwt-sign-key
+        private-key-passphrase: password

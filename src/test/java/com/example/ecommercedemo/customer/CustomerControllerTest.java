@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -17,10 +19,12 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
+@WithMockUser(username = "testuser")
 public class CustomerControllerTest {
 
   @Autowired
@@ -35,6 +39,10 @@ public class CustomerControllerTest {
   // Mock HATEOAS Assembler: returns the object as is for simple testing
   @MockBean
   private CustomerRepresentationModelAssembler customerAssembler;
+
+  // Mock the JwtDecoder to allow the OAuth2 Security Filter Chain to initialize
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   private final UUID CUSTOMER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
   private CustomerReq customerReq;
@@ -70,7 +78,8 @@ public class CustomerControllerTest {
     mockMvc.perform(post("/api/v1/customers")
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(customerReq)))
+            .content(objectMapper.writeValueAsString(customerReq))
+            .with(csrf())) // CSRF for POST requests
         .andExpect(status().isCreated()) // Expect 201 CREATED
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(CUSTOMER_ID.toString()))
@@ -118,7 +127,8 @@ public class CustomerControllerTest {
     mockMvc.perform(put("/api/v1/customers/{id}", CUSTOMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(customerReq.firstName("Jane"))))
+            .content(objectMapper.writeValueAsString(customerReq.firstName("Jane")))
+            .with(csrf())) // CSRF for PUT requests
         .andExpect(status().isOk()) // Expect 200 OK
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(CUSTOMER_ID.toString()))
@@ -136,7 +146,8 @@ public class CustomerControllerTest {
 
     // Act & Assert
     mockMvc.perform(delete("/api/v1/customers/{id}", CUSTOMER_ID)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // CSRF for DELETE requests
         .andExpect(status().isAccepted()) // Expect 202 ACCEPTED
         .andExpect(content().string("")); // Response body should be empty
 

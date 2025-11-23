@@ -1,8 +1,8 @@
-package com.example.ecommercedemo.exceptions;
+package com.example.ecommercedemo.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
 
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import static com.example.ecommercedemo.user.Constants.TOKEN_URL;
 
 @ControllerAdvice
 public class RestApiErrorHandler {
@@ -35,6 +40,22 @@ public class RestApiErrorHandler {
   @Autowired
   public RestApiErrorHandler(MessageSource messageSource) {
     this.messageSource = messageSource;
+  }
+
+  @ExceptionHandler(UsernameAlreadyExistsException.class)
+  public ResponseEntity<Error> usernameAlreadyExistsException(HttpServletRequest request, UsernameAlreadyExistsException ex, Locale locale) {
+    log.warn("Username already exists (404): {} for {} {}", ex.getMessage(), request.getMethod(), request.getRequestURL());
+
+    Error error = ErrorUtils
+        // Use the fields from your exception object
+        .createError(ex.getErrMsgKey(), ex.getErrorCode(),
+            HttpStatus.CONFLICT.value()) // 404 Not Found
+        .setMessage(ex.getMessage())
+        .setUrl(request.getRequestURL().toString())
+        .setReqMethod(request.getMethod());
+
+    // Explicitly return a 409 response
+    return new ResponseEntity<>(error, HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(CardAlreadyExistsException.class)
@@ -251,7 +272,7 @@ public class RestApiErrorHandler {
   }
 
   /**
-   * Handles exceptions thrown when a path or query parameter (like a UUID) cannot be converted to the required type.
+   * Handles exception thrown when a path or query parameter (like a UUID) cannot be converted to the required type.
    */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<Error> methodArgumentTypeMismatchException(
@@ -355,6 +376,57 @@ public class RestApiErrorHandler {
        .setReqMethod(request.getMethod());
 
     return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Error> handleAuthenticationException(
+      HttpServletRequest request, AuthenticationException ex, Locale locale) {
+    log.info("exception = " + ex);
+    log.info("exception.getCause() = " + ex.getCause());
+    String errorMsg = "";
+    if (ex instanceof InsufficientAuthenticationException) {
+      errorMsg = ex.getMessage();
+    } else {
+      errorMsg = ErrorCode.UNAUTHORIZED.getErrMsgKey();
+    }
+    Error error =
+        ErrorUtils.createError(
+                errorMsg, ErrorCode.UNAUTHORIZED.getErrCode(), HttpStatus.UNAUTHORIZED.value())
+            .setUrl(TOKEN_URL)
+            .setReqMethod(request.getMethod())
+            .setTimestamp(Instant.now());
+    return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<Error> handleAccessDeniedException(
+      HttpServletRequest request, AccessDeniedException ex, Locale locale) {
+    log.info("exception = " + ex);
+    log.info("exception.getCause() = " + ex.getCause());
+    // InvalidRefreshTokenException
+    String errorMsg =
+        String.format("%s %s", ErrorCode.ACCESS_DENIED.getErrMsgKey(), ex.getMessage());
+    Error error =
+        ErrorUtils.createError(
+                errorMsg, ErrorCode.ACCESS_DENIED.getErrCode(), HttpStatus.FORBIDDEN.value())
+            .setUrl(request.getRequestURL().toString())
+            .setReqMethod(request.getMethod())
+            .setTimestamp(Instant.now());
+    return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(InvalidRefreshTokenException.class)
+  public ResponseEntity<Error> handleInvalidRefreshTokenException(
+      HttpServletRequest request, InvalidRefreshTokenException ex, Locale locale) {
+    String errorMsg =
+        String.format("%s %s", ErrorCode.INVALID_REFRESH_TOKEN.getErrMsgKey(), ex.getMessage());
+    Error error =
+        ErrorUtils.createError(
+                errorMsg, ErrorCode.INVALID_REFRESH_TOKEN.getErrCode(), HttpStatus.NOT_FOUND.value())
+            .setUrl(request.getRequestURL().toString())
+            .setReqMethod(request.getMethod())
+            .setTimestamp(Instant.now());
+    return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
   }
 
   // Generic server error handling

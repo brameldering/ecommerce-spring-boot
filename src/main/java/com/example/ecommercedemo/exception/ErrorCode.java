@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.exceptions;
+package com.example.ecommercedemo.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,8 +28,12 @@ public enum ErrorCode {
   CUSTOMER_ALREADY_EXISTS("PACKT-0050", "Customer already exists."),
   ITEM_ALREADY_EXISTS("PACKT-0051", "Item already exists."),
   CARD_ALREADY_EXISTS("PACKT-0052", "Card already exists."),
+  USERNAME_ALREADY_EXISTS("PACKT-0053", "Username already exists."),
   ADDRESS_CREATION_FAILED("PACKT-0060", "AAddress creation failed."),
   ORDER_CREATION_FAILED("PACKT-0061", "Order creation failed."),
+  ACCESS_DENIED("PACKT-0070", "Access Denied."),
+  UNAUTHORIZED("PACKT-0071", "Unauthorized"),
+  INVALID_REFRESH_TOKEN("PACKT-0072", "Invalid refresh token."),
   VALIDATION_ERROR("PACKT-0100", "Validation of input failed."),;
 
   private final String errCode;

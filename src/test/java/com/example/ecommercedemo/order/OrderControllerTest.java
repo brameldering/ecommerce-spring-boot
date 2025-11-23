@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -18,10 +20,12 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OrderController.class)
+@WithMockUser(username = "testuser")
 public class OrderControllerTest {
 
   @Autowired
@@ -32,6 +36,9 @@ public class OrderControllerTest {
 
   @MockBean
   private OrderService orderService;
+
+  @MockBean
+  private JwtDecoder jwtDecoder;
 
   // Mock HATEOAS Assembler: returns the object(s) as is for simple testing
   @MockBean
@@ -76,7 +83,8 @@ public class OrderControllerTest {
     mockMvc.perform(post("/api/v1/customers/{id}/orders", CUSTOMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(orderReq)))
+            .content(objectMapper.writeValueAsString(orderReq))
+            .with(csrf())) // CSRF for POST requests
         .andExpect(status().isCreated()) // Expect 201 CREATED
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.id").value(ORDER_ID.toString()))

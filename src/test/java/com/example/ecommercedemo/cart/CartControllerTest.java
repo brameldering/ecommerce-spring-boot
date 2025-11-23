@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CartController.class)
+@WithMockUser(username = "testuser")
 public class CartControllerTest {
 
   @Autowired
@@ -80,7 +83,8 @@ public class CartControllerTest {
     mockMvc.perform(post("/api/v1/customers/{id}/cart/items", CUSTOMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(mockItem)))
+            .content(objectMapper.writeValueAsString(mockItem))
+            .with(csrf())) // Added CSRF for POST request
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.customerId").value(CUSTOMER_ID.toString()))
         .andExpect(jsonPath("$.items[0].productId").value(PRODUCT_ID.toString()))
@@ -105,7 +109,8 @@ public class CartControllerTest {
     mockMvc.perform(put("/api/v1/customers/{id}/cart/items", CUSTOMER_ID)
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(replacementItem)))
+            .content(objectMapper.writeValueAsString(replacementItem))
+            .with(csrf())) // Added CSRF for PUT request
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.items[0].quantity").value(5));
 
@@ -199,7 +204,8 @@ public class CartControllerTest {
 
     // Act & Assert
     mockMvc.perform(delete("/api/v1/customers/{id}/cart", CUSTOMER_ID)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // CSRF for DELETE request
         .andExpect(status().isAccepted()); // Matches the return accepted().build()
 
     verify(cartService, times(1)).deleteCartByCustomerId(CUSTOMER_ID);
@@ -213,7 +219,8 @@ public class CartControllerTest {
 
     // Act & Assert
     mockMvc.perform(delete("/api/v1/customers/{id}/cart/items/{productId}", CUSTOMER_ID, PRODUCT_ID)
-            .accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON)
+            .with(csrf())) // CSRF for DELETE request
         .andExpect(status().isAccepted()); // Matches the return accepted().build()
 
     verify(cartService, times(1)).deleteItemFromCartByCustomerIdAndProductId(CUSTOMER_ID, PRODUCT_ID);
