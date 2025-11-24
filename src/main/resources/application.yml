@@ -43,8 +43,17 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 springdoc:
+  # This setting tells Springdoc to preserve the order of elements (like paths/tags)
+  # as they are processed from the source code/annotations.
+  # This is usually the key to fixing 'random' ordering when tags-sorter is 'none'.
+  # Set to 'none' or 'class' to prioritize the order in your source code.
+  # Using 'none' is the most aggressive way to disable internal sorting.
+#  operation-ordering-strategy: none
+
+  # Ensure the tag sorting is also disabled in the UI layer
   swagger-ui:
-#    url: /api/openapi.yaml
+    tags-sorter: none
+    url: /api/openapi.yaml
     path: /swagger-ui.html
 app:
   security:

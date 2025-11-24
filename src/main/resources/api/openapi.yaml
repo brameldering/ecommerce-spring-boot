@@ -40,6 +40,516 @@ tags:
     description: Operations related to shipments
   - name: user
     description: Operations about signup, signin and so on
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    # Define a name for your security scheme (e.g., 'bearerAuth')
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UUID:
+      type: string
+      description: A standard unique identifier
+      format: uuid
+      pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+      example: 00000000-0000-0000-0000-000000000001
+    BigDecimal:
+      type: string
+      description: High-precision decimal number. Transmitted as a string to preserve precision.
+      example: "123.45"
+      # Pattern for validation, ensures the string contains only a number, an optional minus sign at the beginning, and an optional decimal part:
+      pattern: '^-?\d+(\.\d+)?$'
+    Product:
+      type: object
+      description: Product information
+      required:
+        - id
+        - name
+        - price
+      properties:
+        id:
+          description: Product identifier
+          $ref: '#/components/schemas/UUID'
+        name:
+          type: string
+          description: Product Name
+        description:
+          type: string
+          description: Product's description
+        imageUrl:
+          type: string
+          description: Product image's URL
+        price:
+          description: Product price
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+        count:
+          type: integer
+          description: Product count
+          format: int32
+          minimum: 0
+        tag:
+          type: array
+          description: Tags associated with the product
+          items:
+            $ref: '#/components/schemas/Tag'
+    Tag:
+      type: object
+      description: Product tag information
+      properties:
+        id:
+          description: Tag identifier
+          $ref: '#/components/schemas/UUID'
+        name:
+          type: string
+          description: Tag Name
+    CustomerBase:
+      type: object
+      description: Base properties of a customer object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 40
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        status:
+          type: string
+      xml:
+        name: CustomerBase
+    CustomerReq:
+      type: object
+      description: Request object for a new customer.
+      allOf:
+        - $ref: '#/components/schemas/CustomerBase'
+      xml:
+        name: CustomerReq
+    Customer:
+      type: object
+      description: "Represents a complete customer resource, including its ID"
+      allOf:
+        - $ref: '#/components/schemas/CustomerBase'
+      required:
+        - id
+      properties:
+        id:
+          description: The id of the customer
+          $ref: '#/components/schemas/UUID'
+      xml:
+        name: Customer
+    AddressBase:
+      type: object
+      description: Base properties for an address
+      required:
+        - street
+        - city
+        - zipcode
+      properties:
+        number:
+          type: string
+          description: house or flat number
+          maxLength: 20
+        residency:
+          type: string
+          description: Society or building name (optional)
+        street:
+          type: string
+          description: street name
+          minLength: 1
+          maxLength: 80
+        city:
+          type: string
+          description: city name
+          minLength: 1
+          maxLength: 40
+        state:
+          type: string
+          description: state name
+          maxLength: 40
+        country:
+          type: string
+          description: country name
+          maxLength: 40
+        zipcode:
+          type: string
+          description: postal code
+          minLength: 1
+          maxLength: 20
+      xml:
+        name: AddressBase
+    AddressReq:
+      type: object
+      description: Request object for a new address
+      allOf:
+        - $ref: '#/components/schemas/AddressBase'
+      xml:
+        name: AddressReq
+    Address:
+      type: object
+      description: "Represents a complete address resource, including its ID and associated Customer ID."
+      allOf:
+        - $ref: '#/components/schemas/AddressBase'
+      required:
+        - id
+        - customerId
+      properties:
+        id:
+          description: Address identifier
+          $ref: '#/components/schemas/UUID'
+        customerId:
+          description: The customer ID associated with this address.
+          $ref: '#/components/schemas/UUID'
+      xml:
+        name: Address
+    CardDetailsBase:
+      type: object
+      description: Base properties for a credit/debit card.
+      required:
+        - cardNumber
+        - expires
+        - cvv
+      properties:
+        cardNumber:
+          type: string
+          description: Card Number (The full number should only be sent in the request, not returned)
+        expires:
+          type: string
+          description: Expiration date (e.g., MM/YY or MM/YYYY)
+          example: 01/29
+          pattern: '^(0[1-9]|1[0-2])\/\d{2}$' # MM/YY
+        cvv:
+          type: string
+          description: CVV code (Only sent in the request, never stored or returned)
+          example: 123
+          pattern: '^\d{3,4}$' # 3 or 4 digits
+          writeOnly: true
+      xml:
+        name: CardDetailsBase
+    CardReq:
+      type: object
+      description: Request object for new card registration.
+      allOf:
+        - $ref: '#/components/schemas/CardDetailsBase'
+      xml:
+        name: CardReq
+    Card:
+      type: object
+      description: Represents a registered Card resource, with masked details.
+      allOf:
+        - $ref: '#/components/schemas/CardDetailsBase'
+      required:
+        - id
+        - customerId
+        - cardNumber
+        - expires
+      properties:
+        id:
+          description: Card identifier
+          $ref: '#/components/schemas/UUID'
+        customerId:
+          description: Id of customer owning the card
+          $ref: '#/components/schemas/UUID'
+        cardNumber:
+          type: string
+          description: Card Number (Masked for security)
+          example: '************1234'
+        expires:
+          type: string
+          description: Expiration date (MM/YY or MM/YYYY)
+        cvv:
+          type: string
+          description: CVV code (Masked response for security)
+          readOnly: true
+          example: '***'
+      xml:
+        name: Card
+    CustomerInfoOnCard:
+      type: object
+      description: Customer information required for payment processing
+      properties:
+        firstName:
+          type: string
+          description: Customer first name
+        lastName:
+          type: string
+          description: Customer last name
+      xml:
+        name: CustomerInfoOnCard
+    Item:
+      type: object
+      description: Item in shopping cart
+      required:
+        - productId
+        - quantity
+        - unitPrice
+      properties:
+        productId:
+          description: Product Identifier for this item
+          $ref: '#/components/schemas/UUID'
+        quantity:
+          type: integer
+          description: The item quantity
+          format: int32
+          minimum: 0
+        unitPrice:
+          description: The item's price per unit
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+      xml:
+        name: Item
+    Cart:
+      type: object
+      description: Shopping Cart of the customer
+      properties:
+        id:
+          description: Cart Identifier
+          $ref: '#/components/schemas/UUID'
+        customerId:
+          description: Id of the customer who possesses the cart
+          $ref: '#/components/schemas/UUID'
+        items:
+          type: array
+          description: Collection of items in cart.
+          items:
+            $ref: '#/components/schemas/Item'
+      xml:
+        name: Cart
+    OrderReq:
+      type: object
+      description: Request object for a new order
+      required:
+        - addressId
+        - cardId
+      properties:
+        addressId:
+          description: Identifier of the customer's shipping address
+          $ref: '#/components/schemas/UUID'
+        cardId:
+          description: Identifier of the customer's payment card
+          $ref: '#/components/schemas/UUID'
+      xml:
+        name: OrderReq
+    Order:
+      type: object
+      description: Represents an order
+      required:
+        - id
+        - customer
+        - address
+        - date
+        - total
+        - status
+        - payment
+        - shipment
+      properties:
+        id:
+          description: Order identifier
+          $ref: '#/components/schemas/UUID'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        address:
+          $ref: '#/components/schemas/Address'
+        card:
+          $ref: '#/components/schemas/Card'
+        date:
+          type: string
+          description: Order's data and time details
+          format: date-time
+        items:
+          type: array
+          description: Collection of items for the order.
+          items:
+            $ref: '#/components/schemas/Item'
+        total:
+          description: Order total
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        shipment:
+          $ref: '#/components/schemas/Shipment'
+        status:
+          type: string
+          description: Order Status
+          enum:
+            - CREATED
+            - PAID
+            - SHIPPED
+            - PAYMENT_FAILED
+            - SHIPMENT_FAILED
+            - COMPLETED
+      xml:
+        name: Order
+    Authorization:
+      type: object
+      description: authorization of payment
+      properties:
+        orderId:
+          description: Order Identification belonging to the authorization
+          $ref: '#/components/schemas/UUID'
+        time:
+          type: string
+          description: Timestamp when this authorization was created
+          format: date-time
+        authorized:
+          type: boolean
+          description: Flag that specifies whether the payment is authorized
+        message:
+          type: string
+          description: Approval or rejection message
+        error:
+          type: string
+          description: Processing error description, if any
+      xml:
+        name: Authorization
+    PaymentBase:
+      type: object
+      description: Base properties for a payment
+      required:
+        - address
+        - card
+        - amount
+      properties:
+        customer:
+          $ref: '#/components/schemas/CustomerInfoOnCard'
+        address:
+          $ref: '#/components/schemas/Address'
+        card:
+          $ref: '#/components/schemas/Card'
+        amount:
+          description: Payment amount
+          allOf:
+            - $ref: '#/components/schemas/BigDecimal'
+      xml:
+        name: PaymentBase
+    PaymentReq:
+      type: object
+      description: Request object for a payment.
+      allOf:
+        - $ref: '#/components/schemas/PaymentBase'
+      xml:
+        name: PaymentReq
+    Payment:
+      type: object
+      description: Object corresponding to a payment.
+      properties:
+        id:
+          description: Payment identifier
+          $ref: '#/components/schemas/UUID'
+        orderId:
+          description: Order Identifier belonging to this payment request
+          $ref: '#/components/schemas/UUID'
+        authorized:
+          type: boolean
+          description: Flag that specifies whether payment is authorized or not
+        message:
+          type: string
+          description: Approval or rejection message
+      xml:
+        name: Payment
+    ShipmentBase:
+      type: object
+      description: Base information for a shipment
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        itemCount:
+          type: integer
+          description: The number of items in the shipment
+          format: int32
+      xml:
+        name: ShipmentBase
+    ShipmentReq:
+      type: object
+      description: Request object for a shipment.
+      allOf:
+        - $ref: '#/components/schemas/ShipmentBase'
+      xml:
+        name: ShipmentReq
+    Shipment:
+      type: object
+      description: Object corresponding to a shipment.
+      properties:
+        id:
+          description: Shipment Identifier
+          $ref: '#/components/schemas/UUID'
+        orderId:
+          description: Order Identifier
+          $ref: '#/components/schemas/UUID'
+        carrier:
+          type: string
+          description: Shipping Carrier
+        trackingNumber:
+          type: string
+          description: Shipping Tracking Number
+        estDeliveryDate:
+          type: string
+          description: Estimated Delivery Date
+          format: date
+      xml:
+        name: Shipment
+    User:
+      type: object
+      properties:
+        id:
+          description: User Identifier
+          $ref: '#/components/schemas/UUID'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        username:
+          type: string
+        password:
+          type: string
+      xml:
+        name: User
+    SignInReq:
+      description: Request body for Sign-in
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          description: username of the User
+          type: string
+        password:
+          description: password of the User
+          type: string
+    SignedInUser:
+      description: Signed-in user information
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+        accessToken:
+          description: JWT Token aka access token
+          type: string
+        username:
+          description: User Name
+          type: string
+        userId:
+          description: User Identifier
+          $ref: '#/components/schemas/UUID'
+    RefreshToken:
+      description: Contains the refresh token
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
 paths:
   /products:
     get:
@@ -1065,505 +1575,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SignedInUser'
-components:
-  schemas:
-    UUID:
-      type: string
-      description: A standard unique identifier
-      format: uuid
-      pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
-      example: 00000000-0000-0000-0000-000000000001
-    BigDecimal:
-      type: string
-      description: High-precision decimal number. Transmitted as a string to preserve precision.
-      example: "123.45"
-      # Pattern for validation, ensures the string contains only a number, an optional minus sign at the beginning, and an optional decimal part:
-      pattern: '^-?\d+(\.\d+)?$'
-    Product:
-      type: object
-      description: Product information
-      required:
-        - id
-        - name
-        - price
-      properties:
-        id:
-          description: Product identifier
-          $ref: '#/components/schemas/UUID'
-        name:
-          type: string
-          description: Product Name
-        description:
-          type: string
-          description: Product's description
-        imageUrl:
-          type: string
-          description: Product image's URL
-        price:
-          description: Product price
-          allOf:
-            - $ref: '#/components/schemas/BigDecimal'
-        count:
-          type: integer
-          description: Product count
-          format: int32
-          minimum: 0
-        tag:
-          type: array
-          description: Tags associated with the product
-          items:
-            $ref: '#/components/schemas/Tag'
-    Tag:
-      type: object
-      description: Product tag information
-      properties:
-        id:
-          description: Tag identifier
-          $ref: '#/components/schemas/UUID'
-        name:
-          type: string
-          description: Tag Name
-    CustomerBase:
-      type: object
-      description: Base properties of a customer object
-      required:
-        - username
-      properties:
-        username:
-          type: string
-          minLength: 3
-          maxLength: 40
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-          format: email
-        phone:
-          type: string
-        status:
-          type: string
-      xml:
-        name: CustomerBase
-    CustomerReq:
-      type: object
-      description: Request object for a new customer.
-      allOf:
-        - $ref: '#/components/schemas/CustomerBase'
-      xml:
-        name: CustomerReq
-    Customer:
-      type: object
-      description: "Represents a complete customer resource, including its ID"
-      allOf:
-        - $ref: '#/components/schemas/CustomerBase'
-      required:
-        - id
-      properties:
-        id:
-          description: The id of the customer
-          $ref: '#/components/schemas/UUID'
-      xml:
-        name: Customer
-    AddressBase:
-      type: object
-      description: Base properties for an address
-      required:
-        - street
-        - city
-        - zipcode
-      properties:
-        number:
-          type: string
-          description: house or flat number
-          maxLength: 20
-        residency:
-          type: string
-          description: Society or building name (optional)
-        street:
-          type: string
-          description: street name
-          minLength: 1
-          maxLength: 80
-        city:
-          type: string
-          description: city name
-          minLength: 1
-          maxLength: 40
-        state:
-          type: string
-          description: state name
-          maxLength: 40
-        country:
-          type: string
-          description: country name
-          maxLength: 40
-        zipcode:
-          type: string
-          description: postal code
-          minLength: 1
-          maxLength: 20
-      xml:
-        name: AddressBase
-    AddressReq:
-      type: object
-      description: Request object for a new address
-      allOf:
-        - $ref: '#/components/schemas/AddressBase'
-      xml:
-        name: AddressReq
-    Address:
-      type: object
-      description: "Represents a complete address resource, including its ID and associated Customer ID."
-      allOf:
-        - $ref: '#/components/schemas/AddressBase'
-      required:
-        - id
-        - customerId
-      properties:
-        id:
-          description: Address identifier
-          $ref: '#/components/schemas/UUID'
-        customerId:
-          description: The customer ID associated with this address.
-          $ref: '#/components/schemas/UUID'
-      xml:
-        name: Address
-    CardDetailsBase:
-      type: object
-      description: Base properties for a credit/debit card.
-      required:
-        - cardNumber
-        - expires
-        - cvv
-      properties:
-        cardNumber:
-          type: string
-          description: Card Number (The full number should only be sent in the request, not returned)
-        expires:
-          type: string
-          description: Expiration date (e.g., MM/YY or MM/YYYY)
-          example: 01/29
-          pattern: '^(0[1-9]|1[0-2])\/\d{2}$' # MM/YY
-        cvv:
-          type: string
-          description: CVV code (Only sent in the request, never stored or returned)
-          example: 123
-          pattern: '^\d{3,4}$' # 3 or 4 digits
-          writeOnly: true
-      xml:
-        name: CardDetailsBase
-    CardReq:
-      type: object
-      description: Request object for new card registration.
-      allOf:
-        - $ref: '#/components/schemas/CardDetailsBase'
-      xml:
-        name: CardReq
-    Card:
-      type: object
-      description: Represents a registered Card resource, with masked details.
-      allOf:
-          - $ref: '#/components/schemas/CardDetailsBase'
-      required:
-        - id
-        - customerId
-        - cardNumber
-        - expires
-      properties:
-        id:
-          description: Card identifier
-          $ref: '#/components/schemas/UUID'
-        customerId:
-          description: Id of customer owning the card
-          $ref: '#/components/schemas/UUID'
-        cardNumber:
-          type: string
-          description: Card Number (Masked for security)
-          example: '************1234'
-        expires:
-          type: string
-          description: Expiration date (MM/YY or MM/YYYY)
-        cvv:
-          type: string
-          description: CVV code (Masked response for security)
-          readOnly: true
-          example: '***'
-      xml:
-        name: Card
-    CustomerInfoOnCard:
-      type: object
-      description: Customer information required for payment processing
-      properties:
-        firstName:
-          type: string
-          description: Customer first name
-        lastName:
-          type: string
-          description: Customer last name
-      xml:
-        name: CustomerInfoOnCard
-    Item:
-      type: object
-      description: Item in shopping cart
-      required:
-        - productId
-        - quantity
-        - unitPrice
-      properties:
-        productId:
-          description: Product Identifier for this item
-          $ref: '#/components/schemas/UUID'
-        quantity:
-          type: integer
-          description: The item quantity
-          format: int32
-          minimum: 0
-        unitPrice:
-          description: The item's price per unit
-          allOf:
-            - $ref: '#/components/schemas/BigDecimal'
-      xml:
-        name: Item
-    Cart:
-      type: object
-      description: Shopping Cart of the customer
-      properties:
-        id:
-          description: Cart Identifier
-          $ref: '#/components/schemas/UUID'
-        customerId:
-          description: Id of the customer who possesses the cart
-          $ref: '#/components/schemas/UUID'
-        items:
-          type: array
-          description: Collection of items in cart.
-          items:
-            $ref: '#/components/schemas/Item'
-      xml:
-        name: Cart
-    OrderReq:
-      type: object
-      description: Request object for a new order
-      required:
-        - addressId
-        - cardId
-      properties:
-        addressId:
-          description: Identifier of the customer's shipping address
-          $ref: '#/components/schemas/UUID'
-        cardId:
-          description: Identifier of the customer's payment card
-          $ref: '#/components/schemas/UUID'
-      xml:
-        name: OrderReq
-    Order:
-      type: object
-      description: Represents an order
-      required:
-        - id
-        - customer
-        - address
-        - date
-        - total
-        - status
-        - payment
-        - shipment
-      properties:
-        id:
-          description: Order identifier
-          $ref: '#/components/schemas/UUID'
-        customer:
-          $ref: '#/components/schemas/Customer'
-        address:
-          $ref: '#/components/schemas/Address'
-        card:
-          $ref: '#/components/schemas/Card'
-        date:
-          type: string
-          description: Order's data and time details
-          format: date-time
-        items:
-          type: array
-          description: Collection of items for the order.
-          items:
-            $ref: '#/components/schemas/Item'
-        total:
-          description: Order total
-          allOf:
-            - $ref: '#/components/schemas/BigDecimal'
-        payment:
-          $ref: '#/components/schemas/Payment'
-        shipment:
-          $ref: '#/components/schemas/Shipment'
-        status:
-          type: string
-          description: Order Status
-          enum:
-            - CREATED
-            - PAID
-            - SHIPPED
-            - PAYMENT_FAILED
-            - SHIPMENT_FAILED
-            - COMPLETED
-      xml:
-        name: Order
-    Authorization:
-      type: object
-      description: authorization of payment
-      properties:
-        orderId:
-          description: Order Identification belonging to the authorization
-          $ref: '#/components/schemas/UUID'
-        time:
-          type: string
-          description: Timestamp when this authorization was created
-          format: date-time
-        authorized:
-          type: boolean
-          description: Flag that specifies whether the payment is authorized
-        message:
-          type: string
-          description: Approval or rejection message
-        error:
-          type: string
-          description: Processing error description, if any
-      xml:
-        name: Authorization
-    PaymentBase:
-      type: object
-      description: Base properties for a payment
-      required:
-        - address
-        - card
-        - amount
-      properties:
-        customer:
-          $ref: '#/components/schemas/CustomerInfoOnCard'
-        address:
-          $ref: '#/components/schemas/Address'
-        card:
-          $ref: '#/components/schemas/Card'
-        amount:
-          description: Payment amount
-          allOf:
-            - $ref: '#/components/schemas/BigDecimal'
-      xml:
-        name: PaymentBase
-    PaymentReq:
-      type: object
-      description: Request object for a payment.
-      allOf:
-        - $ref: '#/components/schemas/PaymentBase'
-      xml:
-        name: PaymentReq
-    Payment:
-      type: object
-      description: Object corresponding to a payment.
-      properties:
-        id:
-          description: Payment identifier
-          $ref: '#/components/schemas/UUID'
-        orderId:
-          description: Order Identifier belonging to this payment request
-          $ref: '#/components/schemas/UUID'
-        authorized:
-          type: boolean
-          description: Flag that specifies whether payment is authorized or not
-        message:
-          type: string
-          description: Approval or rejection message
-      xml:
-        name: Payment
-    ShipmentBase:
-      type: object
-      description: Base information for a shipment
-      properties:
-        address:
-          $ref: '#/components/schemas/Address'
-        itemCount:
-          type: integer
-          description: The number of items in the shipment
-          format: int32
-      xml:
-        name: ShipmentBase
-    ShipmentReq:
-      type: object
-      description: Request object for a shipment.
-      allOf:
-        - $ref: '#/components/schemas/ShipmentBase'
-      xml:
-        name: ShipmentReq
-    Shipment:
-      type: object
-      description: Object corresponding to a shipment.
-      properties:
-        id:
-          description: Shipment Identifier
-          $ref: '#/components/schemas/UUID'
-        orderId:
-          description: Order Identifier
-          $ref: '#/components/schemas/UUID'
-        carrier:
-          type: string
-          description: Shipping Carrier
-        trackingNumber:
-          type: string
-          description: Shipping Tracking Number
-        estDeliveryDate:
-          type: string
-          description: Estimated Delivery Date
-          format: date
-      xml:
-        name: Shipment
-    User:
-      type: object
-      properties:
-        id:
-          description: User Identifier
-          $ref: '#/components/schemas/UUID'
-        customer:
-          $ref: '#/components/schemas/Customer'
-        username:
-          type: string
-        password:
-          type: string
-      xml:
-        name: User
-    SignInReq:
-      description: Request body for Sign-in
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          description: username of the User
-          type: string
-        password:
-          description: password of the User
-          type: string
-    SignedInUser:
-      description: Signed-in user information
-      type: object
-      properties:
-        refreshToken:
-          description: Refresh Token
-          type: string
-        accessToken:
-          description: JWT Token aka access token
-          type: string
-        username:
-          description: User Name
-          type: string
-        userId:
-          description: User Identifier
-          $ref: '#/components/schemas/UUID'
-    RefreshToken:
-      description: Contains the refresh token
-      type: object
-      properties:
-        refreshToken:
-          description: Refresh Token
-          type: string

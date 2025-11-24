@@ -1,5 +1,12 @@
 package com.example.ecommercedemo;
 
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
@@ -17,6 +24,43 @@ import java.util.Map;
 
 import static com.example.ecommercedemo.user.Constants.ENCODER_ID;
 
+// 🎯 The @OpenAPIDefinition is placed here on the @Configuration class
+@OpenAPIDefinition(
+    info = @Info(
+        title = "Sample Ecommerce App",
+        description = "This is a ***sample ecommerce app API***.  You can find out more about Swagger at [swagger.io](http://swagger.io).",
+        termsOfService = "https://github.com/PacktPublishing/Modern-API-Development-with-Spring-and-Spring-Boot/blob/master/LICENSE",
+        contact = @Contact(email = "support@packtpub.com"),
+        license = @License(name = "MIT", url = "https://github.com/PacktPublishing/Modern-API-Development-with-Spring-and-Spring-Boot/blob/master/LICENSE"),
+        version = "1.0.0"
+    ),
+    externalDocs = @ExternalDocumentation(
+        description = "Any document link you want to generate along with API.",
+        url = "http://swagger.io"
+    ),
+    servers = {
+        @Server(url = "/api/v1", description = "Current server")
+    },
+    tags = {
+        @Tag(name = "admin", description = "Administrative operations"),
+        @Tag(name = "product", description = "Operations related to products"),
+        @Tag(name = "customer", description = "Operations related to a customer"),
+        @Tag(name = "address", description = "Operations related to a customer address"),
+        @Tag(name = "card", description = "Operations related to credit/debit cards"),
+        @Tag(
+            name = "cart",
+            description = "Everything related to cart",
+            externalDocs = @ExternalDocumentation(
+                description = "Find out more (extra document link)",
+                url = "http://swagger.io"
+            )
+        ),
+        @Tag(name = "order", description = "Operation related to orders"),
+        @Tag(name = "payment", description = "Operations related to payments"),
+        @Tag(name = "shipment", description = "Operations related to shipments"),
+        @Tag(name = "user", description = "Operations about signup, signin and so on")
+    }
+)
 @Configuration
 public class AppConfig {
   @Bean
