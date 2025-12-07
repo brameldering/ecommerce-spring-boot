@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.user;
+package com.example.ecommercedemo.auth;
 
 public class Constants {
   public static final String ENCODER_ID = "bcrypt";

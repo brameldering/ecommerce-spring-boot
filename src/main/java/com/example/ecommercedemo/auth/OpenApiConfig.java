@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.user;
+package com.example.ecommercedemo.auth;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.user;
+package com.example.ecommercedemo.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
@@ -14,7 +15,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -39,7 +40,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.example.ecommercedemo.user.Constants.*;
+import static com.example.ecommercedemo.auth.Constants.*;
 // H2 specific:  import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @Configuration
@@ -77,62 +78,57 @@ public class SecurityConfig {
     this.mapper = mapper;
   }
 
+  /**
+   * 1. Public Filter Chain (Runs first due to @Order(1))
+   * This chain handles all unprotected endpoints (Sign Up, Sign In, Swagger).
+   */
   @Bean
-  protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  @Order(1)
+  public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
     http
-        .httpBasic(basic -> basic.disable())
-        .formLogin(form -> form.disable())
-        .csrf(csrf -> csrf
-            .ignoringRequestMatchers(
-                API_URL_PREFIX + "**"
-            )
-// H2 specific: .ignoringRequestMatchers(toH2Console())
-        )
-// H2 specific: .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+    // Define all public paths this chain should match
+    .securityMatcher(
+            TOKEN_URL, SIGNUP_URL, REFRESH_URL, PRODUCTS_URL, // API Auth Paths
+            "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/api/openapi.yaml", "/favicon.ico" // Swagger/OpenAPI Paths
+    )
+    .csrf(csrf -> csrf.disable())
+    .cors(cors -> {})
+    .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()) // Allow all matched paths
+    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 4. CORS Configuration
-        .cors(cors -> {
-        }) // Use the default configuration or a custom one if defined elsewhere
+    return http.build();
+  }
 
-        // 5. Authorization
-        .authorizeHttpRequests(auth -> auth
-// H2 specific:  .requestMatchers(toH2Console()).permitAll()
-                .requestMatchers(
-                    "/v3/api-docs",
-                    "/v3/api-docs/**",
-                    "/swagger-ui.html",
-                    "/swagger-ui/",
-                    "/swagger-ui/**",
-                    "/webjars/**",
-                    "/api/openapi.yaml",
-                    "/favicon.ico"
-                ).permitAll()
-                // Permit the following public Endpoints
-            .requestMatchers(HttpMethod.POST, TOKEN_URL).permitAll()
-            .requestMatchers(HttpMethod.DELETE, TOKEN_URL).permitAll()
-            .requestMatchers(HttpMethod.POST, SIGNUP_URL).permitAll()
-            .requestMatchers(HttpMethod.POST, REFRESH_URL).permitAll()
-            .requestMatchers(HttpMethod.GET, PRODUCTS_URL).permitAll()
+  /**
+   * 2. Protected Filter Chain (Runs second due to @Order(2))
+   * This chain handles all remaining (protected) paths and applies JWT validation.
+   * This is essentially your original filterChain, slightly modified.
+   */
+  @Bean
+  @Order(2)
+  protected SecurityFilterChain protectedFilterChain(HttpSecurity http) throws Exception {
+      http
+      .httpBasic(basic -> basic.disable())
+      .formLogin(form -> form.disable())
+      .csrf(csrf -> csrf.ignoringRequestMatchers(API_URL_PREFIX))
+      .cors(cors -> {})
 
-            // Role-based Access (Assuming RoleEnum.ADMIN is a real authority string)
-            // Note: Ensure RoleEnum.ADMIN.getAuthority() returns a String like "ADMIN" or "ROLE_ADMIN"
-            .requestMatchers("/api/v1/addresses/**").hasAuthority("ADMIN")
+      // Authorization (only defining rules for protected APIs now)
+      .authorizeHttpRequests(auth -> auth
+              .requestMatchers("/api/v1/addresses/**").hasAuthority(RoleEnum.Const.ADMIN)
+              .anyRequest().authenticated()
+      )
 
-            // All other requests require authentication
-            .anyRequest().authenticated()
-        )
+      // OAuth2 Resource Server (JWT) - ONLY runs on protected paths because of the @Order
+      .oauth2ResourceServer(oauth2 -> oauth2
+              .jwt(jwt -> jwt
+                      .jwtAuthenticationConverter(jwtAuthenticationConverter())
+              )
+      )
 
-        // 6. OAuth2 Resource Server (JWT)
-        .oauth2ResourceServer(oauth2 -> oauth2
-            .jwt(jwt -> jwt
-                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-            )
-        )
-
-        // 7. Session Management
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
+      .sessionManagement(session -> session
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      );
 
     return http.build();
   }
@@ -193,6 +189,7 @@ public class SecurityConfig {
     throw new IllegalArgumentException("Unable to load keystore");
   }
 
+  // The RSA private key is returned which is the key used for signing
   @Bean
   public RSAPrivateKey jwtSigningKey(KeyStore keyStore) {
     try {
@@ -206,6 +203,7 @@ public class SecurityConfig {
     throw new IllegalArgumentException("Unable to load private key");
   }
 
+  // The RSA public key is returned which is the key used for validating a signed token
   @Bean
   public RSAPublicKey jwtValidationKey(KeyStore keyStore) {
     try {

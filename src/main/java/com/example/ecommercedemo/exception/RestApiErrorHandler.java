@@ -29,7 +29,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import static com.example.ecommercedemo.user.Constants.TOKEN_URL;
+import static com.example.ecommercedemo.auth.Constants.TOKEN_URL;
 
 @ControllerAdvice
 public class RestApiErrorHandler {

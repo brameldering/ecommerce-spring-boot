@@ -1,4 +1,4 @@
-package com.example.ecommercedemo.user;
+package com.example.ecommercedemo.auth;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

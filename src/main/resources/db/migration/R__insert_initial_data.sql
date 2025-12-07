@@ -73,6 +73,7 @@ insert into ecomm.customer (id, username, first_name, last_name, email, phone, s
 insert into ecomm.customer (id, username,  first_name, last_name, email, phone, status) values('a1b9b31d-e73c-4112-af7c-b68530f38223', 'user2', 'Firstname2', 'Lastname2', 'user2@test.com', '234234234', 'ACTIVE');
 
 insert into ecomm.user (id, customer_id, username, password, role) values('b1b9b31d-e73c-4112-af7c-b68530f38222', 'a1b9b31d-e73c-4112-af7c-b68530f38222','admin', '{bcrypt}$2a$10$neR0EcYY5./tLVp4litNyuBy/kfrTsqEv8hiyqEKX0TXIQQwC/5Rm', 'ADMIN');
+insert into ecomm.user (id, customer_id, username, password, role) values('b1b9b31d-e73c-4112-af7c-b68530f38223', 'a1b9b31d-e73c-4112-af7c-b68530f38223','user', '{bcrypt}$2a$10$neR0EcYY5./tLVp4litNyuBy/kfrTsqEv8hiyqEKX0TXIQQwC/5Rm', 'USER');
 
 INSERT INTO ecomm.address VALUES ('a731fda1-aaad-42ea-bdbc-a27eeebe2cc0', '9I-999', 'Fraser Suites Le Claridge', 'Champs-Elysees', 'Paris', 'Île-de-France', 'France', '75008', 'a1b9b31d-e73c-4112-af7c-b68530f38222');
 

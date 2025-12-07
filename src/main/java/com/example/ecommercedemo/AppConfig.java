@@ -22,7 +22,7 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 import java.util.Map;
 
-import static com.example.ecommercedemo.user.Constants.ENCODER_ID;
+import static com.example.ecommercedemo.auth.Constants.ENCODER_ID;
 
 // 🎯 The @OpenAPIDefinition is placed here on the @Configuration class
 @OpenAPIDefinition(

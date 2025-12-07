@@ -43,12 +43,17 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 springdoc:
-  # This setting tells Springdoc to preserve the order of elements (like paths/tags)
-  # as they are processed from the source code/annotations.
-  # This is usually the key to fixing 'random' ordering when tags-sorter is 'none'.
-  # Set to 'none' or 'class' to prioritize the order in your source code.
-  # Using 'none' is the most aggressive way to disable internal sorting.
-#  operation-ordering-strategy: none
+  # This property prevents Springdoc from automatically adding
+  # 401/403 responses based on Spring Security configuration.
+  # This ensures the documented responses come ONLY from your openapi.yml file.
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
+  # Crucial for security documentation conflicts:
+  show-spring-security-login: false
+
+  # Ensure security scheme is documented via YAML only
+  writer-with-default-operates: false
 
   # Ensure the tag sorting is also disabled in the UI layer
   swagger-ui:

@@ -22,6 +22,7 @@ public class UserTokenEntity {
   @Id
   @GeneratedValue
   @Column(name = "ID", updatable = false, nullable = false)
+  @ToString.Include
   private UUID id;
 
   @NotNull(message = "Refresh token is required.")

@@ -1,10 +1,11 @@
 package com.example.ecommercedemo.user;
 
+import com.example.ecommercedemo.auth.JwtManager;
 import com.example.ecommercedemo.exception.InvalidRefreshTokenException;
 import com.example.ecommercedemo.exception.UsernameAlreadyExistsException;
 import com.example.ecommercedemo.model.RefreshToken;
 import com.example.ecommercedemo.model.SignedInUser;
-import com.example.ecommercedemo.model.User;
+import com.example.ecommercedemo.model.SignUpReq;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,17 +40,17 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public SignedInUser createUser(User user) {
+  public SignedInUser createUser(SignUpReq user) {
     // 1. Business Validation Check (handled via exception, caught by @ControllerAdvice)
     Integer count = repository.findByUsernameCount(user.getUsername());
     if (count > 0) {
-      throw new UsernameAlreadyExistsException("Use different username.");
+      throw new UsernameAlreadyExistsException("Username already exists, use different username.");
     }
 
-    UserEntity userEntity = repository.save(toEntity(user));
+    UserEntity userEntity = repository.save(toEntitySignUpReq(user));
     return createSignedUserWithRefreshToken(userEntity);
   }
-  // 2. Successful path returns the guaranteed object
+
   @Override
   @Transactional
   public SignedInUser getSignedInUser(UserEntity userEntity) {
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
     return createSignedInUser(userEntity).refreshToken(createRefreshToken(userEntity));
   }
 
+  // Calls the jwtManager to create a JWT token
   private SignedInUser createSignedInUser(UserEntity userEntity) {
     String token =
         jwtManager.create(
@@ -78,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Optional<SignedInUser> getAccessToken(RefreshToken refreshToken) {
-    // You may add an additional validation for time that would remove/invalidate the refresh token
+    // You may add a validation for time that would remove/invalidate the refresh token
     return userTokenRepository
         .findByRefreshToken(refreshToken.getRefreshToken())
         .map(
@@ -112,7 +114,7 @@ public class UserServiceImpl implements UserService {
     return userEntity;
   }
 
-  private UserEntity toEntity(User user) {
+  private UserEntity toEntitySignUpReq(SignUpReq user) {
     UserEntity userEntity = new UserEntity();
     BeanUtils.copyProperties(user, userEntity);
     userEntity.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));

@@ -1,5 +1,6 @@
 package com.example.ecommercedemo.user;
 
+import com.example.ecommercedemo.auth.RoleEnum;
 import com.example.ecommercedemo.customer.CustomerEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

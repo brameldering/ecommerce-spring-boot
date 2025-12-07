@@ -1,10 +1,12 @@
 package com.example.ecommercedemo.address;
 
 import com.example.ecommercedemo.api.AddressApi;
+import com.example.ecommercedemo.auth.RoleEnum;
 import com.example.ecommercedemo.model.AddressReq;
 import com.example.ecommercedemo.model.Address;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +57,7 @@ public class AddressController implements AddressApi {
         .map(ResponseEntity::ok).orElse(notFound().build());
   }
 
+  @PreAuthorize("hasRole('" + RoleEnum.Const.ADMIN + "')")
   @Override
   public ResponseEntity<Void> deleteAddressById(UUID uuid) {
     addressService.deleteAddressById(uuid);

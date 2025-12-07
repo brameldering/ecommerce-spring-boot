@@ -512,8 +512,29 @@ components:
           type: string
         password:
           type: string
+        role:
+          type: string
       xml:
         name: User
+    SignUpReq:
+      description: Request body for Sign-up
+      type: object
+      required:
+        - username
+        - password
+        - role
+      properties:
+        username:
+          description: username of the User
+          type: string
+        password:
+          description: password of the User
+          type: string
+        role:
+          type: string
+        customerId:
+          description: Customer Identifier
+          $ref: '#/components/schemas/UUID'
     SignInReq:
       description: Request body for Sign-in
       type: object
@@ -786,6 +807,8 @@ paths:
                 type: array # Ensure the JSON schema is an array, matching the XML type
                 items:
                   $ref: '#/components/schemas/Address'
+        401:
+          description: Unauthorized. The request lacks valid authentication credentials (e.g., a valid JWT token).
     post:
       tags:
         - address
@@ -820,6 +843,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Address'
+        401:
+          description: Unauthorized. The request lacks valid authentication credentials (e.g., a valid JWT token).
   /customers/{id}/cards:
     get:
       tags:
@@ -1488,16 +1513,16 @@ paths:
       tags:
         - user
       summary: Signup a new user
-      description: Creates a new customer (user), who can login and do the shopping.
+      description: Creates a new user, who can login and use the application.
       operationId: signUp
       requestBody:
         content:
           application/xml:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/SignUpReq'
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/SignUpReq'
       responses:
         201:
           description: For successful user creation.
