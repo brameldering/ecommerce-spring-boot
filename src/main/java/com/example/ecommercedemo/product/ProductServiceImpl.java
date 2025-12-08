@@ -1,6 +1,8 @@
 package com.example.ecommercedemo.product;
 
 import com.example.ecommercedemo.model.Product;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +18,8 @@ public class ProductServiceImpl implements ProductService {
   private final ProductRepository productRepository;
   private final ProductMapper productMapper;
 
+  private final Logger LOG = LoggerFactory.getLogger(getClass());
+
   public ProductServiceImpl(ProductRepository productRepository,
                             ProductRepresentationModelAssembler assembler, ProductMapper productMapper) {
     this.productRepository = productRepository;
@@ -26,7 +30,10 @@ public class ProductServiceImpl implements ProductService {
   @Override
   public List<Product> getAllProducts() {
     List<ProductEntity> entities = productRepository.findAllWithTags();
-    return productMapper.entityToModelList(entities);
+    LOG.info("Products: ");
+    List<Product> products = productMapper.entityToModelList(entities);
+    LOG.info(products.toString());
+    return products;
   }
 
   @Transactional(readOnly = true)

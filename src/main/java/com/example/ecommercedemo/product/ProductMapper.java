@@ -20,6 +20,7 @@ public class ProductMapper {
     // Copy properties and set ID
     BeanUtils.copyProperties(entity, resource);
     resource.setId(entity.getId());
+    resource.setPrice(entity.getPrice().toString());
     resource.setTag(
         entity.getTags().stream().map(t -> new Tag().id(t.getId()).name(t.getName())).toList());
     return resource;
