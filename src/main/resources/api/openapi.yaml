@@ -1508,7 +1508,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Shipment'
-  /api/v1/users:
+  /users:
     post:
       tags:
         - user
@@ -1533,7 +1533,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SignedInUser'
-  /api/v1/auth/token:
+  /auth/token:
     post:
       tags:
         - user
@@ -1575,7 +1575,7 @@ paths:
       responses:
         202:
           description: Accepts the request for logout.
-  /api/v1/auth/token/refresh:
+  /auth/token/refresh:
     post:
       tags:
         - user

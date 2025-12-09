@@ -14,11 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.ResponseEntity.*;
 
 @RestController
+@RequestMapping("/api/v1") // listen for the /api/v1 prefix for all methods in that controller, overriding what the OpenAPI generator put in the method-level mapping
 public class AuthController implements UserApi {
 
   private final UserService service;
