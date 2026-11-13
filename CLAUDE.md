@@ -18,10 +18,10 @@ You are responsible for coordinating:
 
 ## Technology stack
 
-- Java 24
+- Java 21
 - Spring Boot
 - Spring AI
-- Maven
+- Gradle
 - PostgreSQL
 - Kafka
 - JUnit 5
