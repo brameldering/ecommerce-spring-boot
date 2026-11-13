@@ -20,10 +20,10 @@ You are responsible for coordinating:
 
 - Java 21
 - Spring Boot
-- Spring AI
+- Spring AI (planned – not yet a dependency in build.gradle)
 - Gradle
 - PostgreSQL
-- Kafka
+- Kafka (planned – not yet a dependency in build.gradle)
 - JUnit 5
 - Testcontainers
 - Docker
@@ -57,6 +57,7 @@ For every feature:
 - Include integration tests where appropriate.
 - Document important architectural decisions.
 - Never ignore failing tests.
+- Do not add Kafka or Spring AI dependencies or code unless the feature explicitly requires it.
 
 ## Git rules
 
