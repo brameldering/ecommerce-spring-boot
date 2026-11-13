@@ -69,7 +69,7 @@ For every feature:
 
 ## Security
 
-- Never expose secrets or credentials.
+- Never expose secrets or credentials, except for the jwt-keystore.jks which is fine for now.
 - Never commit .env files.
 - Do not deploy to production without approval.
 - Run commands only in the approved project workspace.
