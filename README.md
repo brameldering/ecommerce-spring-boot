@@ -48,6 +48,26 @@ The product endpoints (`/api/v1/products/**`) are public. Every other endpoint n
 Access tokens expire after 15 minutes. Get a new one with **POST /auth/token/refresh** and the `refreshToken`, or sign
 in again.
 
+## Testing the API with Postman
+
+[`postman/ecommerce-api.postman_collection.json`](postman/ecommerce-api.postman_collection.json) calls every endpoint in
+order. It signs in as the seeded `admin`, saves the tokens and any new IDs in collection variables, checks each
+response's status code, and finally deletes the data it created, so you can run it repeatedly.
+
+- **Postman app:** click **Import**, select the file, then right-click the **Ecommerce API** collection and choose
+  **Run collection**.
+- **Postman CLI:**
+
+  ```bash
+  postman collection run postman/ecommerce-api.postman_collection.json
+  ```
+
+Each run also places one order for the seeded customer `user1`. To point the collection at another server, change
+its `baseUrl` variable.
+
+[`TestAPIs.har`](TestAPIs.har) contains the same requests as an HTTP Archive. It has no scripts, so the collection is
+easier to use.
+
 ### Seeded local logins
 
 These accounts are created by `src/main/resources/db/migration/R__insert_initial_data.sql`. They are for local
