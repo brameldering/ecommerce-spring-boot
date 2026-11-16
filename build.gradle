@@ -14,6 +14,8 @@ description = 'Demo project for Spring Boot'
 ext {
     postgresqlVersion = '42.6.0'
     flywayVersion = '9.21.2'
+    // Overrides Spring Boot's managed Testcontainers BOM; 1.19.x cannot talk to Docker Engine 29+
+    set('testcontainers.version', '1.21.4')
 }
 
 // Java toolchain
@@ -55,8 +57,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.openapitools:jackson-databind-nullable:0.2.3'
 
-    testImplementation 'org.testcontainers:testcontainers:1.19.7'
-    testImplementation 'org.testcontainers:postgresql:1.19.7'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
