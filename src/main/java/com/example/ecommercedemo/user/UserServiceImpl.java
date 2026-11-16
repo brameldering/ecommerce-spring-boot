@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional(readOnly = true) // UserTokenEntity.user is LAZY; it must load inside a session
   public Optional<SignedInUser> getAccessToken(RefreshToken refreshToken) {
     // You may add a validation for time that would remove/invalidate the refresh token
     return userTokenRepository
@@ -91,6 +92,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional // find and delete in one transaction
   public void removeRefreshToken(RefreshToken refreshToken) {
     userTokenRepository
         .findByRefreshToken(refreshToken.getRefreshToken())
